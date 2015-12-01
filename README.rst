@@ -104,6 +104,12 @@ Run tests with:
 
     ./runtests.py
 
+Settings
+--------
+
+* ``NETJSONCONFIG_BACKENDS``: list with additional custom
+  `netjsonconfig <https://github.com/openwisp/netjsonconfig>`_ backends, defaults to ``[]``
+
 Contributing
 ------------
 
