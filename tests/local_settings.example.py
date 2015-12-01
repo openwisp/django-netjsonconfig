@@ -4,7 +4,7 @@
 #DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': 'netjsongraph.db',
+#        'NAME': 'netjsonconfig.db',
 #        'USER': '',
 #        'PASSWORD': '',
 #        'HOST': '',

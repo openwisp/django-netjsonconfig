@@ -14,4 +14,4 @@ def get_version():
     return version
 
 
-default_app_config = 'django_netjsongraph.apps.NetJsonConfigApp'
+default_app_config = 'django_netjsonconfig.apps.NetJsonConfigApp'
