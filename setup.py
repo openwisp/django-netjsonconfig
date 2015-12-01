@@ -29,11 +29,12 @@ if sys.argv[-1] == 'publish':
 
 
 setup(
-    name='django_netjsonconfig',
+    name='django-netjsonconfig',
     version=get_version(),
     license='GPL3',
     author='Federico Capoano',
-    description='Django implementation of NetJSON NetworkGraph',
+    author_email='f.capoano@cineca.it',
+    description='Django implementation of NetJSON DeviceConfiguration',
     long_description=open('README.rst').read(),
     url='http://netjson.org',
     download_url='https://github.com/openwisp/django_netjsonconfig/releases',
