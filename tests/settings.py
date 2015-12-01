@@ -22,7 +22,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'django_netjsonconfig'
+    'django_netjsonconfig',
+    'sortedm2m',
 ]
 
 MIDDLEWARE_CLASSES = [
