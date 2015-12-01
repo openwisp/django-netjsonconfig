@@ -1,0 +1,5 @@
+django>=1.8.7
+django-model-utils
+jsonfield
+six
+netjsonconfig==0.3

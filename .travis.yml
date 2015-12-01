@@ -1,0 +1,28 @@
+language: python
+sudo: false
+cache: pip
+
+python:
+  - "3.4"
+  - "2.7"
+
+env:
+  - DJANGO="django==1.8.4"
+  - DJANGO="https://www.djangoproject.com/download/1.9rc2/tarball/"
+
+branches:
+  only:
+    - master
+
+# command to install requirements
+install:
+  - pip install $DJANGO
+  - python setup.py -q develop
+  - pip install -r requirements-test.txt
+
+# command to run tests, e.g. python setup.py test
+script:
+  - coverage run --source=django_netjsonconfig runtests.py
+
+after_success:
+  coveralls
