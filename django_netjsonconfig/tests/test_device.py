@@ -17,13 +17,13 @@ class TestDevice(TestCase):
         self.assertEqual(str(d), 'test')
 
     def test_backend_class(self):
-        t = Template(name='test', backend='netjsonconfig.OpenWrt')
-        self.assertIs(t.backend_class, OpenWrt)
+        d = Device(name='test', backend='netjsonconfig.OpenWrt')
+        self.assertIs(d.backend_class, OpenWrt)
 
     def test_backend_instance(self):
         config = {'general':{'hostname':'device'}}
-        t = Template(name='test', backend='netjsonconfig.OpenWrt', config=config)
-        self.assertDictEqual(t.backend_instance.config, config)
+        d = Device(name='test', backend='netjsonconfig.OpenWrt', config=config)
+        self.assertDictEqual(d.backend_instance.config, config)
 
     def test_json(self):
         dhcp = Template.objects.get(name='dhcp')
