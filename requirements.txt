@@ -2,5 +2,5 @@ django>=1.8.7
 django-model-utils
 jsonfield
 six
-netjsonconfig==0.3
+netjsonconfig==0.3.1
 django-sortedm2m==1.0.2
