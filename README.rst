@@ -19,7 +19,8 @@ django-netjsonconfig
 
 ------------
 
-Django implementation of `NetJSON <http://netjson.org>`__ NetworkGraph.
+Django implementation of `NetJSON <http://netjson.org>`__ DeviceConfiguration based
+on `netjsonconfig <http://netjsonconfig.openwisp.org>`_.
 
 Install stable version from pypi
 --------------------------------
