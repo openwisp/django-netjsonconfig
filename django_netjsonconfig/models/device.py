@@ -78,7 +78,6 @@ class AbstractConfig(TimeStampedEditableModel):
         return self.name
 
 
-@python_2_unicode_compatible
 class BaseDevice(AbstractConfig):
     """
     Abstract model implementing the
