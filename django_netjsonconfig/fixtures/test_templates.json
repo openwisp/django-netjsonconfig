@@ -4,6 +4,7 @@
         "model":"netjsonconfig.template",
         "fields":{
             "name": "dhcp",
+            "backend": "netjsonconfig.OpenWrt",
             "config": {
                 "interfaces": [
                     {
@@ -27,6 +28,7 @@
         "model":"netjsonconfig.template",
         "fields":{
             "name": "radio0",
+            "backend": "netjsonconfig.OpenWrt",
             "config": {
                 "radios": [
                     {

@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.core.exceptions import ValidationError
 
 from netjsonconfig import OpenWrt
 
@@ -23,7 +24,14 @@ class TestDevice(TestCase):
     def test_backend_instance(self):
         config = {'general':{'hostname':'device'}}
         d = Device(name='test', backend='netjsonconfig.OpenWrt', config=config)
-        self.assertDictEqual(d.backend_instance.config, config)
+        self.assertIsInstance(d.backend_instance, OpenWrt)
+
+    def test_validation(self):
+        config = {'interfaces': {'invalid': True}}
+        d = Device(name='test', backend='netjsonconfig.OpenWrt', config=config)
+        # ensure django ValidationError is raised
+        with self.assertRaises(ValidationError):
+            d.full_clean()
 
     def test_json(self):
         dhcp = Template.objects.get(name='dhcp')
@@ -65,6 +73,7 @@ class TestDevice(TestCase):
                 }
             ]
         }
+        del d.backend_instance
         self.assertDictEqual(d.json(dict=True), full_config)
         json_string = d.json()
         self.assertIn('json-test', json_string)
