@@ -3,4 +3,4 @@ django-model-utils
 jsonfield
 six
 netjsonconfig==0.3.1
-django-sortedm2m==1.0.2
+django-sortedm2m==1.1.0
