@@ -22,3 +22,13 @@ class TestDeviceAdmin(TestCase):
         path = reverse('admin:netjsonconfig_device_change', args=[d.pk])
         response = self.client.post(path, {'templates': str(t.pk)})
         self.assertIn('errors field-templates', str(response.content))
+
+    def test_download_config(self):
+        d = Device(name='download',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general':{'hostname':'device'}})
+        d.full_clean()
+        d.save()
+        path = reverse('admin:netjsonconfig_device_download', args=[d.pk])
+        response = self.client.get(path)
+        self.assertEqual(response.get('content-type'), 'application/octet-stream')
