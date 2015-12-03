@@ -1,5 +1,7 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
+from django.db.transaction import atomic
 
 from netjsonconfig import OpenWrt
 
@@ -79,3 +81,33 @@ class TestDevice(TestCase):
         self.assertIn('json-test', json_string)
         self.assertIn('eth0', json_string)
         self.assertIn('radio0', json_string)
+
+    def test_m2m_validation(self):
+        # if device and template have a conflicting non-unique item
+        # that violates the schema, the system should not allow
+        # the assignment and raise an IntegrityError
+        config = {
+            "files": [
+                {
+                    "path": "/test",
+                    "contents": "test"
+                }
+            ]
+        }
+        kwargs = dict(backend='netjsonconfig.OpenWrt',
+                      config=config)
+        t = Template(name='files', **kwargs)
+        t.full_clean()
+        t.save()
+        d = Device(name='test', **kwargs)
+        d.full_clean()
+        d.save()
+        with atomic():
+            try:
+                d.templates.add(t)
+            except ValidationError as e:
+                pass
+            else:
+                self.fail('ValidationError not raised')
+        t.config['files'][0]['path'] = '/test2'
+        d.templates.add(t)

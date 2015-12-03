@@ -112,6 +112,30 @@ class TemplatesMixin(models.Model):
                                       help_text=_('configuration templates, applied from'
                                                   'first to last'))
 
+    @classmethod
+    def clean_templates(cls, action, instance, pk_set, **kwargs):
+        """
+        validates resulting configuration of device + templates
+        raises a ValidationError if invalid
+        must be called from forms or APIs
+        """
+        if action != 'pre_add':
+            return
+        # coming from signal
+        if isinstance(pk_set, set):
+            template_model = cls.templates.rel.model
+            templates = template_model.objects.filter(pk__in=list(pk_set))
+        # coming from admin ModelForm
+        else:
+            templates = pk_set
+        backend = instance.get_backend_instance(template_instances=templates)
+        try:
+            cls.validate_netjsonconfig_backend(backend)
+        except ValidationError as e:
+            message = 'There is a conflict with the specified templates. {0}'
+            message = message.format(e.message)
+            raise ValidationError(message)
+
     class Meta:
         abstract = True
 
