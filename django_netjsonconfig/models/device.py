@@ -57,12 +57,21 @@ class AbstractConfig(TimeStampedEditableModel):
 
     @cached_property
     def backend_instance(self):
+        return self.get_backend_instance()
+
+    def get_backend_instance(self, config=None, template_instances=None):
+        """
+        allows overriding config and templates
+        needed for pre validation of m2m
+        """
         backend = self.backend_class
-        kwargs = {'config': self.config}
+        kwargs = {'config': config or self.config}
         # determine if we can pass templates
         # expecting a many2many relationship
         if hasattr(self, 'templates'):
-            kwargs['templates'] = [t.config for t in self.templates.all()]
+            if template_instances is None:
+                template_instances = self.templates.all()
+            kwargs['templates'] = [t.config for t in template_instances]
         return backend(**kwargs)
 
     def json(self, dict=False, **kwargs):
