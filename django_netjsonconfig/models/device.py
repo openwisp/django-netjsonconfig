@@ -36,13 +36,18 @@ class AbstractConfig(TimeStampedEditableModel):
         """
         performs netjsonconfig backend validation
         """
-        b = self.backend_instance
-        # this is needed to avoid having OrderedDict
-        # in an eventual ValidationError message
-        # which would make the error hard to read
-        b.config = json.loads(json.dumps(b.config))
+        self.validate_netjsonconfig_backend(self.backend_instance)
+
+    @classmethod
+    def validate_netjsonconfig_backend(self, backend):
+        """
+        this is needed to avoid having OrderedDict
+        in an eventual ValidationError message
+        which would make the error hard to read
+        """
+        backend.config = json.loads(json.dumps(backend.config))
         try:
-            b.validate()
+            backend.validate()
         except SchemaError as e:
             path = [str(el) for el in e.details.path]
             trigger = '/'.join(path)
