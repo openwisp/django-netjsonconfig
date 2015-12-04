@@ -20,8 +20,12 @@ class TestDeviceAdmin(TestCase):
         d.full_clean()
         d.save()
         path = reverse('admin:netjsonconfig_device_change', args=[d.pk])
+        # ensure it fails with error
         response = self.client.post(path, {'templates': str(t.pk)})
         self.assertIn('errors field-templates', str(response.content))
+        # remove conflicting template and ensure doesn't error
+        response = self.client.post(path, {'templates': ''})
+        self.assertNotIn('errors field-templates', str(response.content))
 
     def test_download_config(self):
         d = Device(name='download',
