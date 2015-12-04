@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django import forms
 from django.conf.urls import url
-from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
+from django.template import RequestContext
+from django.shortcuts import get_object_or_404, render_to_response
 
 from .models import Template, Device
 from .base import TimeStampedEditableAdmin
@@ -37,6 +38,7 @@ class DeviceAdmin(TimeStampedEditableAdmin):
     search_fields = ('name',)
     form = DeviceForm
     change_form_template = 'admin/device_change_form.html'
+    visualize_template = 'admin/visualize_configuration.html'
 
     def get_urls(self):
         options = getattr(self.model, '_meta')
@@ -44,10 +46,13 @@ class DeviceAdmin(TimeStampedEditableAdmin):
         return [
             url(r'^download/(?P<pk>[^/]+)/$',
                 self.admin_site.admin_view(self.download_view),
-                name='{0}_download'.format(url_prefix))
+                name='{0}_download'.format(url_prefix)),
+            url(r'^visualize/(?P<pk>[^/]+)/$',
+                self.admin_site.admin_view(self.visualize_view),
+                name='{0}_visualize'.format(url_prefix))
         ] + super(DeviceAdmin, self).get_urls()
 
-    def download_view(self, request, pk=None):
+    def download_view(self, request, pk):
         device = get_object_or_404(self.model, pk=pk)
         device.backend_instance.generate(device.name)
         # TODO: avoid writing on disk
@@ -57,6 +62,24 @@ class DeviceAdmin(TimeStampedEditableAdmin):
         response = HttpResponse(f.read(), content_type='application/octet-stream')
         response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
         return response
+
+    def visualize_view(self, request, pk):
+        device = get_object_or_404(self.model, pk=pk)
+        output = device.backend_instance.render()
+        context = self.admin_site.each_context(request)
+        context.update({
+            'title': 'Visualize configuration: %s' % device.name,
+            'object_id': device.pk,
+            'original': device,
+            'opts': self.model._meta,
+            'has_change_permission': self.has_change_permission(request),
+            'change': True,
+            'visualize': True,
+            'output': output
+        })
+        return render_to_response(self.visualize_template,
+                                  context,
+                                  context_instance=RequestContext(request))
 
 
 admin.site.register(Template, TemplateAdmin)

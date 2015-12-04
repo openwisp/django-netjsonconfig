@@ -2,6 +2,15 @@
 {% load i18n %}
 
 {% block object-tools-items %}
+{% if not visualize %}
+<li>
+    <a href="{% url 'admin:netjsonconfig_device_visualize' original.pk %}" class="visualizelink">{% trans "Visualize configuration" %}</a>
+</li>
+{% else %}
+<li>
+    <a href="{% url 'admin:netjsonconfig_device_change' original.pk %}" class="backlink">{% trans "Go back" %}</a>
+</li>
+{% endif %}
 <li>
     <a href="{% url 'admin:netjsonconfig_device_download' original.pk %}" class="downloadlink">{% trans "Download configuration" %}</a>
 </li>

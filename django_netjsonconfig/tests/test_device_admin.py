@@ -36,3 +36,13 @@ class TestDeviceAdmin(TestCase):
         path = reverse('admin:netjsonconfig_device_download', args=[d.pk])
         response = self.client.get(path)
         self.assertEqual(response.get('content-type'), 'application/octet-stream')
+
+    def test_visualize_config(self):
+        d = Device(name='download',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general':{'hostname':'device'}})
+        d.full_clean()
+        d.save()
+        path = reverse('admin:netjsonconfig_device_visualize', args=[d.pk])
+        response = self.client.get(path)
+        self.assertContains(response, '<pre style="font-size:1em">')
