@@ -41,6 +41,7 @@ setup(
     platforms=['Platform Indipendent'],
     keywords=['django', 'netjson', 'openwrt', 'networking'],
     packages=find_packages(exclude=['tests', 'tests.*', 'docs', 'docs.*']),
+    include_package_data=True,
     zip_safe=False,
     install_requires=get_install_requires(),
     classifiers=[
