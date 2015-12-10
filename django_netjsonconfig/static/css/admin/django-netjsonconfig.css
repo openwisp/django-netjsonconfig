@@ -1,0 +1,9 @@
+.djnjc-preformatted{
+    font-size:1em;
+    color: #f9f9f9;
+    overflow: auto;
+    background-color: #222;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    padding: 20px;
+}

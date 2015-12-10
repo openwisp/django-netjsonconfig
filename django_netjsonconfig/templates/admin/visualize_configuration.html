@@ -1,17 +1,14 @@
 {% extends "admin/device_change_form.html" %}
 {% load i18n admin_urls %}
 
-{% block content %}<div id="content-main">
+{% block content %}
+<div id="content-main">
+    {% block object-tools %}
+        {{ block.super }}
+    {% endblock %}
 
-{% block object-tools %}
-    {{ block.super }}
-{% endblock %}
-
-<form>
-    <fieldset>
-        <pre style="font-size:1em">{{ output }}</pre>
-    </fieldset>
-</form>
-
+    <div>
+        <pre class="djnjc-preformatted">{{ output }}</pre>
+    </div>
 </div>
 {% endblock %}

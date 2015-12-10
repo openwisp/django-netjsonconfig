@@ -40,6 +40,11 @@ class DeviceAdmin(TimeStampedEditableAdmin):
     change_form_template = 'admin/device_change_form.html'
     visualize_template = 'admin/visualize_configuration.html'
 
+    class Media:
+        css = {
+             'all': ('css/admin/django-netjsonconfig.css',)
+        }
+
     def get_urls(self):
         options = getattr(self.model, '_meta')
         url_prefix = '{0}_{1}'.format(options.app_label, options.model_name)
@@ -75,7 +80,8 @@ class DeviceAdmin(TimeStampedEditableAdmin):
             'has_change_permission': self.has_change_permission(request),
             'change': True,
             'visualize': True,
-            'output': output
+            'output': output,
+            'media': self.media,
         })
         return render_to_response(self.visualize_template,
                                   context,
