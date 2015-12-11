@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Version 0.1 [unreleased]
+Version 0.1 [2015-12-11]
 ------------------------
 
 * manage devices
