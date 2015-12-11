@@ -45,4 +45,4 @@ class TestDeviceAdmin(TestCase):
         d.save()
         path = reverse('admin:netjsonconfig_device_visualize', args=[d.pk])
         response = self.client.get(path)
-        self.assertContains(response, '<pre style="font-size:1em">')
+        self.assertContains(response, '<pre class="djnjc-preformatted">')
