@@ -57,7 +57,16 @@ If you want to contribute, install your cloned fork:
 Setup (integrate in an existing django project)
 -----------------------------------------------
 
-TODO.
+Add ``django_netjsonconfig`` and ``sortedm2m`` to ``INSTALLED_APPS``:
+
+.. code-block:: python
+
+    INSTALLED_APPS = [
+        # other apps
+        'django_netjsonconfig',
+        'sortedm2m',
+        # ...
+    ]
 
 Installing for development
 --------------------------
