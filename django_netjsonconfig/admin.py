@@ -59,12 +59,10 @@ class DeviceAdmin(TimeStampedEditableAdmin):
 
     def download_view(self, request, pk):
         device = get_object_or_404(self.model, pk=pk)
-        device.backend_instance.generate(device.name)
-        # TODO: avoid writing on disk
-        # requires solving this https://github.com/openwisp/netjsonconfig/issues/32
+        file_object = device.backend_instance.generate()
         filename = '{0}.tar.gz'.format(device.name)
-        f = open(filename, 'rb')
-        response = HttpResponse(f.read(), content_type='application/octet-stream')
+        response = HttpResponse(file_object.getvalue(),
+                                content_type='application/octet-stream')
         response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
         return response
 
