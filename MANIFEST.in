@@ -1,3 +1,4 @@
-include AUTHORS LICENSE README.rst requirements.txt
-recursive-include tests *
+include LICENSE README.rst CHANGES.rst requirements.txt
+recursive-include django_netjsonconfig *
 recursive-exclude * *.pyc *.swp
+recursive-exclude * __pycache__
