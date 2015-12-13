@@ -19,7 +19,7 @@ django-netjsonconfig
 
 ------------
 
-Django implementation of `NetJSON <http://netjson.org>`__ DeviceConfiguration based
+Django implementation of `NetJSON <http://netjson.org>`_ DeviceConfiguration based
 on `netjsonconfig <http://netjsonconfig.openwisp.org>`_.
 
 Install stable version from pypi
