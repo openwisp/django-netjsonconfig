@@ -49,6 +49,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='device',
             name='templates',
-            field=sortedm2m.fields.SortedManyToManyField(blank=True, help_text='configuration templates, applied fromfirst to last', to='netjsonconfig.Template', verbose_name='templates'),
+            field=sortedm2m.fields.SortedManyToManyField(blank=True, help_text='configuration templates, applied fromfirst to last', to='django_netjsonconfig.Template', verbose_name='templates'),
         ),
     ]

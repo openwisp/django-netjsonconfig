@@ -1,9 +1,10 @@
 from django.apps import AppConfig
 
 
-class NetJsonConfigApp(AppConfig):
+class DjangoNetjsonconfigApp(AppConfig):
     name = 'django_netjsonconfig'
-    label = 'netjsonconfig'
+    label = 'django_netjsonconfig'
+    verbose_name = 'django-netjsonconfig'
 
     def ready(self):
         """

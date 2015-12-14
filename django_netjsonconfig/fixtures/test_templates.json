@@ -1,7 +1,7 @@
 [
     {
         "pk":"d083b494-8e16-4054-9537-fb9eba914861",
-        "model":"netjsonconfig.template",
+        "model":"django_netjsonconfig.template",
         "fields":{
             "name": "dhcp",
             "backend": "netjsonconfig.OpenWrt",
@@ -25,7 +25,7 @@
     },
     {
         "pk":"d083b494-8e16-4054-9537-fb9eba914862",
-        "model":"netjsonconfig.template",
+        "model":"django_netjsonconfig.template",
         "fields":{
             "name": "radio0",
             "backend": "netjsonconfig.OpenWrt",

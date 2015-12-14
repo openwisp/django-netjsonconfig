@@ -106,7 +106,7 @@ class TemplatesMixin(models.Model):
     Provides a mixins that adds a m2m relationship
     with the concrete Template model
     """
-    templates = SortedManyToManyField('netjsonconfig.Template',
+    templates = SortedManyToManyField('django_netjsonconfig.Template',
                                       verbose_name=_('templates'),
                                       blank=True,
                                       help_text=_('configuration templates, applied from'
