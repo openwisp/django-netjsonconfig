@@ -97,6 +97,10 @@ class BaseDevice(AbstractConfig):
     Abstract model implementing the
     NetJSON DeviceConfiguration object
     """
+    key = models.CharField(max_length=64, unique=True, db_index=True,
+                           help_text=_('unique key that will be used to '
+                                       'build the download URL'))
+
     class Meta:
         abstract = True
 

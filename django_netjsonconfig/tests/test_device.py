@@ -14,6 +14,7 @@ class TestDevice(TestCase):
     """
     fixtures = ['test_templates']
     maxDiff = None
+    TEST_KEY = '00:11:22:33:44:55'
 
     def test_str(self):
         d = Device(name='test')
@@ -30,7 +31,10 @@ class TestDevice(TestCase):
 
     def test_validation(self):
         config = {'interfaces': {'invalid': True}}
-        d = Device(name='test', backend='netjsonconfig.OpenWrt', config=config)
+        d = Device(name='test',
+                   backend='netjsonconfig.OpenWrt',
+                   config=config,
+                   key=self.TEST_KEY)
         # ensure django ValidationError is raised
         with self.assertRaises(ValidationError):
             d.full_clean()
@@ -40,7 +44,8 @@ class TestDevice(TestCase):
         radio = Template.objects.get(name='radio0')
         d = Device(name='test',
                    backend='netjsonconfig.OpenWrt',
-                   config={'general':{'hostname':'json-test'}})
+                   config={'general':{'hostname':'json-test'}},
+                   key=self.TEST_KEY)
         d.full_clean()
         d.save()
         d.templates.add(dhcp)
@@ -99,7 +104,7 @@ class TestDevice(TestCase):
         t = Template(name='files', **kwargs)
         t.full_clean()
         t.save()
-        d = Device(name='test', **kwargs)
+        d = Device(name='test', key=self.TEST_KEY, **kwargs)
         d.full_clean()
         d.save()
         with atomic():
