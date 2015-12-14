@@ -116,3 +116,19 @@ class TestDevice(TestCase):
                 self.fail('ValidationError not raised')
         t.config['files'][0]['path'] = '/test2'
         d.templates.add(t)
+
+    def test_key_validation(self):
+        d = Device(name='test',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general':{'hostname':'json-test'}})
+        d.key = 'key/key'
+        with self.assertRaises(ValidationError):
+            d.full_clean()
+        d.key = 'key.key'
+        with self.assertRaises(ValidationError):
+            d.full_clean()
+        d.key = 'key key'
+        with self.assertRaises(ValidationError):
+            d.full_clean()
+        d.key = self.TEST_KEY
+        d.full_clean()

@@ -14,6 +14,7 @@ from netjsonconfig.exceptions import ValidationError as SchemaError
 
 from ..base import TimeStampedEditableModel
 from ..settings import BACKENDS
+from ..validators import key_validator
 
 
 @python_2_unicode_compatible
@@ -98,6 +99,7 @@ class BaseDevice(AbstractConfig):
     NetJSON DeviceConfiguration object
     """
     key = models.CharField(max_length=64, unique=True, db_index=True,
+                           validators=[key_validator],
                            help_text=_('unique key that will be used to '
                                        'build the download URL'))
 
