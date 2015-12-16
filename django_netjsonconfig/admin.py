@@ -78,9 +78,7 @@ class DeviceAdmin(TimeStampedEditableAdmin):
             'output': output,
             'media': self.media,
         })
-        return render_to_response(self.visualize_template,
-                                  context,
-                                  context_instance=RequestContext(request))
+        return render_to_response(self.visualize_template, context)
 
 
 admin.site.register(Template, TemplateAdmin)
