@@ -1,12 +1,12 @@
 from django.contrib import admin
 from django import forms
 from django.conf.urls import url
-from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render_to_response
 
 from .models import Template, Device
 from .base import TimeStampedEditableAdmin
+from .utils import send_file
 
 
 class TemplateAdmin(TimeStampedEditableAdmin):
@@ -59,12 +59,9 @@ class DeviceAdmin(TimeStampedEditableAdmin):
 
     def download_view(self, request, pk):
         device = get_object_or_404(self.model, pk=pk)
-        file_object = device.backend_instance.generate()
-        filename = '{0}.tar.gz'.format(device.name)
-        response = HttpResponse(file_object.getvalue(),
-                                content_type='application/octet-stream')
-        response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
-        return response
+        config = device.backend_instance.generate()
+        return send_file(filename='{0}.tar.gz'.format(device.name),
+                         contents=config.getvalue())
 
     def visualize_view(self, request, pk):
         device = get_object_or_404(self.model, pk=pk)
