@@ -41,9 +41,7 @@ class DeviceAdmin(TimeStampedEditableAdmin):
     visualize_template = 'admin/visualize_configuration.html'
 
     class Media:
-        css = {
-             'all': ('css/admin/django-netjsonconfig.css',)
-        }
+        css = {'all': ('css/admin/django-netjsonconfig.css',)}
 
     def get_urls(self):
         options = getattr(self.model, '_meta')
