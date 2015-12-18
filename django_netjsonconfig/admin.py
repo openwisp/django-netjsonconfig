@@ -14,6 +14,9 @@ class TemplateAdmin(TimeStampedEditableAdmin):
     list_filter = ('created',)
     search_fields = ('name',)
 
+    class Media:
+        css = {'all': ('css/admin/django-netjsonconfig.css',)}
+
 
 class DeviceForm(forms.ModelForm):
     class Meta:
