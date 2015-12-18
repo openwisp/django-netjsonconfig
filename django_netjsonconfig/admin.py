@@ -10,9 +10,11 @@ from .utils import send_file
 
 
 class TemplateAdmin(TimeStampedEditableAdmin):
-    list_display = ('name', 'created', 'modified')
-    list_filter = ('created',)
+    list_display = ('name', 'backend', 'created', 'modified')
+    list_filter = ('backend', 'created',)
     search_fields = ('name',)
+    actions_on_bottom = True
+    save_on_top = True
 
     class Media:
         css = {'all': ('css/admin/django-netjsonconfig.css',)}
@@ -36,9 +38,18 @@ class DeviceForm(forms.ModelForm):
 
 
 class DeviceAdmin(TimeStampedEditableAdmin):
-    list_display = ('name', 'created', 'modified')
-    list_filter = ('created',)
-    search_fields = ('name',)
+    list_display = ('name', 'backend', 'created', 'modified')
+    list_filter = ('backend', 'created',)
+    search_fields = ('name', 'key')
+    fields = ('name',
+              'key',
+              'templates',
+              'backend',
+              'config',
+              'created',
+              'modified')
+    actions_on_bottom = True
+    save_on_top = True
     form = DeviceForm
     change_form_template = 'admin/device_change_form.html'
     visualize_template = 'admin/visualize_configuration.html'
