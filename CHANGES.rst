@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Version 0.1.1 [unreleased]
+Version 0.1.1 [2015-12-18]
 --------------------------
 
 - `99244a0 <https://github.com/openwisp/django-netjsonconfig/commit/99244a0>`_ added ``key`` field to Device
