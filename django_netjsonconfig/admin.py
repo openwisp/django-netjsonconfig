@@ -27,12 +27,19 @@ class DeviceForm(forms.ModelForm):
 
     def clean_templates(self):
         templates = self.cleaned_data.get('templates', [])
+        if self.instance._state.adding:
+            # when adding self.instance is empty, we need to create a
+            # temporary instance that we'll use just for validation
+            device = Device(backend=self.data.get('backend'),
+                            config=self.data.get('config'))
+        else:
+            device = self.instance
         if templates:
             Device.clean_templates(action='pre_add',
-                                   instance=self.instance,
-                                   sender=self.instance.templates,
+                                   instance=device,
+                                   sender=device.templates,
                                    reverse=False,
-                                   model=self.instance.templates.model,
+                                   model=device.templates.model,
                                    pk_set=templates)
         return templates
 
