@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -90,7 +92,7 @@ class TestDevice(TestCase):
     def test_m2m_validation(self):
         # if device and template have a conflicting non-unique item
         # that violates the schema, the system should not allow
-        # the assignment and raise an IntegrityError
+        # the assignment and raise an exception
         config = {
             "files": [
                 {
@@ -99,12 +101,16 @@ class TestDevice(TestCase):
                 }
             ]
         }
-        kwargs = dict(backend='netjsonconfig.OpenWrt',
-                      config=config)
-        t = Template(name='files', **kwargs)
+        config_copy = deepcopy(config)
+        t = Template(name='files',
+                     backend='netjsonconfig.OpenWrt',
+                     config=config)
         t.full_clean()
         t.save()
-        d = Device(name='test', key=self.TEST_KEY, **kwargs)
+        d = Device(name='test',
+                   key=self.TEST_KEY,
+                   backend='netjsonconfig.OpenWrt',
+                   config=config_copy)
         d.full_clean()
         d.save()
         with atomic():
@@ -115,6 +121,8 @@ class TestDevice(TestCase):
             else:
                 self.fail('ValidationError not raised')
         t.config['files'][0]['path'] = '/test2'
+        t.full_clean()
+        t.save()
         d.templates.add(t)
 
     def test_key_validation(self):
