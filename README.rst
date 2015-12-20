@@ -20,7 +20,7 @@ django-netjsonconfig
 ------------
 
 Django implementation of `NetJSON <http://netjson.org>`_ DeviceConfiguration based
-on `netjsonconfig <http://netjsonconfig.openwisp.org>`_.
+on `netjsonconfig`_.
 
 Install stable version from pypi
 --------------------------------
@@ -118,7 +118,7 @@ Settings
 --------
 
 * ``NETJSONCONFIG_BACKENDS``: list with additional custom
-  `netjsonconfig <https://github.com/openwisp/netjsonconfig>`_ backends, defaults to ``[]``
+  `netjsonconfig backends <http://netjsonconfig.openwisp.org/en/latest/general/basics.html#backends>`_, defaults to ``[]``
 
 Contributing
 ------------
@@ -135,3 +135,4 @@ Contributing
 
 .. _PEP8, Style Guide for Python Code: http://www.python.org/dev/peps/pep-0008/
 .. _ninux-dev mailing list: http://ml.ninux.org/mailman/listinfo/ninux-dev
+.. _netjsonconfig: http://netjsonconfig.openwisp.org
