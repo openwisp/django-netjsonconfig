@@ -58,7 +58,6 @@ class DeviceAdmin(TimeStampedEditableAdmin):
     actions_on_bottom = True
     save_on_top = True
     form = DeviceForm
-    change_form_template = 'admin/device_change_form.html'
     visualize_template = 'admin/visualize_configuration.html'
 
     class Media:
