@@ -2,7 +2,8 @@ from django.contrib import admin
 from django import forms
 from django.conf.urls import url
 from django.template import RequestContext
-from django.shortcuts import get_object_or_404, render_to_response
+from django.template.response import TemplateResponse
+from django.shortcuts import get_object_or_404
 
 from .models import Template, Device
 from .base import TimeStampedEditableAdmin
@@ -58,7 +59,7 @@ class DeviceAdmin(TimeStampedEditableAdmin):
     actions_on_bottom = True
     save_on_top = True
     form = DeviceForm
-    visualize_template = 'admin/visualize_configuration.html'
+    visualize_template = None
 
     class Media:
         css = {'all': ('css/admin/django-netjsonconfig.css',)}
@@ -85,18 +86,21 @@ class DeviceAdmin(TimeStampedEditableAdmin):
         device = get_object_or_404(self.model, pk=pk)
         output = device.backend_instance.render()
         context = self.admin_site.each_context(request)
+        opts = self.model._meta
         context.update({
             'title': 'Visualize configuration: %s' % device.name,
             'object_id': device.pk,
             'original': device,
-            'opts': self.model._meta,
+            'opts': opts,
             'has_change_permission': self.has_change_permission(request),
             'change': True,
             'visualize': True,
             'output': output,
             'media': self.media,
         })
-        return render_to_response(self.visualize_template, context)
+        return TemplateResponse(request, self.visualize_template or [
+            'admin/%s/%s/visualize_configuration.html' % (opts.app_label, opts.model_name),
+        ], context)
 
 
 admin.site.register(Template, TemplateAdmin)
