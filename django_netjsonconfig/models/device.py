@@ -1,4 +1,5 @@
 import json
+import hashlib
 import collections
 
 from django.db import models
@@ -79,6 +80,16 @@ class AbstractConfig(TimeStampedEditableModel):
                 template_instances = self.templates.all()
             kwargs['templates'] = [t.config for t in template_instances]
         return backend(**kwargs)
+
+    def generate(self):
+        """ shortcut for self.backend_instance.generate() """
+        return self.backend_instance.generate()
+
+    @property
+    def checksum(self):
+        """ returns checksum of configuration """
+        config = self.generate().getvalue()
+        return hashlib.md5(config).hexdigest()
 
     def json(self, dict=False, **kwargs):
         config = self.backend_instance.config

@@ -27,7 +27,7 @@ class TestDevice(TestCase):
         self.assertIs(d.backend_class, OpenWrt)
 
     def test_backend_instance(self):
-        config = {'general':{'hostname':'device'}}
+        config = {'general': {'hostname': 'device'}}
         d = Device(name='test', backend='netjsonconfig.OpenWrt', config=config)
         self.assertIsInstance(d.backend_instance, OpenWrt)
 
@@ -46,7 +46,7 @@ class TestDevice(TestCase):
         radio = Template.objects.get(name='radio0')
         d = Device(name='test',
                    backend='netjsonconfig.OpenWrt',
-                   config={'general':{'hostname':'json-test'}},
+                   config={'general': {'hostname': 'json-test'}},
                    key=self.TEST_KEY)
         d.full_clean()
         d.save()
@@ -55,7 +55,7 @@ class TestDevice(TestCase):
         full_config = {
             'type': 'DeviceConfiguration',
             'general': {
-                'hostname':'json-test'
+                'hostname': 'json-test'
             },
             "interfaces": [
                 {
@@ -128,7 +128,7 @@ class TestDevice(TestCase):
     def test_key_validation(self):
         d = Device(name='test',
                    backend='netjsonconfig.OpenWrt',
-                   config={'general':{'hostname':'json-test'}})
+                   config={'general': {'hostname': 'json-test'}})
         d.key = 'key/key'
         with self.assertRaises(ValidationError):
             d.full_clean()
@@ -140,3 +140,12 @@ class TestDevice(TestCase):
             d.full_clean()
         d.key = self.TEST_KEY
         d.full_clean()
+
+    def test_checksum(self):
+        d = Device(name='test',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general': {'hostname': 'json-test'}},
+                   key=self.TEST_KEY)
+        d.full_clean()
+        d.save()
+        self.assertEqual(len(d.checksum), 32)
