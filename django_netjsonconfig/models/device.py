@@ -111,8 +111,8 @@ class BaseDevice(AbstractConfig):
     """
     key = models.CharField(max_length=64, unique=True, db_index=True,
                            validators=[key_validator],
-                           help_text=_('unique key that will be used to '
-                                       'build the download URL'))
+                           help_text=_('unique key that can be used to '
+                                       'download the configuration'))
 
     class Meta:
         abstract = True

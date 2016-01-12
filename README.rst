@@ -68,6 +68,15 @@ Add ``django_netjsonconfig`` and ``sortedm2m`` to ``INSTALLED_APPS``:
         # ...
     ]
 
+Add the controller URLs to your main ``urls.py``:
+
+.. code-block:: python
+
+    urlpatterns = [
+        # ...
+        url(r'^', include('django_netjsonconfig.controller.urls', namespace='controller')),
+    ]
+
 Installing for development
 --------------------------
 

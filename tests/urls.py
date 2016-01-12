@@ -7,6 +7,7 @@ admin.autodiscover()
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^', include('django_netjsonconfig.controller.urls', namespace='controller')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

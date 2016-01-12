@@ -8,6 +8,7 @@ import jsonfield.fields
 import model_utils.fields
 import sortedm2m.fields
 import uuid
+import re
 
 
 class Migration(migrations.Migration):
@@ -27,7 +28,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=63)),
                 ('backend', models.CharField(choices=[('netjsonconfig.OpenWrt', 'OpenWRT'), ('netjsonconfig.OpenWisp', 'OpenWISP')], help_text='Select netjsonconfig backend', max_length=128, verbose_name='backend')),
                 ('config', jsonfield.fields.JSONField(default=dict, help_text='configuration in NetJSON DeviceConfiguration format', verbose_name='configuration')),
-                ('key', models.CharField(db_index=True, help_text='unique key that will be used to build the download URL', max_length=64, unique=True)),
+                ('key', models.CharField(db_index=True, help_text='unique key that can be used to download the configuration', max_length=64, unique=True, validators=[django.core.validators.RegexValidator(re.compile(b'^[^\\s/\\.]+$'), code=b'invalid', message='Key must not contain spaces, dots or slashes.')])),
             ],
             options={
                 'abstract': False,
