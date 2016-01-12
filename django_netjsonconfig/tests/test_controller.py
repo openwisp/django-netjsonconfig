@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from django_netjsonconfig.models import Device
 
@@ -8,6 +9,8 @@ class TestController(TestCase):
     """
     tests for django_netjsonconfig.controller
     """
+    register_url = reverse('controller:register')
+
     def _create_device(self):
         d = Device(name='test',
                    backend='netjsonconfig.OpenWrt',
@@ -67,4 +70,54 @@ class TestController(TestCase):
     def test_download_config_405(self):
         d = self._create_device()
         response = self.client.post(reverse('controller:download_config', args=[d.pk]), {'key': d.key})
+        self.assertEqual(response.status_code, 405)
+
+    def test_register(self):
+        response = self.client.post(self.register_url, {
+            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+            'name': '00:11:22:33:44:55',
+            'backend': 'netjsonconfig.OpenWrt'
+        })
+        self.assertEqual(response.status_code, 201)
+        uuid, key = response.content.decode().split('\n')
+        self.assertEqual(Device.objects.filter(pk=uuid, key=key).count(), 1)
+
+    def test_register_400(self):
+        # missing secret
+        response = self.client.post(self.register_url, {
+            'name': '00:11:22:33:44:55',
+            'backend': 'netjsonconfig.OpenWrt'
+        })
+        self.assertContains(response, 'secret', status_code=400)
+        # missing name
+        response = self.client.post(self.register_url, {
+            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+            'backend': 'netjsonconfig.OpenWrt'
+        })
+        self.assertContains(response, 'name', status_code=400)
+        # missing backend
+        response = self.client.post(self.register_url, {
+            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+            'name': '00:11:22:33:44:55',
+        })
+        self.assertContains(response, 'backend', status_code=400)
+
+    def test_register_403(self):
+        # wrong secret
+        response = self.client.post(self.register_url, {
+            'secret': 'WRONG',
+            'name': '00:11:22:33:44:55',
+            'backend': 'netjsonconfig.OpenWrt'
+        })
+        self.assertContains(response, 'wrong secret', status_code=403)
+        # wrong backend
+        response = self.client.post(self.register_url, {
+            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+            'name': '00:11:22:33:44:55',
+            'backend': 'wrong'
+        })
+        self.assertContains(response, 'wrong backend', status_code=403)
+
+    def test_register_405(self):
+        response = self.client.get(self.register_url)
         self.assertEqual(response.status_code, 405)

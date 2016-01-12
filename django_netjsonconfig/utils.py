@@ -8,9 +8,7 @@ from django_netjsonconfig.models import Device
 
 
 def get_device_or_404(pk, **kwargs):
-    kwargs.update({
-        'pk': pk
-    })
+    kwargs.update({'pk': pk})
     try:
         return get_object_or_404(Device, **kwargs)
     except ValueError:
@@ -23,9 +21,11 @@ def send_file(filename, contents):
     return response
 
 
-def forbid_unallowed(request, device):
-    key = request.GET.get('key')
-    if not key:
-        return HttpResponseBadRequest('missing required parameter "key"')
-    if key != device.key:
-        return HttpResponseForbidden('wrong key')
+def forbid_unallowed(params, param, allowed_values=None):
+    value = params.get(param)
+    if not value:
+        return HttpResponseBadRequest('missing required parameter "{}"'.format(param))
+    if allowed_values and not isinstance(allowed_values, list):
+        allowed_values = [allowed_values]
+    if allowed_values is not None and value not in allowed_values:
+        return HttpResponseForbidden('wrong {}'.format(param))

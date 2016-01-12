@@ -8,6 +8,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.utils.module_loading import import_string
 from django.utils.functional import cached_property
+from django.utils.crypto import get_random_string
 
 from jsonfield import JSONField
 from sortedm2m.fields import SortedManyToManyField
@@ -16,6 +17,10 @@ from netjsonconfig.exceptions import ValidationError as SchemaError
 from ..base import TimeStampedEditableModel
 from ..settings import BACKENDS
 from ..validators import key_validator
+
+
+def get_random_key():
+    return get_random_string(length=32)
 
 
 @python_2_unicode_compatible
@@ -109,7 +114,10 @@ class BaseDevice(AbstractConfig):
     Abstract model implementing the
     NetJSON DeviceConfiguration object
     """
-    key = models.CharField(max_length=64, unique=True, db_index=True,
+    key = models.CharField(max_length=64,
+                           unique=True,
+                           db_index=True,
+                           default=get_random_key,
                            validators=[key_validator],
                            help_text=_('unique key that can be used to '
                                        'download the configuration'))

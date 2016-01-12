@@ -126,8 +126,43 @@ Run tests with:
 Settings
 --------
 
-* ``NETJSONCONFIG_BACKENDS``: list with additional custom
-  `netjsonconfig backends <http://netjsonconfig.openwisp.org/en/latest/general/basics.html#backends>`_, defaults to ``[]``
+``NETJSONCONFIG_BACKENDS``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+-------------+
+| **type**:    | ``list``    |
++--------------+-------------+
+| **default**: | ``[]``      |
++--------------+-------------+
+
+Additional custom `netjsonconfig backends <http://netjsonconfig.openwisp.org/en/latest/general/basics.html#backends>`_.
+
+``NETJSONCONFIG_REGISTRATION_ENABLED``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+-------------+
+| **type**:    | ``bool``    |
++--------------+-------------+
+| **default**: | ``True``    |
++--------------+-------------+
+
+Whether devices can automatically register through the controller or not.
+
+This feature is enabled by default.
+
+``NETJSONCONFIG_SHARED_SECRET``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+------------------+
+| **type**:    | ``str``          |
++--------------+------------------+
+| **default**: | ``""``           |
++--------------+------------------+
+
+A secret key which must be used by devices to perform automatic registration.
+
+This key MUST be explicitly set in production (if ``settings.DEBUG is False``), otherwise
+an ``ImproperlyConfigured`` exception will be raised on startup.
 
 Contributing
 ------------
