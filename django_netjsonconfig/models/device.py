@@ -39,6 +39,12 @@ class AbstractConfig(TimeStampedEditableModel):
                        load_kwargs={'object_pairs_hook': collections.OrderedDict},
                        dump_kwargs={'indent': 4})
 
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.name
+
     def clean(self):
         """
         performs netjsonconfig backend validation
@@ -112,11 +118,6 @@ class AbstractConfig(TimeStampedEditableModel):
             return config
         return json.dumps(config, **kwargs)
 
-    class Meta:
-        abstract = True
-
-    def __str__(self):
-        return self.name
 
 
 class BaseDevice(AbstractConfig):
