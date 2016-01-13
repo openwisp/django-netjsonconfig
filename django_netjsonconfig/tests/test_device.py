@@ -149,3 +149,15 @@ class TestDevice(TestCase):
         d.full_clean()
         d.save()
         self.assertEqual(len(d.checksum), 32)
+
+    def test_backend_import_error(self):
+        """
+        see issue #5
+        https://github.com/openwisp/django-netjsonconfig/issues/5
+        """
+        d = Device()
+        with self.assertRaises(ValidationError):
+            d.full_clean()
+        d.backend = 'wrong'
+        with self.assertRaises(ValidationError):
+            d.full_clean()

@@ -43,7 +43,17 @@ class AbstractConfig(TimeStampedEditableModel):
         """
         performs netjsonconfig backend validation
         """
-        self.validate_netjsonconfig_backend(self.backend_instance)
+        # perform validation only if backend is defined, otherwise
+        # django will take care of notifying blank field error
+        if not self.backend:
+            return
+        try:
+            backend = self.backend_instance
+        except ImportError as e:
+            message = 'Error while importing "{0}": {1}'.format(self.backend, e)
+            raise ValidationError({'backend': message})
+        else:
+            self.validate_netjsonconfig_backend(backend)
 
     @classmethod
     def validate_netjsonconfig_backend(self, backend):
