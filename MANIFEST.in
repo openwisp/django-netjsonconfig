@@ -1,4 +1,5 @@
-include LICENSE README.rst CHANGES.rst requirements.txt
+include LICENSE
+include README.rst
+include CHANGES.rst
+include requirements.txt
 recursive-include django_netjsonconfig *
-recursive-exclude * *.pyc *.swp
-recursive-exclude * __pycache__
