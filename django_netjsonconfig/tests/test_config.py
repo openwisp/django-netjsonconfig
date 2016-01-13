@@ -7,33 +7,33 @@ from django.db.transaction import atomic
 
 from netjsonconfig import OpenWrt
 
-from ..models import Device, Template
+from ..models import Config, Template
 
 
-class TestDevice(TestCase):
+class TestConfig(TestCase):
     """
-    tests for Device model
+    tests for Config model
     """
     fixtures = ['test_templates']
     maxDiff = None
     TEST_KEY = '00:11:22:33:44:55'
 
     def test_str(self):
-        d = Device(name='test')
+        d = Config(name='test')
         self.assertEqual(str(d), 'test')
 
     def test_backend_class(self):
-        d = Device(name='test', backend='netjsonconfig.OpenWrt')
+        d = Config(name='test', backend='netjsonconfig.OpenWrt')
         self.assertIs(d.backend_class, OpenWrt)
 
     def test_backend_instance(self):
-        config = {'general': {'hostname': 'device'}}
-        d = Device(name='test', backend='netjsonconfig.OpenWrt', config=config)
+        config = {'general': {'hostname': 'config'}}
+        d = Config(name='test', backend='netjsonconfig.OpenWrt', config=config)
         self.assertIsInstance(d.backend_instance, OpenWrt)
 
     def test_validation(self):
         config = {'interfaces': {'invalid': True}}
-        d = Device(name='test',
+        d = Config(name='test',
                    backend='netjsonconfig.OpenWrt',
                    config=config,
                    key=self.TEST_KEY)
@@ -44,7 +44,7 @@ class TestDevice(TestCase):
     def test_json(self):
         dhcp = Template.objects.get(name='dhcp')
         radio = Template.objects.get(name='radio0')
-        d = Device(name='test',
+        d = Config(name='test',
                    backend='netjsonconfig.OpenWrt',
                    config={'general': {'hostname': 'json-test'}},
                    key=self.TEST_KEY)
@@ -90,7 +90,7 @@ class TestDevice(TestCase):
         self.assertIn('radio0', json_string)
 
     def test_m2m_validation(self):
-        # if device and template have a conflicting non-unique item
+        # if config and template have a conflicting non-unique item
         # that violates the schema, the system should not allow
         # the assignment and raise an exception
         config = {
@@ -107,7 +107,7 @@ class TestDevice(TestCase):
                      config=config)
         t.full_clean()
         t.save()
-        d = Device(name='test',
+        d = Config(name='test',
                    key=self.TEST_KEY,
                    backend='netjsonconfig.OpenWrt',
                    config=config_copy)
@@ -126,7 +126,7 @@ class TestDevice(TestCase):
         d.templates.add(t)
 
     def test_key_validation(self):
-        d = Device(name='test',
+        d = Config(name='test',
                    backend='netjsonconfig.OpenWrt',
                    config={'general': {'hostname': 'json-test'}})
         d.key = 'key/key'
@@ -142,7 +142,7 @@ class TestDevice(TestCase):
         d.full_clean()
 
     def test_checksum(self):
-        d = Device(name='test',
+        d = Config(name='test',
                    backend='netjsonconfig.OpenWrt',
                    config={'general': {'hostname': 'json-test'}},
                    key=self.TEST_KEY)
@@ -155,7 +155,7 @@ class TestDevice(TestCase):
         see issue #5
         https://github.com/openwisp/django-netjsonconfig/issues/5
         """
-        d = Device()
+        d = Config()
         with self.assertRaises(ValidationError):
             d.full_clean()
         d.backend = 'wrong'

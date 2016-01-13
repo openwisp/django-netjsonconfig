@@ -13,11 +13,11 @@ class DjangoNetjsonconfigApp(AppConfig):
 
     def connect_signals(self):
         """
-        * m2m validation before templates are added to a device
+        * m2m validation before templates are added to a config
         """
-        from .models import Device
-        m2m_changed.connect(Device.clean_templates,
-                            sender=Device.templates.through)
+        from .models import Config
+        m2m_changed.connect(Config.clean_templates,
+                            sender=Config.templates.through)
 
     def check_settings(self):
         if settings.DEBUG is False and REGISTRATION_ENABLED and not SHARED_SECRET:  # pragma: nocover

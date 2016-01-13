@@ -26,7 +26,7 @@ def get_random_key():
 @python_2_unicode_compatible
 class AbstractConfig(TimeStampedEditableModel):
     """
-    Abstract model shared between BaseDevice and BaseTemplate
+    Abstract model shared between BaseConfig and BaseTemplate
     """
     name = models.CharField(max_length=63)
     backend = models.CharField(_('backend'),
@@ -119,8 +119,7 @@ class AbstractConfig(TimeStampedEditableModel):
         return json.dumps(config, **kwargs)
 
 
-
-class BaseDevice(AbstractConfig):
+class BaseConfig(AbstractConfig):
     """
     Abstract model implementing the
     NetJSON DeviceConfiguration object
@@ -143,6 +142,7 @@ class TemplatesMixin(models.Model):
     with the concrete Template model
     """
     templates = SortedManyToManyField('django_netjsonconfig.Template',
+                                      related_name='config_relations',
                                       verbose_name=_('templates'),
                                       blank=True,
                                       help_text=_('configuration templates, applied from'
@@ -151,7 +151,7 @@ class TemplatesMixin(models.Model):
     @classmethod
     def clean_templates(cls, action, instance, pk_set, **kwargs):
         """
-        validates resulting configuration of device + templates
+        validates resulting configuration of config + templates
         raises a ValidationError if invalid
         must be called from forms or APIs
         """
@@ -176,8 +176,10 @@ class TemplatesMixin(models.Model):
         abstract = True
 
 
-class Device(BaseDevice, TemplatesMixin):
+class Config(BaseConfig, TemplatesMixin):
     """
-    Concrete Device model
+    Concrete Config model
     """
-    pass
+    class Meta:
+        verbose_name = _('configuration')
+        verbose_name_plural = _('configurations')

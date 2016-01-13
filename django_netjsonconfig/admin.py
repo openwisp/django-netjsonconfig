@@ -4,7 +4,7 @@ from django.conf.urls import url
 from django.template.response import TemplateResponse
 from django.shortcuts import get_object_or_404
 
-from .models import Template, Device
+from .models import Template, Config
 from .base import TimeStampedEditableAdmin
 from .utils import send_file
 
@@ -20,9 +20,9 @@ class TemplateAdmin(TimeStampedEditableAdmin):
         css = {'all': ('css/admin/django-netjsonconfig.css',)}
 
 
-class DeviceForm(forms.ModelForm):
+class ConfigForm(forms.ModelForm):
     class Meta:
-        model = Device
+        model = Config
         exclude = []
 
     def clean_templates(self):
@@ -30,21 +30,21 @@ class DeviceForm(forms.ModelForm):
         if self.instance._state.adding:
             # when adding self.instance is empty, we need to create a
             # temporary instance that we'll use just for validation
-            device = Device(backend=self.data.get('backend'),
+            config = Config(backend=self.data.get('backend'),
                             config=self.data.get('config'))
         else:
-            device = self.instance
+            config = self.instance
         if templates:
-            Device.clean_templates(action='pre_add',
-                                   instance=device,
-                                   sender=device.templates,
+            Config.clean_templates(action='pre_add',
+                                   instance=config,
+                                   sender=config.templates,
                                    reverse=False,
-                                   model=device.templates.model,
+                                   model=config.templates.model,
                                    pk_set=templates)
         return templates
 
 
-class DeviceAdmin(TimeStampedEditableAdmin):
+class ConfigAdmin(TimeStampedEditableAdmin):
     list_display = ('name', 'backend', 'created', 'modified')
     list_filter = ('backend', 'created',)
     search_fields = ('name', 'key')
@@ -57,7 +57,7 @@ class DeviceAdmin(TimeStampedEditableAdmin):
               'modified')
     actions_on_bottom = True
     save_on_top = True
-    form = DeviceForm
+    form = ConfigForm
     visualize_template = None
 
     class Media:
@@ -73,23 +73,23 @@ class DeviceAdmin(TimeStampedEditableAdmin):
             url(r'^visualize/(?P<pk>[^/]+)/$',
                 self.admin_site.admin_view(self.visualize_view),
                 name='{0}_visualize'.format(url_prefix))
-        ] + super(DeviceAdmin, self).get_urls()
+        ] + super(ConfigAdmin, self).get_urls()
 
     def download_view(self, request, pk):
-        device = get_object_or_404(self.model, pk=pk)
-        config = device.backend_instance.generate()
-        return send_file(filename='{0}.tar.gz'.format(device.name),
-                         contents=config.getvalue())
+        config = get_object_or_404(self.model, pk=pk)
+        config_archive = config.backend_instance.generate()
+        return send_file(filename='{0}.tar.gz'.format(config.name),
+                         contents=config_archive.getvalue())
 
     def visualize_view(self, request, pk):
-        device = get_object_or_404(self.model, pk=pk)
-        output = device.backend_instance.render()
+        config = get_object_or_404(self.model, pk=pk)
+        output = config.backend_instance.render()
         context = self.admin_site.each_context(request)
         opts = self.model._meta
         context.update({
-            'title': 'Visualize configuration: %s' % device.name,
-            'object_id': device.pk,
-            'original': device,
+            'title': 'Visualize configuration: %s' % config.name,
+            'object_id': config.pk,
+            'original': config,
             'opts': opts,
             'has_change_permission': self.has_change_permission(request),
             'change': True,
@@ -103,4 +103,4 @@ class DeviceAdmin(TimeStampedEditableAdmin):
 
 
 admin.site.register(Template, TemplateAdmin)
-admin.site.register(Device, DeviceAdmin)
+admin.site.register(Config, ConfigAdmin)

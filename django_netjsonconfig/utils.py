@@ -4,13 +4,13 @@ from django.http import (HttpResponse,
                          HttpResponseBadRequest,
                          HttpResponseForbidden)
 
-from django_netjsonconfig.models import Device
+from django_netjsonconfig.models import Config
 
 
-def get_device_or_404(pk, **kwargs):
+def get_config_or_404(pk, **kwargs):
     kwargs.update({'pk': pk})
     try:
-        return get_object_or_404(Device, **kwargs)
+        return get_object_or_404(Config, **kwargs)
     except ValueError:
         raise Http404()
 
