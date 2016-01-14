@@ -1,9 +1,8 @@
-from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
 from ..models import Config
-from ..utils import get_config_or_404, send_file, forbid_unallowed
+from ..utils import ControllerResponse, get_config_or_404, forbid_unallowed, send_file
 from ..settings import REGISTRATION_ENABLED, SHARED_SECRET, BACKENDS
 
 
@@ -14,7 +13,7 @@ def checksum(request, pk):
     """
     config = get_config_or_404(pk)
     return (forbid_unallowed(request.GET, 'key', config.key) or
-            HttpResponse(config.checksum, content_type='text/plain'))
+            ControllerResponse(config.checksum, content_type='text/plain'))
 
 
 @require_http_methods(['GET'])

@@ -20,10 +20,14 @@ class TestController(TestCase):
         d.save()
         return d
 
+    def _check_header(self, response):
+        self.assertEqual(response['X-Openwisp-Controller'], 'true')
+
     def test_checksum(self):
         d = self._create_config()
         response = self.client.get(reverse('controller:checksum', args=[d.pk]), {'key': d.key})
         self.assertEqual(response.content.decode(), d.checksum)
+        self._check_header(response)
 
     def test_checksum_bad_uuid(self):
         d = self._create_config()
@@ -35,11 +39,13 @@ class TestController(TestCase):
         d = self._create_config()
         response = self.client.get(reverse('controller:checksum', args=[d.pk]))
         self.assertEqual(response.status_code, 400)
+        self._check_header(response)
 
     def test_checksum_403(self):
         d = self._create_config()
         response = self.client.get(reverse('controller:checksum', args=[d.pk]), {'key': 'wrong'})
         self.assertEqual(response.status_code, 403)
+        self._check_header(response)
 
     def test_checksum_405(self):
         d = self._create_config()
@@ -50,6 +56,7 @@ class TestController(TestCase):
         d = self._create_config()
         response = self.client.get(reverse('controller:download_config', args=[d.pk]), {'key': d.key})
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=test.tar.gz')
+        self._check_header(response)
 
     def test_download_config_bad_uuid(self):
         d = self._create_config()
@@ -61,11 +68,13 @@ class TestController(TestCase):
         d = self._create_config()
         response = self.client.get(reverse('controller:download_config', args=[d.pk]))
         self.assertEqual(response.status_code, 400)
+        self._check_header(response)
 
     def test_download_config_403(self):
         d = self._create_config()
         response = self.client.get(reverse('controller:download_config', args=[d.pk]), {'key': 'wrong'})
         self.assertEqual(response.status_code, 403)
+        self._check_header(response)
 
     def test_download_config_405(self):
         d = self._create_config()
@@ -84,6 +93,7 @@ class TestController(TestCase):
         uuid = lines[1].replace('uuid: ', '')
         key = lines[2].replace('key: ', '')
         self.assertEqual(Config.objects.filter(pk=uuid, key=key).count(), 1)
+        self._check_header(response)
 
     def test_register_400(self):
         # missing secret
@@ -104,6 +114,7 @@ class TestController(TestCase):
             'name': '00:11:22:33:44:55',
         })
         self.assertContains(response, 'backend', status_code=400)
+        self._check_header(response)
 
     def test_register_403(self):
         # wrong secret
@@ -120,6 +131,7 @@ class TestController(TestCase):
             'backend': 'wrong'
         })
         self.assertContains(response, 'wrong backend', status_code=403)
+        self._check_header(response)
 
     def test_register_405(self):
         response = self.client.get(self.register_url)
