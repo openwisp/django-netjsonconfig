@@ -4,7 +4,11 @@ Changelog
 Version 0.2.0 [unreleased]
 --------------------------
 
-WIP
+- `#2 <https://github.com/openwisp/django-netjsonconfig/issues/2>`_ simplified override of ``Device`` admin ``change_form.html`` template
+- `#3 <https://github.com/openwisp/django-netjsonconfig/issues/3>`_ added simple http controller
+- `#5 <https://github.com/openwisp/django-netjsonconfig/issues/5>`_ fixed ``ImportError`` during ``Device`` validation
+- `#4 <https://github.com/openwisp/django-netjsonconfig/issues/4>`_ renamed ``Device`` to ``Config``
+- `#6 <https://github.com/openwisp/django-netjsonconfig/issues/6>`_ added more structure to HTTP responses of controller
 
 Version 0.1.2 [2015-12-21]
 --------------------------
@@ -18,7 +22,7 @@ Version 0.1.1 [2015-12-18]
 - `46c1582 <https://github.com/openwisp/django-netjsonconfig/commit/46c1582>`_ added ``key_validator`` to validate ``key`` field
 - `3016a2e <https://github.com/openwisp/django-netjsonconfig/commit/3016a2e>`_ admin: improved style of config textarea
 - `ec1544a <https://github.com/openwisp/django-netjsonconfig/commit/ec1544a>`_ admin: improved overall usability
-- `#1 <https://github.com/openwisp/django-netjsonconfig/issues/1>`_ fixed admin "clean_templates" for new devices
+- `#1 <https://github.com/openwisp/django-netjsonconfig/issues/1>`_ fixed admin ``clean_templates`` for new devices
 
 Version 0.1 [2015-12-11]
 ------------------------
