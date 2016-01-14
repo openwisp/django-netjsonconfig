@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Version 0.2.0 [unreleased]
+Version 0.2.0 [2015-01-14]
 --------------------------
 
 - `#2 <https://github.com/openwisp/django-netjsonconfig/issues/2>`_ simplified override of ``Device`` admin ``change_form.html`` template
