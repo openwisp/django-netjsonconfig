@@ -48,5 +48,9 @@ if REGISTRATION_ENABLED:
         config = Config.objects.create(name=request.POST.get('name'),
                                        backend=request.POST.get('backend'))
         # return id and key in response
-        content = '{id}\n{key}'.format(**config.__dict__)
-        return HttpResponse(content, content_type='text/plain', status=201)
+        s = 'registration-result: success\n' \
+            'uuid: {id}\n' \
+            'key: {key}\n'
+        return ControllerResponse(s.format(**config.__dict__),
+                                  content_type='text/plain',
+                                  status=201)

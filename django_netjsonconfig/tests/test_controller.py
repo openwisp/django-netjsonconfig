@@ -79,7 +79,10 @@ class TestController(TestCase):
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertEqual(response.status_code, 201)
-        uuid, key = response.content.decode().split('\n')
+        lines = response.content.decode().split('\n')
+        self.assertEqual(lines[0], 'registration-result: success')
+        uuid = lines[1].replace('uuid: ', '')
+        key = lines[2].replace('key: ', '')
         self.assertEqual(Config.objects.filter(pk=uuid, key=key).count(), 1)
 
     def test_register_400(self):
