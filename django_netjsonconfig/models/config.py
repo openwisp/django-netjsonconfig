@@ -89,13 +89,13 @@ class AbstractConfig(TimeStampedEditableModel):
     def backend_instance(self):
         return self.get_backend_instance()
 
-    def get_backend_instance(self, config=None, template_instances=None):
+    def get_backend_instance(self, template_instances=None):
         """
         allows overriding config and templates
         needed for pre validation of m2m
         """
         backend = self.backend_class
-        kwargs = {'config': config or self.config}
+        kwargs = {'config': self.config}
         # determine if we can pass templates
         # expecting a many2many relationship
         if hasattr(self, 'templates'):
