@@ -67,3 +67,15 @@ class TestConfigAdmin(TestCase):
         path = reverse('admin:django_netjsonconfig_config_visualize', args=[d.pk])
         response = self.client.get(path)
         self.assertContains(response, '<pre class="djnjc-preformatted">')
+
+    def test_download_template_config(self):
+        t = Template.objects.first()
+        path = reverse('admin:django_netjsonconfig_template_download', args=[t.pk])
+        response = self.client.get(path)
+        self.assertEqual(response.get('content-type'), 'application/octet-stream')
+
+    def test_visualize_config(self):
+        t = Template.objects.first()
+        path = reverse('admin:django_netjsonconfig_template_visualize', args=[t.pk])
+        response = self.client.get(path)
+        self.assertContains(response, '<pre class="djnjc-preformatted">')
