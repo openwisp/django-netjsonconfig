@@ -36,7 +36,7 @@ class TestTemplate(TestCase):
         self.assertIs(t.backend_class, OpenWrt)
 
     def test_backend_instance(self):
-        config = {'general':{'hostname':'template'}}
+        config = {'general': {'hostname': 'template'}}
         t = Template(name='test', backend='netjsonconfig.OpenWrt', config=config)
         self.assertIsInstance(t.backend_instance, OpenWrt)
 
@@ -64,3 +64,9 @@ class TestTemplate(TestCase):
         t.save()
         c.refresh_from_db()
         self.assertEqual(c.status, 'modified')
+
+    def test_no_auto_hostname(self):
+        t = self._create_template()
+        self.assertNotIn('general', t.backend_instance.config)
+        t.refresh_from_db()
+        self.assertNotIn('general', t.config)

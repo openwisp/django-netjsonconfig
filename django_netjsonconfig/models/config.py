@@ -1,6 +1,7 @@
 import json
 import hashlib
 import collections
+from copy import deepcopy
 
 from django.db import models
 from django.core.exceptions import ValidationError
@@ -41,6 +42,8 @@ class AbstractConfig(TimeStampedEditableModel):
                        load_kwargs={'object_pairs_hook': collections.OrderedDict},
                        dump_kwargs={'indent': 4})
 
+    __template__ = False
+
     class Meta:
         abstract = True
 
@@ -62,6 +65,19 @@ class AbstractConfig(TimeStampedEditableModel):
             raise ValidationError({'backend': message})
         else:
             self.validate_netjsonconfig_backend(backend)
+
+    def get_config(self):
+        """
+        config preprocessing (skipped for templates):
+            * inserts hostname automatically if not defined
+        """
+        if self.__template__:
+            return self.config
+        c = deepcopy(self.config)
+        c.setdefault('general', {})
+        if 'hostname' not in c['general']:
+            c['general']['hostname'] = self.name
+        return c
 
     @classmethod
     def validate_netjsonconfig_backend(self, backend):
@@ -95,7 +111,7 @@ class AbstractConfig(TimeStampedEditableModel):
         needed for pre validation of m2m
         """
         backend = self.backend_class
-        kwargs = {'config': self.config}
+        kwargs = {'config': self.get_config()}
         # determine if we can pass templates
         # expecting a many2many relationship
         if hasattr(self, 'templates'):

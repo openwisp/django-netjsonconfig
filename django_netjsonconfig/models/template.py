@@ -9,6 +9,8 @@ class BaseTemplate(AbstractConfig):
     Abstract model implementing a
     netjsonconfig template
     """
+    __template__ = True
+
     class Meta:
         abstract = True
 

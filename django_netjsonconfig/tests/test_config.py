@@ -199,3 +199,18 @@ class TestConfig(TestCase):
         c.templates.remove(t)
         c.refresh_from_db()
         self.assertEqual(c.status, 'modified')
+
+    def test_auto_hostname(self):
+        c = Config(name='automate-me',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general': {}},
+                   key=self.TEST_KEY)
+        c.full_clean()
+        c.save()
+        expected = {
+            'type': 'DeviceConfiguration',
+            'general': {'hostname': 'automate-me'}
+        }
+        self.assertDictEqual(c.backend_instance.config, expected)
+        c.refresh_from_db()
+        self.assertDictEqual(c.config, {'general': {}})
