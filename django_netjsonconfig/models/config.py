@@ -13,6 +13,8 @@ from django.utils.crypto import get_random_string
 from jsonfield import JSONField
 from sortedm2m.fields import SortedManyToManyField
 from netjsonconfig.exceptions import ValidationError as SchemaError
+from model_utils import Choices
+from model_utils.fields import StatusField
 
 from ..base import TimeStampedEditableModel
 from ..settings import BACKENDS
@@ -124,6 +126,12 @@ class BaseConfig(AbstractConfig):
     Abstract model implementing the
     NetJSON DeviceConfiguration object
     """
+    STATUS = Choices('modified', 'running', 'error')
+    status = StatusField(help_text=_(
+        'modified means the configuration is not applied yet; '
+        'running means applied and running; '
+        'error means the configuration caused issues and it was rolledback'
+    ))
     key = models.CharField(max_length=64,
                            unique=True,
                            db_index=True,
@@ -131,6 +139,20 @@ class BaseConfig(AbstractConfig):
                            validators=[key_validator],
                            help_text=_('unique key that can be used to '
                                        'download the configuration'))
+
+    def clean(self):
+        """
+        modifies status if key attributes of the configuration
+        have changed (queries the database)
+        """
+        super(BaseConfig, self).clean()
+        if self._state.adding:
+            return
+        current = self.__class__.objects.get(pk=self.pk)
+        for attr in ['name', 'backend', 'config']:
+            if getattr(self, attr) != getattr(current, attr):
+                self.status = 'modified'
+                break
 
     class Meta:
         abstract = True
@@ -171,6 +193,17 @@ class TemplatesMixin(models.Model):
             message = 'There is a conflict with the specified templates. {0}'
             message = message.format(e.message)
             raise ValidationError(message)
+
+    @classmethod
+    def templates_changed(cls, action, instance, **kwargs):
+        """
+        called from m2m_changed signal
+        """
+        if action not in ['post_add', 'post_remove', 'post_clear']:
+            return
+        if instance.status != 'modified':
+            instance.status = 'modified'
+            instance.save()
 
     class Meta:
         abstract = True

@@ -161,3 +161,41 @@ class TestConfig(TestCase):
         d.backend = 'wrong'
         with self.assertRaises(ValidationError):
             d.full_clean()
+
+    def test_default_status(self):
+        c = Config(name='test')
+        self.assertEqual(c.status, 'modified')
+
+    def test_status_modified_after_change(self):
+        c = Config(name='test-status',
+                   status='running',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general': {}})
+        c.full_clean()
+        c.save()
+        self.assertEqual(c.status, 'running')
+        c.refresh_from_db()
+        c.name = 'test-status-modified'
+        c.full_clean()
+        c.save()
+        self.assertEqual(c.status, 'modified')
+
+    def test_status_modified_after_templates_changed(self):
+        c = Config(name='test-status',
+                   status='running',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general': {}})
+        c.full_clean()
+        c.save()
+        self.assertEqual(c.status, 'running')
+        t = Template.objects.first()
+        c.templates.add(t)
+        c.refresh_from_db()
+        self.assertEqual(c.status, 'modified')
+        c.status = 'running'
+        c.save()
+        c.refresh_from_db()
+        self.assertEqual(c.status, 'running')
+        c.templates.remove(t)
+        c.refresh_from_db()
+        self.assertEqual(c.status, 'modified')

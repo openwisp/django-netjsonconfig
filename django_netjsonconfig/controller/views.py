@@ -27,6 +27,28 @@ def download_config(request, pk):
                       contents=config.generate().getvalue()))
 
 
+@csrf_exempt
+@require_http_methods(['POST'])
+def report_status(request, pk):
+    """
+    updates status of config objects
+    """
+    config = get_config_or_404(pk)
+    # ensure request is well formed and authorized
+    allowed_status = [choices[0] for choices in Config.STATUS]
+    required_params = [('key', config.key),
+                       ('status', allowed_status)]
+    for key, value in required_params:
+        bad_response = forbid_unallowed(request.POST, key, value)
+        if bad_response:
+            return bad_response
+    config.status = request.POST.get('status')
+    config.save()
+    return ControllerResponse('report-result: success\n'
+                              'current-status: {}\n'.format(config.status),
+                              content_type='text/plain')
+
+
 if REGISTRATION_ENABLED:
     @csrf_exempt
     @require_http_methods(['POST'])

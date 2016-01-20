@@ -18,6 +18,8 @@ class DjangoNetjsonconfigApp(AppConfig):
         from .models import Config
         m2m_changed.connect(Config.clean_templates,
                             sender=Config.templates.through)
+        m2m_changed.connect(Config.templates_changed,
+                            sender=Config.templates.through)
 
     def check_settings(self):
         if settings.DEBUG is False and REGISTRATION_ENABLED and not SHARED_SECRET:  # pragma: nocover

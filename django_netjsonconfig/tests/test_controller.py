@@ -136,3 +136,55 @@ class TestController(TestCase):
     def test_register_405(self):
         response = self.client.get(self.register_url)
         self.assertEqual(response.status_code, 405)
+
+    def test_report_status_running(self):
+        c = self._create_config()
+        response = self.client.post(reverse('controller:report_status', args=[c.pk]),
+                                    {'key': c.key, 'status': 'running'})
+        self._check_header(response)
+        c.refresh_from_db()
+        self.assertEqual(c.status, 'running')
+
+    def test_report_status_error(self):
+        c = self._create_config()
+        response = self.client.post(reverse('controller:report_status', args=[c.pk]),
+                                    {'key': c.key, 'status': 'error'})
+        self._check_header(response)
+        c.refresh_from_db()
+        self.assertEqual(c.status, 'error')
+
+    def test_report_status_bad_uuid(self):
+        c = self._create_config()
+        pk = '{}-wrong'.format(c.pk)
+        response = self.client.post(reverse('controller:report_status', args=[pk]), {'key': c.key})
+        self.assertEqual(response.status_code, 404)
+
+    def test_report_status_400(self):
+        c = self._create_config()
+        response = self.client.post(reverse('controller:report_status', args=[c.pk]))
+        self.assertEqual(response.status_code, 400)
+        self._check_header(response)
+        response = self.client.post(reverse('controller:report_status', args=[c.pk]),
+                                    {'key': c.key})
+        self.assertEqual(response.status_code, 400)
+        self._check_header(response)
+        response = self.client.post(reverse('controller:report_status', args=[c.pk]),
+                                    {'key': c.key})
+        self.assertEqual(response.status_code, 400)
+        self._check_header(response)
+
+    def test_report_status_403(self):
+        c = self._create_config()
+        response = self.client.post(reverse('controller:report_status', args=[c.pk]), {'key': 'wrong'})
+        self.assertEqual(response.status_code, 403)
+        self._check_header(response)
+        response = self.client.post(reverse('controller:report_status', args=[c.pk]),
+                                    {'key': c.key, 'status': 'madeup'})
+        self.assertEqual(response.status_code, 403)
+        self._check_header(response)
+
+    def test_report_status_405(self):
+        c = self._create_config()
+        response = self.client.get(reverse('controller:report_status', args=[c.pk]),
+                                   {'key': c.key, 'status': 'running'})
+        self.assertEqual(response.status_code, 405)

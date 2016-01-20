@@ -3,13 +3,30 @@ from django.core.exceptions import ValidationError
 
 from netjsonconfig import OpenWrt
 
-from ..models import Template
+from ..models import Template, Config
 
 
 class TestTemplate(TestCase):
     """
     tests for Template model
     """
+    def _create_template(self):
+        t = Template(**{
+            "name": "dhcp",
+            "backend": "netjsonconfig.OpenWrt",
+            "config": {
+                "interfaces": [
+                    {
+                        "name": "eth0",
+                        "type": "ethernet"
+                    }
+                ]
+            }
+        })
+        t.full_clean()
+        t.save()
+        return t
+
     def test_str(self):
         t = Template(name='test', backend='netjsonconfig.OpenWrt')
         self.assertEqual(str(t), '[OpenWRT] test')
@@ -29,3 +46,21 @@ class TestTemplate(TestCase):
         # ensure django ValidationError is raised
         with self.assertRaises(ValidationError):
             t.full_clean()
+
+    def test_config_status_modified_after_change(self):
+        t = self._create_template()
+        c = Config(name='test-status',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general': {}})
+        c.full_clean()
+        c.save()
+        c.templates.add(t)
+        c.status = 'running'
+        c.save()
+        c.refresh_from_db()
+        self.assertEqual(c.status, 'running')
+        t.config['interfaces'][0]['name'] = 'eth1'
+        t.full_clean()
+        t.save()
+        c.refresh_from_db()
+        self.assertEqual(c.status, 'modified')
