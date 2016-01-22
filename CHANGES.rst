@@ -4,7 +4,11 @@ Changelog
 Version 0.2.1 [unreleased]
 --------------------------
 
-WIP
+- `#9 <https://github.com/openwisp/django-netjsonconfig/issues/9>`_ added "visualize" and "download" links for templates
+- `#7 <https://github.com/openwisp/django-netjsonconfig/issues/7>`_ added ``report-status`` mechanism
+- `4905bbb <https://github.com/openwisp/django-netjsonconfig/commit/4905bbb>`_ [config] auto detect hostname unless overridden
+- `#8 <https://github.com/openwisp/django-netjsonconfig/issues/8>`_ added ``last_ip`` field
+- `#11 <https://github.com/openwisp/django-netjsonconfig/issues/11>`_ added revision history via django-reversion
 
 Version 0.2.0 [2015-01-14]
 --------------------------
