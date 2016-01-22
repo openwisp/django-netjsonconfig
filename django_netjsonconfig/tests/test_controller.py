@@ -53,10 +53,12 @@ class TestController(TestCase):
         self.assertEqual(response.status_code, 405)
 
     def test_download_config(self):
-        d = self._create_config()
-        response = self.client.get(reverse('controller:download_config', args=[d.pk]), {'key': d.key})
+        c = self._create_config()
+        response = self.client.get(reverse('controller:download_config', args=[c.pk]), {'key': c.key})
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=test.tar.gz')
         self._check_header(response)
+        c.refresh_from_db()
+        self.assertIsNotNone(c.last_ip)
 
     def test_download_config_bad_uuid(self):
         d = self._create_config()

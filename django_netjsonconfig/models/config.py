@@ -155,6 +155,11 @@ class BaseConfig(AbstractConfig):
                            validators=[key_validator],
                            help_text=_('unique key that can be used to '
                                        'download the configuration'))
+    last_ip = models.GenericIPAddressField(blank=True,
+                                           null=True,
+                                           help_text=_('indicates the last ip from which the '
+                                                       'configuration was downloaded from '
+                                                       '(except downloads from this page)'))
 
     def clean(self):
         """

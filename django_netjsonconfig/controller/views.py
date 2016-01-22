@@ -2,7 +2,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
 from ..models import Config
-from ..utils import ControllerResponse, get_config_or_404, forbid_unallowed, send_file
+from ..utils import ControllerResponse, get_config_or_404, forbid_unallowed, send_config
 from ..settings import REGISTRATION_ENABLED, SHARED_SECRET, BACKENDS
 
 
@@ -23,8 +23,7 @@ def download_config(request, pk):
     """
     config = get_config_or_404(pk)
     return (forbid_unallowed(request.GET, 'key', config.key) or
-            send_file(filename='{0}.tar.gz'.format(config.name),
-                      contents=config.generate().getvalue()))
+            send_config(config, request))
 
 
 @csrf_exempt

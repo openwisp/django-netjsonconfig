@@ -24,6 +24,16 @@ def send_file(filename, contents):
     return response
 
 
+def send_config(config, request):
+    """
+    sends config in http response and logs ip
+    """
+    config.last_ip = request.META.get('REMOTE_ADDR')
+    config.save()
+    return send_file(filename='{0}.tar.gz'.format(config.name),
+                     contents=config.generate().getvalue())
+
+
 def forbid_unallowed(params, param, allowed_values=None):
     value = params.get(param)
     if not value:

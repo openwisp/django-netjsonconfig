@@ -103,13 +103,14 @@ class ConfigForm(forms.ModelForm):
 
 
 class ConfigAdmin(BaseConfigAdmin):
-    list_display = ('name', 'backend', 'status', 'created', 'modified')
+    list_display = ('name', 'backend', 'status', 'last_ip', 'created', 'modified')
     list_filter = ('backend', 'status', 'created',)
-    search_fields = ('name', 'key')
-    readonly_fields = ('status',)
+    search_fields = ('id', 'name', 'key', 'last_ip')
+    readonly_fields = ('status', 'last_ip')
     fields = ('name',
               'key',
               'status',
+              'last_ip',
               'templates',
               'backend',
               'config',
