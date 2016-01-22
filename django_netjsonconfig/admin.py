@@ -27,7 +27,7 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
 
     def change_view(self, request, pk, form_url='', extra_context={}):
         extra_context.update(self.get_extra_context(pk))
-        return self.changeform_view(request, pk, form_url, extra_context)
+        return super(BaseConfigAdmin, self).change_view(request, pk, form_url, extra_context)
 
     def get_urls(self):
         options = getattr(self.model, '_meta')

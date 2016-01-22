@@ -2,9 +2,14 @@ import uuid
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.admin import ModelAdmin
+from django.conf import settings
 
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField
+
+if 'reversion' in settings.INSTALLED_APPS:
+    from reversion.admin import VersionAdmin as BaseAdmin
+else:  # pragma: nocover
+    from django.contrib.admin import ModelAdmin as BaseAdmin
 
 
 class TimeStampedEditableModel(models.Model):
@@ -20,7 +25,7 @@ class TimeStampedEditableModel(models.Model):
         abstract = True
 
 
-class TimeStampedEditableAdmin(ModelAdmin):
+class TimeStampedEditableAdmin(BaseAdmin):
     """
     ModelAdmin for TimeStampedEditableModel
     """
