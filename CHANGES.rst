@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Version 0.2.1 [unreleased]
+Version 0.2.1 [2015-01-22]
 --------------------------
 
 - `#9 <https://github.com/openwisp/django-netjsonconfig/issues/9>`_ added "visualize" and "download" links for templates
