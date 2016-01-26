@@ -71,9 +71,10 @@ class AbstractConfig(TimeStampedEditableModel):
         config preprocessing (skipped for templates):
             * inserts hostname automatically if not defined
         """
+        config = self.config or {}  # might be ``None`` in some corner cases
         if self.__template__:
-            return self.config
-        c = deepcopy(self.config)
+            return config
+        c = deepcopy(config)
         c.setdefault('general', {})
         if 'hostname' not in c['general']:
             c['general']['hostname'] = self.name
@@ -177,6 +178,8 @@ class BaseConfig(AbstractConfig):
 
     class Meta:
         abstract = True
+
+BaseConfig._meta.get_field('config').blank = True
 
 
 class TemplatesMixin(models.Model):
