@@ -6,7 +6,7 @@ Version 0.2.2 [unreleased]
 
 WIP
 
-Version 0.2.1 [2015-01-22]
+Version 0.2.1 [2016-01-22]
 --------------------------
 
 - `#9 <https://github.com/openwisp/django-netjsonconfig/issues/9>`_ added "visualize" and "download" links for templates
@@ -15,7 +15,7 @@ Version 0.2.1 [2015-01-22]
 - `#8 <https://github.com/openwisp/django-netjsonconfig/issues/8>`_ added ``last_ip`` field
 - `#11 <https://github.com/openwisp/django-netjsonconfig/issues/11>`_ added revision history via django-reversion
 
-Version 0.2.0 [2015-01-14]
+Version 0.2.0 [2016-01-14]
 --------------------------
 
 - `#2 <https://github.com/openwisp/django-netjsonconfig/issues/2>`_ simplified override of ``Device`` admin ``change_form.html`` template
