@@ -64,7 +64,7 @@ class AbstractConfig(TimeStampedEditableModel):
             message = 'Error while importing "{0}": {1}'.format(self.backend, e)
             raise ValidationError({'backend': message})
         else:
-            self.validate_netjsonconfig_backend(backend)
+            self.clean_netjsonconfig_backend(backend)
 
     def get_config(self):
         """
@@ -83,19 +83,29 @@ class AbstractConfig(TimeStampedEditableModel):
     @classmethod
     def validate_netjsonconfig_backend(self, backend):
         """
-        this is needed to avoid having OrderedDict
-        in an eventual ValidationError message
-        which would make the error hard to read
+        calls ``validate`` method of netjsonconfig backend
+        might trigger SchemaError
         """
+        # the following line is a trick needed to avoid cluttering
+        # an eventual ``ValidationError`` message with ``OrderedDict``
+        # which would make the error message hard to read
         backend.config = json.loads(json.dumps(backend.config))
+        backend.validate()
+
+    @classmethod
+    def clean_netjsonconfig_backend(self, backend):
+        """
+        catches any ``SchemaError`` which will be redirected
+        to ``django.core.exceptions.ValdiationError``
+        """
         try:
-            backend.validate()
+            self.validate_netjsonconfig_backend(backend)
         except SchemaError as e:
             path = [str(el) for el in e.details.path]
             trigger = '/'.join(path)
             error = e.details.message
-            message = 'Invalid configuration triggered by "#/{0}"; '\
-                      'validator says: {1}'.format(trigger, error)
+            message = 'Invalid configuration triggered by "#/{0}", '\
+                      'validator says:\n\n{1}'.format(trigger, error)
             raise ValidationError(message)
 
     @cached_property
@@ -212,7 +222,7 @@ class TemplatesMixin(models.Model):
             templates = pk_set
         backend = instance.get_backend_instance(template_instances=templates)
         try:
-            cls.validate_netjsonconfig_backend(backend)
+            cls.clean_netjsonconfig_backend(backend)
         except ValidationError as e:
             message = 'There is a conflict with the specified templates. {0}'
             message = message.format(e.message)
