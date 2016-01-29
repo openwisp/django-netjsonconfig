@@ -121,8 +121,7 @@ Launch development server:
 
     ./manage.py runserver
 
-You can access the visualizer at http://127.0.0.1:8000/
-and the admin interface at http://127.0.0.1:8000/admin/.
+You can access the admin interface at http://127.0.0.1:8000/admin/.
 
 Run tests with:
 
