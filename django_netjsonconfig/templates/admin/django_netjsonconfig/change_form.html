@@ -2,17 +2,22 @@
 {% load i18n %}
 
 {% block object-tools-items %}
-{% if not visualize %}
 <li>
-    <a href="{{ visualize_url }}" class="visualizelink">{% trans "Visualize configuration" %}</a>
+    <a href="{{ preview_url }}"
+       class="previewlink"
+       title="{% trans "Preview" %} (ALT+P)">
+        {% trans "Preview" %}
+    </a>
 </li>
-{% else %}
-<li>
-    <a href="{{ back_url }}" class="backlink">{% trans "Go back" %}</a>
-</li>
-{% endif %}
 <li>
     <a href="{{ download_url }}" class="downloadlink">{% trans "Download configuration" %}</a>
 </li>
 {{ block.super }}
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+<div class="djnjc-overlay">
+    <div class="inner"></div>
+</div>
 {% endblock %}

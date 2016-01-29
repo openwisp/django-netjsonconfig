@@ -2,8 +2,10 @@ from django.contrib import admin
 from django import forms
 from django.conf.urls import url
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ValidationError
 from django.template.response import TemplateResponse
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
 
 from .models import Template, Config
 from .base import TimeStampedEditableAdmin
@@ -11,17 +13,17 @@ from .utils import send_file
 
 
 class BaseConfigAdmin(TimeStampedEditableAdmin):
-    visualize_template = None
+    preview_template = None
 
     class Media:
         css = {'all': ('css/admin/django-netjsonconfig.css',)}
+        js = ('js/admin/preview.js',)
 
     def get_extra_context(self, pk):
         prefix = 'admin:django_netjsonconfig_{}'.format(self.model.__name__.lower())
         args = [pk]
         return {
-            'visualize_url': reverse('{0}_visualize'.format(prefix), args=args),
-            'back_url': reverse('{0}_change'.format(prefix), args=args),
+            'preview_url': reverse('{0}_preview'.format(prefix)),
             'download_url': reverse('{0}_download'.format(prefix), args=args)
         }
 
@@ -36,38 +38,59 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
             url(r'^download/(?P<pk>[^/]+)/$',
                 self.admin_site.admin_view(self.download_view),
                 name='{0}_download'.format(url_prefix)),
-            url(r'^visualize/(?P<pk>[^/]+)/$',
-                self.admin_site.admin_view(self.visualize_view),
-                name='{0}_visualize'.format(url_prefix))
+            url(r'^preview/$',
+                self.admin_site.admin_view(self.preview_view),
+                name='{0}_preview'.format(url_prefix))
         ] + super(BaseConfigAdmin, self).get_urls()
+
+    def preview_view(self, request):
+        if request.method != 'POST':
+            return HttpResponse(status=405)
+        error = None
+        output = None
+        try:
+            model = self.model(name=request.POST.get('name'),
+                               backend=request.POST.get('backend'),
+                               config=request.POST.get('config'))
+            model.full_clean()
+        except ValidationError as e:
+            return HttpResponse(str(e), status=400)
+        template_ids = request.POST.get('templates')
+        if template_ids:
+            templates = Template.objects.filter(pk__in=template_ids.split(','))
+            try:
+                templates = list(templates)  # evaluating queryset performs query
+            except ValueError as e:
+                return HttpResponse(str(e), status=400)
+        else:
+            templates = None
+        if not error:
+            backend = model.get_backend_instance(template_instances=templates)
+            try:
+                model.clean_netjsonconfig_backend(backend)
+                output = backend.render()
+            except ValidationError as e:
+                error = e
+        context = self.admin_site.each_context(request)
+        opts = self.model._meta
+        context.update({
+            'is_popup': True,
+            'opts': opts,
+            'change': False,
+            'output': output,
+            'media': self.media,
+            'error': error,
+        })
+        return TemplateResponse(request, self.preview_template or [
+            'admin/%s/%s/preview.html' % (opts.app_label, opts.model_name),
+            'admin/%s/preview.html' % opts.app_label
+        ], context)
 
     def download_view(self, request, pk):
         config = get_object_or_404(self.model, pk=pk)
         config_archive = config.backend_instance.generate()
         return send_file(filename='{0}.tar.gz'.format(config.name),
                          contents=config_archive.getvalue())
-
-    def visualize_view(self, request, pk):
-        config = get_object_or_404(self.model, pk=pk)
-        output = config.backend_instance.render()
-        context = self.admin_site.each_context(request)
-        context.update(self.get_extra_context(pk))
-        opts = self.model._meta
-        context.update({
-            'title': 'Visualize configuration: %s' % config.name,
-            'object_id': config.pk,
-            'original': config,
-            'opts': opts,
-            'has_change_permission': self.has_change_permission(request),
-            'change': True,
-            'visualize': True,
-            'output': output,
-            'media': self.media,
-        })
-        return TemplateResponse(request, self.visualize_template or [
-            'admin/%s/%s/visualize_configuration.html' % (opts.app_label, opts.model_name),
-            'admin/%s/visualize_configuration.html' % opts.app_label
-        ], context)
 
 
 class TemplateAdmin(BaseConfigAdmin):
@@ -119,7 +142,6 @@ class ConfigAdmin(BaseConfigAdmin):
     actions_on_bottom = True
     save_on_top = True
     form = ConfigForm
-    visualize_template = None
 
 
 admin.site.register(Template, TemplateAdmin)
