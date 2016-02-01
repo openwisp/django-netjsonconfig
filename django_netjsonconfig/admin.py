@@ -17,7 +17,10 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
 
     class Media:
         css = {'all': ('css/admin/django-netjsonconfig.css',)}
-        js = ('js/admin/preview.js',)
+        js = (
+            'js/admin/preview.js',
+            'js/admin/unsaved_changes.js'
+        )
 
     def get_extra_context(self, pk):
         prefix = 'admin:django_netjsonconfig_{}'.format(self.model.__name__.lower())
