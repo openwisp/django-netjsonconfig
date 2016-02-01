@@ -22,13 +22,16 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
             'js/admin/unsaved_changes.js'
         )
 
-    def get_extra_context(self, pk):
+    def get_extra_context(self, pk=None):
         prefix = 'admin:django_netjsonconfig_{}'.format(self.model.__name__.lower())
-        args = [pk]
-        return {
-            'preview_url': reverse('{0}_preview'.format(prefix)),
-            'download_url': reverse('{0}_download'.format(prefix), args=args)
-        }
+        ctx = {'preview_url': reverse('{0}_preview'.format(prefix))}
+        if pk:
+            ctx.update({'download_url': reverse('{0}_download'.format(prefix), args=[pk])})
+        return ctx
+
+    def add_view(self, request, form_url='', extra_context={}):
+        extra_context.update(self.get_extra_context())
+        return super(BaseConfigAdmin, self).add_view(request, form_url, extra_context)
 
     def change_view(self, request, pk, form_url='', extra_context={}):
         extra_context.update(self.get_extra_context(pk))

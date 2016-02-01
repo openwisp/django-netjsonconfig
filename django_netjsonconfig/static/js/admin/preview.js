@@ -2,7 +2,7 @@ django.jQuery(function($) {
     var overlay = $('.djnjc-overlay'),
         body = $('body'),
         inner = overlay.find('.inner'),
-        preview_url = $('.previewlink').attr('href');
+        preview_url = $('.previewlink').attr('data-url');
     var openPreview = function() {
         data = {
             'name': $('#id_name').val(),
