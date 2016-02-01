@@ -180,3 +180,19 @@ class TestAdmin(TestCase):
         self.assertContains(response, '<pre class="djnjc-preformatted')
         self.assertNotContains(response, 'system')
         self.assertNotContains(response, 'hostname')
+
+    def test_uuid_field_not_in_add(self):
+        path = reverse('admin:django_netjsonconfig_config_add')
+        response = self.client.get(path)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'field-id')
+
+    def test_uuid_field_in_change(self):
+        t = Template.objects.first()
+        c = Config(name='test', backend=t.backend, config=t.config, key=self.TEST_KEY)
+        c.full_clean()
+        c.save()
+        path = reverse('admin:django_netjsonconfig_config_change', args=[c.pk])
+        response = self.client.get(path)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'field-id')

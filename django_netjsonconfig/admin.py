@@ -19,7 +19,8 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
         css = {'all': ('css/admin/django-netjsonconfig.css',)}
         js = (
             'js/admin/preview.js',
-            'js/admin/unsaved_changes.js'
+            'js/admin/unsaved_changes.js',
+            'js/admin/uuid.js'
         )
 
     def get_extra_context(self, pk=None):
@@ -135,20 +136,37 @@ class ConfigAdmin(BaseConfigAdmin):
     list_display = ('name', 'backend', 'status', 'last_ip', 'created', 'modified')
     list_filter = ('backend', 'status', 'created',)
     search_fields = ('id', 'name', 'key', 'last_ip')
-    readonly_fields = ('status', 'last_ip')
-    fields = ('name',
+    readonly_fields = ['id', 'status', 'last_ip']
+    fields = ['name',
               'key',
+              'id',
               'status',
               'last_ip',
               'templates',
               'backend',
               'config',
               'created',
-              'modified')
+              'modified']
     actions_on_bottom = True
     save_on_top = True
     form = ConfigForm
 
+    def _get_fields(self, fields, request, obj=None):
+        """
+        removes "id" field in add view
+        """
+        if obj:
+            return fields
+        new_fields = fields[:]
+        if 'id' in new_fields:
+            new_fields.remove('id')
+        return new_fields
+
+    def get_fields(self, request, obj=None):
+        return self._get_fields(self.fields, request, obj)
+
+    def get_readonly_fields(self, request, obj=None):
+        return self._get_fields(self.readonly_fields, request, obj)
 
 admin.site.register(Template, TemplateAdmin)
 admin.site.register(Config, ConfigAdmin)

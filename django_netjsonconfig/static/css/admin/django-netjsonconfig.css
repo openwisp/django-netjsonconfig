@@ -21,6 +21,11 @@
     line-height: 22px;
 }
 
+.readonly{
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    background-color: rgba(0, 0, 0, 0.070);
+}
+
 .djnjc-overlay {
     display: none;
     position: fixed;
