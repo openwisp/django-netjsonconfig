@@ -4,7 +4,16 @@ Changelog
 Version 0.2.2 [unreleased]
 --------------------------
 
-WIP
+- `e96e262 <https://github.com/openwisp/django-netjsonconfig/commit/e96e262>`_:
+  allow ``blank=True`` in ``BaseConfig`` (but not Templates)
+- `#10 <https://github.com/openwisp/django-netjsonconfig/issues/10>`_:
+  [admin] added configuration preview
+- `#12 <https://github.com/openwisp/django-netjsonconfig/issues/12>`_:
+  [admin] added unsaved changes warning
+- `#11 <https://github.com/openwisp/django-netjsonconfig/issues/11>`_:
+  [admin] moved preview in ``submit_row``
+- `#14 <https://github.com/openwisp/django-netjsonconfig/issues/14>`_:
+  [admin] added "visualize" and "download" links for templates
 
 Version 0.2.1 [2016-01-22]
 --------------------------
