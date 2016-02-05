@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Version 0.2.2 [unreleased]
+Version 0.2.2 [2016-02-05]
 --------------------------
 
 - `e96e262 <https://github.com/openwisp/django-netjsonconfig/commit/e96e262>`_:
