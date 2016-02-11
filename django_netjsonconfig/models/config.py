@@ -1,21 +1,21 @@
-import json
-import hashlib
 import collections
+import hashlib
+import json
 from copy import deepcopy
 
-from django.db import models
 from django.core.exceptions import ValidationError
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
-from django.utils.module_loading import import_string
-from django.utils.functional import cached_property
+from django.db import models
 from django.utils.crypto import get_random_string
-
+from django.utils.encoding import python_2_unicode_compatible
+from django.utils.functional import cached_property
+from django.utils.module_loading import import_string
+from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
-from sortedm2m.fields import SortedManyToManyField
-from netjsonconfig.exceptions import ValidationError as SchemaError
 from model_utils import Choices
 from model_utils.fields import StatusField
+from sortedm2m.fields import SortedManyToManyField
+
+from netjsonconfig.exceptions import ValidationError as SchemaError
 
 from ..base import TimeStampedEditableModel
 from ..settings import BACKENDS

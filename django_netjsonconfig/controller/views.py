@@ -1,10 +1,10 @@
-from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 from ..models import Config
-from ..utils import (ControllerResponse, get_config_or_404, forbid_unallowed, send_config,
-                     update_last_ip)
-from ..settings import REGISTRATION_ENABLED, SHARED_SECRET, BACKENDS
+from ..settings import BACKENDS, REGISTRATION_ENABLED, SHARED_SECRET
+from ..utils import (ControllerResponse, forbid_unallowed, get_config_or_404,
+                     send_config, update_last_ip)
 
 
 @require_http_methods(['GET'])

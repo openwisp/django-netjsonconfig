@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-import sys
 import os
-from setuptools import setup, find_packages
+import sys
+
+from setuptools import find_packages, setup
+
 from django_netjsonconfig import get_version
 
 

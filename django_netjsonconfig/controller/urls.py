@@ -3,7 +3,6 @@ from django.conf.urls import url
 from . import views
 from ..settings import REGISTRATION_ENABLED
 
-
 urlpatterns = [
     url(r'^controller/checksum/(?P<pk>[^/]+)/$',
         views.checksum,

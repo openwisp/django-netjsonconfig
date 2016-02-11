@@ -1,9 +1,9 @@
 from copy import deepcopy
 
-from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.transaction import atomic
+from django.test import TestCase
 
 from netjsonconfig import OpenWrt
 

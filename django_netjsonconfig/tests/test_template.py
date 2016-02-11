@@ -1,9 +1,9 @@
-from django.test import TestCase
 from django.core.exceptions import ValidationError
+from django.test import TestCase
 
 from netjsonconfig import OpenWrt
 
-from ..models import Template, Config
+from ..models import Config, Template
 
 
 class TestTemplate(TestCase):
