@@ -22,6 +22,11 @@ class TestConfig(TestCase):
         d = Config(name='test')
         self.assertEqual(str(d), 'test')
 
+    def test_config_not_none(self):
+        c = Config(name='test', backend='netjsonconfig.OpenWrt', config=None)
+        c.full_clean()
+        self.assertEqual(c.config, {})
+
     def test_backend_class(self):
         d = Config(name='test', backend='netjsonconfig.OpenWrt')
         self.assertIs(d.backend_class, OpenWrt)

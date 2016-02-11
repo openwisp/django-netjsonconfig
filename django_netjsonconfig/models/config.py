@@ -52,8 +52,11 @@ class AbstractConfig(TimeStampedEditableModel):
 
     def clean(self):
         """
-        performs netjsonconfig backend validation
+        * ensures config is not ``None``
+        * performs netjsonconfig backend validation
         """
+        if self.config is None:
+            self.config = {}
         # perform validation only if backend is defined, otherwise
         # django will take care of notifying blank field error
         if not self.backend:
