@@ -24,10 +24,12 @@ class TestController(TestCase):
         self.assertEqual(response['X-Openwisp-Controller'], 'true')
 
     def test_checksum(self):
-        d = self._create_config()
-        response = self.client.get(reverse('controller:checksum', args=[d.pk]), {'key': d.key})
-        self.assertEqual(response.content.decode(), d.checksum)
+        c = self._create_config()
+        response = self.client.get(reverse('controller:checksum', args=[c.pk]), {'key': c.key})
+        self.assertEqual(response.content.decode(), c.checksum)
         self._check_header(response)
+        c.refresh_from_db()
+        self.assertIsNotNone(c.last_ip)
 
     def test_checksum_bad_uuid(self):
         d = self._create_config()

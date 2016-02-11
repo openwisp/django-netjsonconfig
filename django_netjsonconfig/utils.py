@@ -26,12 +26,21 @@ def send_file(filename, contents):
 
 def send_config(config, request):
     """
-    sends config in http response and logs ip
+    sends config in http response and updates last_ip
     """
-    config.last_ip = request.META.get('REMOTE_ADDR')
-    config.save()
+    update_last_ip(config, request)
     return send_file(filename='{0}.tar.gz'.format(config.name),
                      contents=config.generate().getvalue())
+
+
+def update_last_ip(config, request):
+    """
+    updates last_ip if necessary
+    """
+    latest_ip = request.META.get('REMOTE_ADDR')
+    if config.last_ip != latest_ip:
+        config.last_ip = latest_ip
+        config.save()
 
 
 def forbid_unallowed(params, param, allowed_values=None):
