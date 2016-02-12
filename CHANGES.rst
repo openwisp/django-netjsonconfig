@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Version 0.2.3 [unreleased]
+Version 0.2.3 [2016-02-12]
 --------------------------
 
 - `d7700a9 <https://github.com/openwisp/django-netjsonconfig/commit/d7700a9>`_:
