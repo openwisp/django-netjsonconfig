@@ -19,6 +19,9 @@ install:
   - python setup.py -q develop
   - pip install -r requirements-test.txt
 
+before_script:
+  - ./runisort.py
+
 # command to run tests, e.g. python setup.py test
 script:
   - coverage run --source=django_netjsonconfig runtests.py
