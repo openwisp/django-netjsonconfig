@@ -4,7 +4,12 @@ Changelog
 Version 0.2.3 [unreleased]
 --------------------------
 
-WIP
+- `d7700a9 <https://github.com/openwisp/django-netjsonconfig/commit/d7700a9>`_:
+  added (forgotten) migration for commit `e96e26 <https://github.com/openwisp/django-netjsonconfig/commit/e96e26>`_
+- `#15 <https://github.com/openwisp/django-netjsonconfig/issues/15>`_:
+  [model] ``config`` field cannot be ``None``
+- `#17 <https://github.com/openwisp/django-netjsonconfig/issues/17>`_:
+  [controller] update ``last_ip`` during checksum
 
 Version 0.2.2 [2016-02-05]
 --------------------------
