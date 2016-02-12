@@ -91,7 +91,6 @@ class TestAdmin(TestCase):
         self.assertContains(response, 'radio0')
 
     def test_preview_config_attributeerror(self):
-        t = Template.objects.first()
         path = reverse('admin:django_netjsonconfig_config_preview')
         data = {
             'name': 'test-config',
@@ -103,7 +102,6 @@ class TestAdmin(TestCase):
         self.assertContains(response, '<pre class="djnjc-preformatted')
 
     def test_preview_config_valueerror(self):
-        t = Template.objects.first()
         path = reverse('admin:django_netjsonconfig_config_preview')
         data = {
             'name': 'test-config',

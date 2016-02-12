@@ -23,7 +23,7 @@ def custom_submit_row(context):
             context['has_add_permission'] and not is_popup and
             (not save_as or context['add'])
         ),
-        'show_save_and_continue': not is_popup and context['has_change_permission'] and show_save_and_continue,
+        'show_save_and_continue': not is_popup and context['has_change_permission'] and show_save_and_continue,  # noqa
         'show_save': show_save,
     }
     ctx.update(context.dicts[3])

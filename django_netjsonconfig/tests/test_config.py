@@ -1,7 +1,6 @@
 from copy import deepcopy
 
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
 from django.db.transaction import atomic
 from django.test import TestCase
 
@@ -121,7 +120,7 @@ class TestConfig(TestCase):
         with atomic():
             try:
                 d.templates.add(t)
-            except ValidationError as e:
+            except ValidationError:
                 pass
             else:
                 self.fail('ValidationError not raised')
