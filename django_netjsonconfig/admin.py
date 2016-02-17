@@ -9,6 +9,7 @@ from django.template.response import TemplateResponse
 
 from .base import TimeStampedEditableAdmin
 from .models import Config, Template
+from .settings import DEFAULT_BACKEND
 from .utils import send_file
 
 
@@ -103,6 +104,23 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
                          contents=config_archive.getvalue())
 
 
+class BaseForm(forms.ModelForm):
+    """
+    Adds support for ``NETJSONCONFIG_DEFAULT_BACKEND``
+    """
+    if DEFAULT_BACKEND:
+        def __init__(self, *args, **kwargs):
+            if 'initial' in kwargs:
+                kwargs['initial'].update({'backend': DEFAULT_BACKEND})
+            super(BaseForm, self).__init__(*args, **kwargs)
+
+
+class TemplateForm(BaseForm):
+    class Meta:
+        model = Template
+        exclude = []
+
+
 class TemplateAdmin(BaseConfigAdmin):
     list_display = ('name', 'backend', 'default', 'created', 'modified')
     list_filter = ('backend', 'default', 'created',)
@@ -115,9 +133,10 @@ class TemplateAdmin(BaseConfigAdmin):
               'modified']
     actions_on_bottom = True
     save_on_top = True
+    form = TemplateForm
 
 
-class ConfigForm(forms.ModelForm):
+class ConfigForm(BaseForm):
     class Meta:
         model = Config
         exclude = []
@@ -148,12 +167,12 @@ class ConfigAdmin(BaseConfigAdmin):
     search_fields = ('id', 'name', 'key', 'last_ip')
     readonly_fields = ['id', 'status', 'last_ip']
     fields = ['name',
+              'backend',
               'id',
               'key',
               'status',
               'last_ip',
               'templates',
-              'backend',
               'config',
               'created',
               'modified']

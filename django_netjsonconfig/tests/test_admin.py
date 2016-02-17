@@ -206,3 +206,13 @@ class TestAdmin(TestCase):
         }
         response = self.client.post(path, params)
         self.assertIn('errors field-backend', str(response.content))
+
+    def test_default_config_backend(self):
+        path = reverse('admin:django_netjsonconfig_config_add')
+        response = self.client.get(path)
+        self.assertContains(response, '<option value="netjsonconfig.OpenWrt" selected')
+
+    def test_default_template_backend(self):
+        path = reverse('admin:django_netjsonconfig_template_add')
+        response = self.client.get(path)
+        self.assertContains(response, '<option value="netjsonconfig.OpenWrt" selected')

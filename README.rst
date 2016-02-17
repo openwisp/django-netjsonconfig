@@ -192,6 +192,20 @@ Each ``Config`` object gets the following attributes passed as configuration var
 For more information, see `netjsonconfig context: configuration variables
 <http://netjsonconfig.openwisp.org/en/latest/general/basics.html#context-configuration-variables>`_.
 
+``NETJSONCONFIG_DEFAULT_BACKEND``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+---------------------------+
+| **type**:    | ``str``                   |
++--------------+---------------------------+
+| **default**: | ``netjsonconfig.OpenWrt`` |
++--------------+---------------------------+
+
+The preferred backend that will be used as initial value when adding new ``Config`` or
+``Template`` objects in the admin.
+
+Set it to ``None`` in order to force the user to choose excplicitly.
+
 Contributing
 ------------
 
