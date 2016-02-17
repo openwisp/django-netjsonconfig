@@ -1,3 +1,3 @@
 #!/bin/bash
-
-flake8 --max-line-length=110 --exclude=migrations,./tests
+set -e
+flake8 --max-line-length=110 --exclude=migrations,./ || exit 1
