@@ -218,3 +218,28 @@ class TestConfig(TestCase):
         self.assertDictEqual(c.backend_instance.config, expected)
         c.refresh_from_db()
         self.assertDictEqual(c.config, {'general': {}})
+
+    def test_config_context(self):
+        config = {
+            'general': {
+                'id': '{{ id }}',
+                'key': '{{ key }}',
+                'name': '{{ name }}'
+            }
+        }
+        c = Config(name='context-test',
+                   backend='netjsonconfig.OpenWrt',
+                   config=config,
+                   key=self.TEST_KEY)
+        output = c.backend_instance.render()
+        self.assertIn(str(c.id), output)
+        self.assertIn(c.key, output)
+        self.assertIn(c.name, output)
+
+    def test_security_error(self):
+        c = Config(name='security-error',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general': {'desc': '{{ 1000**10000 }}'}},
+                   key=self.TEST_KEY)
+        with self.assertRaises(ValidationError):
+            c.full_clean()

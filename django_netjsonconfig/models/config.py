@@ -54,6 +54,7 @@ class AbstractConfig(TimeStampedEditableModel):
         """
         * ensures config is not ``None``
         * performs netjsonconfig backend validation
+        * tries to render the configuration and catches any exception
         """
         if self.config is None:
             self.config = {}
@@ -68,11 +69,18 @@ class AbstractConfig(TimeStampedEditableModel):
             raise ValidationError({'backend': message})
         else:
             self.clean_netjsonconfig_backend(backend)
+        try:
+            backend.render()
+        except Exception as e:
+            # possible exceptions catched:
+            #   * ``jinja2.exceptions.SecurityError``
+            message = '{0}: {1}'.format(e.__class__.__name__, e)
+            raise ValidationError({'config': message})
 
     def get_config(self):
         """
         config preprocessing (skipped for templates):
-            * inserts hostname automatically if not defined
+            * inserts hostname automatically if not present in config
         """
         config = self.config or {}  # might be ``None`` in some corner cases
         if self.__template__:
@@ -132,6 +140,9 @@ class AbstractConfig(TimeStampedEditableModel):
             if template_instances is None:
                 template_instances = self.templates.all()
             kwargs['templates'] = [t.config for t in template_instances]
+        # pass context to backend if get_context method is defined
+        if hasattr(self, 'get_context'):
+            kwargs['context'] = self.get_context()
         return backend(**kwargs)
 
     def generate(self):
@@ -188,6 +199,16 @@ class BaseConfig(AbstractConfig):
             if getattr(self, attr) != getattr(current, attr):
                 self.status = 'modified'
                 break
+
+    def get_context(self):
+        """
+        additional context passed to netjsonconfig
+        """
+        return {
+            'id': str(self.id),
+            'key': self.key,
+            'name': self.name
+        }
 
     class Meta:
         abstract = True

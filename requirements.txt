@@ -2,6 +2,6 @@ django>=1.9,<=1.10
 django-model-utils
 jsonfield
 six
-netjsonconfig>=0.3.4,<=0.4
+netjsonconfig>=0.3.6,<=0.4
 django-sortedm2m>=1.1.0,<=1.2
 django-reversion>=1.10.0,<=1.11.0

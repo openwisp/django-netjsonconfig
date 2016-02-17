@@ -77,7 +77,7 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
                 model.clean_netjsonconfig_backend(backend)
                 output = backend.render()
             except ValidationError as e:
-                error = e
+                error = str(e)
         context = self.admin_site.each_context(request)
         opts = self.model._meta
         context.update({
