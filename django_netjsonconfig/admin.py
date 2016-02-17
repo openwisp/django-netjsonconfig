@@ -138,8 +138,8 @@ class ConfigAdmin(BaseConfigAdmin):
     search_fields = ('id', 'name', 'key', 'last_ip')
     readonly_fields = ['id', 'status', 'last_ip']
     fields = ['name',
-              'key',
               'id',
+              'key',
               'status',
               'last_ip',
               'templates',
