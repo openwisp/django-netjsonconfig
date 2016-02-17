@@ -118,7 +118,8 @@ class ConfigForm(forms.ModelForm):
         if self.instance._state.adding:
             # when adding self.instance is empty, we need to create a
             # temporary instance that we'll use just for validation
-            config = Config(backend=self.data.get('backend'),
+            config = Config(name=self.data.get('name'),
+                            backend=self.data.get('backend'),
                             config=self.data.get('config'))
         else:
             config = self.instance

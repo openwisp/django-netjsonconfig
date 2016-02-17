@@ -31,20 +31,19 @@ class TestAdmin(TestCase):
         self.assertNotIn('errors field-templates', str(response.content))
 
     def test_add_config(self):
-        """ test for issue #1 """
         t = Template.objects.first()
         path = reverse('admin:django_netjsonconfig_config_add')
         params = {
-            'name': 'add_config_clean_templates',
+            'name': 'add-config-test',
             'key': self.TEST_KEY,
             'templates': str(t.pk),
             'backend': 'netjsonconfig.OpenWrt',
-            'config': json.dumps({'general': {'hostname': 'config'}})
+            'config': json.dumps({})
         }
         response = self.client.post(path, params)
         self.assertEqual(response.status_code, 302)
         d = Config.objects.last()
-        self.assertEqual(d.name, 'add_config_clean_templates')
+        self.assertEqual(d.name, 'add-config-test')
 
     def test_download_config(self):
         d = Config(name='download',
