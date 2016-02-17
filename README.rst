@@ -170,6 +170,28 @@ A secret key which must be used by devices to perform automatic registration.
 This key MUST be explicitly set in production (if ``settings.DEBUG is False``), otherwise
 an ``ImproperlyConfigured`` exception will be raised on startup.
 
+``NETJSONCONFIG_CONTEXT``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+------------------+
+| **type**:    | ``dict``         |
++--------------+------------------+
+| **default**: | ``{}``           |
++--------------+------------------+
+
+Additional context that is passed to the default context of each ``Config`` object.
+
+Each ``Config`` object gets the following attributes passed as configuration variables:
+
+* ``id``
+* ``key``
+* ``name``
+
+``NETJSONCONFIG_CONTEXT`` can be used to define system-wide configuration variables.
+
+For more information, see `netjsonconfig context: configuration variables
+<http://netjsonconfig.openwisp.org/en/latest/general/basics.html#context-configuration-variables>`_.
+
 Contributing
 ------------
 

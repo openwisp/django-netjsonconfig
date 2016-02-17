@@ -64,6 +64,9 @@ TEMPLATES = [
 ]
 
 NETJSONCONFIG_SHARED_SECRET = 't3st1ng'
+NETJSONCONFIG_CONTEXT = {
+    'vpnserver1': 'vpn.testdomain.com'
+}
 
 # local settings must be imported before test runner otherwise they'll be ignored
 try:

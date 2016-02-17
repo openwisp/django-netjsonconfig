@@ -207,8 +207,7 @@ class TestConfig(TestCase):
     def test_auto_hostname(self):
         c = Config(name='automate-me',
                    backend='netjsonconfig.OpenWrt',
-                   config={'general': {}},
-                   key=self.TEST_KEY)
+                   config={'general': {}})
         c.full_clean()
         c.save()
         expected = {
@@ -229,8 +228,7 @@ class TestConfig(TestCase):
         }
         c = Config(name='context-test',
                    backend='netjsonconfig.OpenWrt',
-                   config=config,
-                   key=self.TEST_KEY)
+                   config=config)
         output = c.backend_instance.render()
         self.assertIn(str(c.id), output)
         self.assertIn(c.key, output)
@@ -239,7 +237,18 @@ class TestConfig(TestCase):
     def test_security_error(self):
         c = Config(name='security-error',
                    backend='netjsonconfig.OpenWrt',
-                   config={'general': {'desc': '{{ 1000**10000 }}'}},
-                   key=self.TEST_KEY)
+                   config={'general': {'desc': '{{ 1000**10000 }}'}})
         with self.assertRaises(ValidationError):
             c.full_clean()
+
+    def test_context_setting(self):
+        config = {
+            'general': {
+                'vpnserver1': '{{ vpnserver1 }}'
+            }
+        }
+        c = Config(name='context-setting-test',
+                   backend='netjsonconfig.OpenWrt',
+                   config=config)
+        output = c.backend_instance.render()
+        self.assertIn('vpn.testdomain.com', output)

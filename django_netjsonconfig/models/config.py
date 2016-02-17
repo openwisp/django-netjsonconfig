@@ -18,7 +18,7 @@ from sortedm2m.fields import SortedManyToManyField
 from netjsonconfig.exceptions import ValidationError as SchemaError
 
 from ..base import TimeStampedEditableModel
-from ..settings import BACKENDS
+from ..settings import BACKENDS, CONTEXT
 from ..validators import key_validator
 
 
@@ -204,11 +204,13 @@ class BaseConfig(AbstractConfig):
         """
         additional context passed to netjsonconfig
         """
-        return {
+        c = {
             'id': str(self.id),
             'key': self.key,
             'name': self.name
         }
+        c.update(CONTEXT)
+        return c
 
     class Meta:
         abstract = True
