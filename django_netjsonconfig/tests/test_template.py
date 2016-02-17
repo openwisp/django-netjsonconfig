@@ -10,8 +10,8 @@ class TestTemplate(TestCase):
     """
     tests for Template model
     """
-    def _create_template(self):
-        t = Template(**{
+    def _create_template(self, **kwargs):
+        model_kwargs = {
             "name": "dhcp",
             "backend": "netjsonconfig.OpenWrt",
             "config": {
@@ -22,7 +22,9 @@ class TestTemplate(TestCase):
                     }
                 ]
             }
-        })
+        }
+        model_kwargs.update(kwargs)
+        t = Template(**model_kwargs)
         t.full_clean()
         t.save()
         return t
@@ -70,3 +72,12 @@ class TestTemplate(TestCase):
         self.assertNotIn('general', t.backend_instance.config)
         t.refresh_from_db()
         self.assertNotIn('general', t.config)
+
+    def test_default_template(self):
+        t = self._create_template(default=True)
+        c = Config(name='test-default',
+                   backend='netjsonconfig.OpenWrt')
+        c.full_clean()
+        c.save()
+        self.assertEqual(c.templates.count(), 1)
+        self.assertEqual(c.templates.first().id, t.id)

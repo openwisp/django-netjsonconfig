@@ -1,4 +1,6 @@
+from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.translation import ugettext_lazy as _
 
 from .config import AbstractConfig
 
@@ -9,10 +11,16 @@ class BaseTemplate(AbstractConfig):
     Abstract model implementing a
     netjsonconfig template
     """
-    __template__ = True
+    default = models.BooleanField(_('enabled by default'),
+                                  default=False,
+                                  db_index=True,
+                                  help_text=_('whether new configurations will have '
+                                              'this template enabled by default'))
 
     class Meta:
         abstract = True
+
+    __template__ = True
 
     def __str__(self):
         return '[{0}] {1}'.format(self.get_backend_display(), self.name)

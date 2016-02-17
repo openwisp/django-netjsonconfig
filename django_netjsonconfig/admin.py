@@ -32,6 +32,9 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
 
     def add_view(self, request, form_url='', extra_context={}):
         extra_context.update(self.get_extra_context())
+        extra_context.update({
+            'default_templates': [str(t.id) for t in Template.objects.filter(default=True)]
+        })
         return super(BaseConfigAdmin, self).add_view(request, form_url, extra_context)
 
     def change_view(self, request, pk, form_url='', extra_context={}):
@@ -101,9 +104,15 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
 
 
 class TemplateAdmin(BaseConfigAdmin):
-    list_display = ('name', 'backend', 'created', 'modified')
-    list_filter = ('backend', 'created',)
+    list_display = ('name', 'backend', 'default', 'created', 'modified')
+    list_filter = ('backend', 'default', 'created',)
     search_fields = ('name',)
+    fields = ['name',
+              'backend',
+              'default',
+              'config',
+              'created',
+              'modified']
     actions_on_bottom = True
     save_on_top = True
 

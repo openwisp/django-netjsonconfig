@@ -230,6 +230,14 @@ class TemplatesMixin(models.Model):
                                       help_text=_('configuration templates, applied from'
                                                   'first to last'))
 
+    def save(self, *args, **kwargs):
+        created = self._state.adding
+        super(TemplatesMixin, self).save(*args, **kwargs)
+        if created:
+            default = self.templates.model.objects.filter(default=True)
+            if default:
+                self.templates.add(*default)
+
     @classmethod
     def clean_templates(cls, action, instance, pk_set, **kwargs):
         """

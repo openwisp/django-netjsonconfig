@@ -16,4 +16,13 @@
 <div class="djnjc-overlay">
     <div class="inner"></div>
 </div>
+
+{% if default_templates %}
+<script>
+    // enable default templates
+{% for template in default_templates %}
+    django.jQuery('input.sortedm2m[value={{ template }}]').prop('checked', true);
+{% endfor %}
+</script>
+{% endif %}
 {% endblock %}
