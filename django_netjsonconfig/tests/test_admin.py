@@ -194,3 +194,16 @@ class TestAdmin(TestCase):
         response = self.client.get(path)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'field-id')
+
+    def test_empty_backend_import_error(self):
+        t = Template.objects.first()
+        path = reverse('admin:django_netjsonconfig_config_add')
+        params = {
+            'name': 'empty-backend',
+            'key': self.TEST_KEY,
+            'templates': str(t.pk),
+            'backend': '',
+            'config': json.dumps({'general': {'hostname': 'config'}})
+        }
+        response = self.client.post(path, params)
+        self.assertIn('errors field-backend', str(response.content))

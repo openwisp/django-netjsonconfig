@@ -122,7 +122,7 @@ class ConfigForm(forms.ModelForm):
                             config=self.data.get('config'))
         else:
             config = self.instance
-        if templates:
+        if config.backend and templates:
             Config.clean_templates(action='pre_add',
                                    instance=config,
                                    sender=config.templates,
