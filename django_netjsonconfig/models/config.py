@@ -54,7 +54,6 @@ class AbstractConfig(TimeStampedEditableModel):
         """
         * ensures config is not ``None``
         * performs netjsonconfig backend validation
-        * tries to render the configuration and catches any exception
         """
         if self.config is None:
             self.config = {}
@@ -69,13 +68,6 @@ class AbstractConfig(TimeStampedEditableModel):
             raise ValidationError({'backend': message})
         else:
             self.clean_netjsonconfig_backend(backend)
-        try:
-            backend.render()
-        except Exception as e:
-            # possible exceptions catched:
-            #   * ``jinja2.exceptions.SecurityError``
-            message = '{0}: {1}'.format(e.__class__.__name__, e)
-            raise ValidationError({'config': message})
 
     def get_config(self):
         """

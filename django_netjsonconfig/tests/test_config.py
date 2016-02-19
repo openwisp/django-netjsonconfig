@@ -234,13 +234,6 @@ class TestConfig(TestCase):
         self.assertIn(c.key, output)
         self.assertIn(c.name, output)
 
-    def test_security_error(self):
-        c = Config(name='security-error',
-                   backend='netjsonconfig.OpenWrt',
-                   config={'general': {'desc': '{{ 1000**10000 }}'}})
-        with self.assertRaises(ValidationError):
-            c.full_clean()
-
     def test_context_setting(self):
         config = {
             'general': {
