@@ -34,6 +34,7 @@
     }
 
     $(window).load(function(){
+        if (!$('.submit-row').length) { return }
         // populate initial map of form values
         django._njc_initial_values = {}
         map_values(django._njc_initial_values);
