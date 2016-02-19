@@ -204,7 +204,7 @@ For more information, see `netjsonconfig context: configuration variables
 The preferred backend that will be used as initial value when adding new ``Config`` or
 ``Template`` objects in the admin.
 
-Set it to ``None`` in order to force the user to choose excplicitly.
+Set it to ``None`` in order to force the user to choose explicitly.
 
 Contributing
 ------------
