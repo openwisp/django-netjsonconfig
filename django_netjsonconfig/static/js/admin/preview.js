@@ -4,12 +4,18 @@ django.jQuery(function($) {
         inner = overlay.find('.inner'),
         preview_url = $('.previewlink').attr('data-url');
     var openPreview = function() {
-        data = {
+        var data = {
             'name': $('#id_name').val(),
             'backend': $('#id_backend').val(),
             'config': $('#id_config').val(),
             'csrfmiddlewaretoken': $('form input[name=csrfmiddlewaretoken]').val(),
             'templates': $('#id_templates').val()
+        },
+            $id = $('#id_id'),
+            $key = $('#id_key');
+        if ($id.length && $key.length) {
+            data['id'] = $id.val();
+            data['key'] = $key.val();
         }
         // show preview
         $.post(preview_url, data, function(html){

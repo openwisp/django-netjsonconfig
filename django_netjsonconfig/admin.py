@@ -60,12 +60,18 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
         error = None
         output = None
         try:
+            # this object is instanciated only to generate the preview
+            # it won't be saved to the database
             model = self.model(name=request.POST.get('name'),
                                backend=request.POST.get('backend'),
                                config=request.POST.get('config'))
             model.full_clean()
         except ValidationError as e:
             return HttpResponse(str(e), status=400)
+        # add id and key after validation to avoid unique checks
+        if request.POST.get('id') and request.POST.get('key'):
+            model.id = request.POST.get('id')
+            model.key = request.POST.get('key')
         template_ids = request.POST.get('templates')
         if template_ids:
             templates = Template.objects.filter(pk__in=template_ids.split(','))

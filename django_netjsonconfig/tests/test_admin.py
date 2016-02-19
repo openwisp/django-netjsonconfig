@@ -216,3 +216,28 @@ class TestAdmin(TestCase):
         path = reverse('admin:django_netjsonconfig_template_add')
         response = self.client.get(path)
         self.assertContains(response, '<option value="netjsonconfig.OpenWrt" selected')
+
+    def test_preview_variables(self):
+        path = reverse('admin:django_netjsonconfig_config_preview')
+        c = Config(name='variables',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general': {'cid': '{{ id }}',
+                                       'ckey': '{{ key }}',
+                                       'cname': '{{ name }}'}})
+        c.full_clean()
+        c.save()
+        templates = Template.objects.all()
+        c.templates.add(*templates)
+        data = {
+            'name': c.name,
+            'id': c.id,
+            'key': c.key,
+            'backend': c.backend,
+            'config': json.dumps(c.config),
+            'csrfmiddlewaretoken': 'test',
+            'templates': ','.join([str(t.pk) for t in templates])
+        }
+        response = self.client.post(path, data)
+        self.assertContains(response, "cid &#39;{0}&#39;".format(str(c.id)))
+        self.assertContains(response, "ckey &#39;{0}&#39;".format(c.key))
+        self.assertContains(response, "cname &#39;{0}&#39;".format(c.name))
