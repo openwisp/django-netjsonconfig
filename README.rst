@@ -84,6 +84,12 @@ Then run:
 
     ./manage.py migrate
 
+Deploy it in production
+-----------------------
+
+If you need to deploy *django-netjsonconfig* by itself (that is without including it in a larger project),
+you may want to check out the `ansible-openwisp2 <https://github.com/nemesisdesign/ansible-openwisp2>`_ role.
+
 Installing for development
 --------------------------
 
