@@ -4,7 +4,21 @@ Changelog
 Version 0.2.4 [unreleased]
 --------------------------
 
-WIP
+- `75f5c38 <https://github.com/openwisp/django-netjsonconfig/commit/75f5c38>`_:
+  [admin] swapped order of key and id attribtues in config form
+- `#18 <https://github.com/openwisp/django-netjsonconfig/issues/18>`_:
+  added support for **"configuration variables"** and ``NETJSONCONFIG_CONTEXT`` setting
+- `c66f74f <https://github.com/openwisp/django-netjsonconfig/commit/c66f74f>`_:
+  [admin] fixed possible import error case when adding new ``Config``
+- `1f7c4e7 <https://github.com/openwisp/django-netjsonconfig/commit/1f7c4e7>`_:
+  [admin] fixed wrong template validation error in add ``Config``
+- `#19 <https://github.com/openwisp/django-netjsonconfig/issues/19>`_:
+  added **"default templates"** feature
+- `902a65d <https://github.com/openwisp/django-netjsonconfig/commit/902a65d>`_:
+  added ``NETJSONCONFIG_DEFAULT_BACKEND`` setting
+- `dc628e1 <https://github.com/openwisp/django-netjsonconfig/commit/dc628e1>`_:
+  [admin] ensured unsaved change warnings are issued only in add/change
+- updated `netjsonconfig <https://github.com/openwisp/netjsonconfig>`_ minimum version to 0.3.7
 
 Version 0.2.3 [2016-02-12]
 --------------------------
