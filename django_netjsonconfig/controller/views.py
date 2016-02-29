@@ -13,7 +13,7 @@ def checksum(request, pk):
     returns configuration checksum
     """
     config = get_config_or_404(pk)
-    bad_request = forbid_unallowed(request.GET, 'key', config.key)
+    bad_request = forbid_unallowed(request, 'GET', 'key', config.key)
     if bad_request:
         return bad_request
     update_last_ip(config, request)
@@ -26,7 +26,7 @@ def download_config(request, pk):
     returns configuration archive as attachment
     """
     config = get_config_or_404(pk)
-    return (forbid_unallowed(request.GET, 'key', config.key) or
+    return (forbid_unallowed(request, 'GET', 'key', config.key) or
             send_config(config, request))
 
 
@@ -42,7 +42,7 @@ def report_status(request, pk):
     required_params = [('key', config.key),
                        ('status', allowed_status)]
     for key, value in required_params:
-        bad_response = forbid_unallowed(request.POST, key, value)
+        bad_response = forbid_unallowed(request, 'POST', key, value)
         if bad_response:
             return bad_response
     config.status = request.POST.get('status')
@@ -65,7 +65,7 @@ if REGISTRATION_ENABLED:
                            ('name', None),
                            ('backend', allowed_backends)]
         for key, value in required_params:
-            bad_response = forbid_unallowed(request.POST, key, value)
+            bad_response = forbid_unallowed(request, 'POST', key, value)
             if bad_response:
                 return bad_response
         # create new Config

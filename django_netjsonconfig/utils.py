@@ -47,15 +47,16 @@ def update_last_ip(config, request):
         config.save()
 
 
-def forbid_unallowed(params, param, allowed_values=None):
-    value = params.get(param)
+def forbid_unallowed(request, param_group, param, allowed_values=None):
+    error = None
+    value = getattr(request, param_group).get(param)
     if not value:
-        msg = 'error: missing required parameter "{}"\n'.format(param)
-        logger.warning(msg)
-        return ControllerResponse(msg, content_type='text/plain', status=400)
+        error = 'error: missing required parameter "{}"\n'.format(param)
+        logger.warning(error, extra={'request': request, 'stack': True})
+        return ControllerResponse(error, content_type='text/plain', status=400)
     if allowed_values and not isinstance(allowed_values, list):
         allowed_values = [allowed_values]
     if allowed_values is not None and value not in allowed_values:
-        msg = 'error: wrong {}\n'.format(param)
-        logger.warning(msg)
-        return ControllerResponse(msg, content_type='text/plain', status=403)
+        error = 'error: wrong {}\n'.format(param)
+        logger.warning(error, extra={'request': request, 'stack': True})
+        return ControllerResponse(error, content_type='text/plain', status=403)
