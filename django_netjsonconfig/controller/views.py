@@ -70,7 +70,8 @@ if REGISTRATION_ENABLED:
                 return bad_response
         # create new Config
         config = Config.objects.create(name=request.POST.get('name'),
-                                       backend=request.POST.get('backend'))
+                                       backend=request.POST.get('backend'),
+                                       last_ip=request.META.get('REMOTE_ADDR'))
         # return id and key in response
         s = 'registration-result: success\n' \
             'uuid: {id}\n' \

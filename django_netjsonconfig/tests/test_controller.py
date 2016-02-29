@@ -96,8 +96,9 @@ class TestController(TestCase):
         self.assertEqual(lines[0], 'registration-result: success')
         uuid = lines[1].replace('uuid: ', '')
         key = lines[2].replace('key: ', '')
-        self.assertEqual(Config.objects.filter(pk=uuid, key=key).count(), 1)
+        c = Config.objects.get(pk=uuid, key=key)
         self._check_header(response)
+        self.assertIsNotNone(c.last_ip)
 
     def test_register_400(self):
         # missing secret
