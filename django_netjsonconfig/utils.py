@@ -1,7 +1,11 @@
+import logging
+
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 
 from django_netjsonconfig.models import Config
+
+logger = logging.getLogger(__name__)
 
 
 def get_config_or_404(pk, **kwargs):
@@ -46,12 +50,12 @@ def update_last_ip(config, request):
 def forbid_unallowed(params, param, allowed_values=None):
     value = params.get(param)
     if not value:
-        return ControllerResponse('error: missing required parameter "{}"\n'.format(param),
-                                  content_type='text/plain',
-                                  status=400)
+        msg = 'error: missing required parameter "{}"\n'.format(param)
+        logger.warning(msg)
+        return ControllerResponse(msg, content_type='text/plain', status=400)
     if allowed_values and not isinstance(allowed_values, list):
         allowed_values = [allowed_values]
     if allowed_values is not None and value not in allowed_values:
-        return ControllerResponse('error: wrong {}\n'.format(param),
-                                  content_type='text/plain',
-                                  status=403)
+        msg = 'error: wrong {}\n'.format(param)
+        logger.warning(msg)
+        return ControllerResponse(msg, content_type='text/plain', status=403)
