@@ -1,10 +1,15 @@
 Changelog
 =========
 
-Version 0.2.5 [unreleased]
+Version 0.2.5 [2016-03-08]
 --------------------------
 
-WIP
+- `04c8c78 <https://github.com/openwisp/django-netjsonconfig/commit/04c8c78>`_:
+  [controller] log ``last_ip`` during registration
+- `80806d7 <https://github.com/openwisp/django-netjsonconfig/commit/80806d7>`_:
+  [controller] log forbidden requests with ``warning`` level
+- `dba328c <https://github.com/openwisp/django-netjsonconfig/commit/dba328c>`_:
+  [controller] refactored ``utils.forbid_unallowed`` in order to log request details
 
 Version 0.2.4 [2016-02-22]
 --------------------------
