@@ -33,9 +33,10 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
 
     def add_view(self, request, form_url='', extra_context={}):
         extra_context.update(self.get_extra_context())
-        extra_context.update({
-            'default_templates': [str(t.id) for t in Template.objects.filter(default=True)]
-        })
+        if 'config' in self.model.__name__.lower():
+            extra_context.update({
+                'default_templates': [str(t.id) for t in Template.objects.filter(default=True)]
+            })
         return super(BaseConfigAdmin, self).add_view(request, form_url, extra_context)
 
     def change_view(self, request, pk, form_url='', extra_context={}):
