@@ -27,7 +27,6 @@
                 theme: 'django',
                 disable_collapse: true,
                 disable_edit_json: true,
-                form_name_root: 'rotto',
                 startval: startval,
                 // if no backend selected use empty schema
                 schema: backend ? schemas[backend] : {}

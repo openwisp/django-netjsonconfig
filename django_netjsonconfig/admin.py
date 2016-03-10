@@ -1,6 +1,7 @@
 from django import forms
 from django.conf.urls import url
 from django.contrib import admin
+from django.contrib.admin.templatetags.admin_static import static
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -13,17 +14,18 @@ from .settings import DEFAULT_BACKEND
 from .utils import send_file
 from .widgets import JsonSchemaWidget
 
+prefix = 'django-netjsonconfig/'
+
 
 class BaseConfigAdmin(TimeStampedEditableAdmin):
     preview_template = None
 
     class Media:
-        css = {'all': ('css/admin/django-netjsonconfig.css',)}
-        js = (
-            'js/admin/preview.js',
-            'js/admin/unsaved_changes.js',
-            'js/admin/uuid.js'
-        )
+        css = {'all': (static('{0}css/admin.css'.format(prefix)),)}
+        js = [static('{0}/js/{1}'.format(prefix, f))
+              for f in ('preview.js',
+                        'unsaved_changes.js',
+                        'uuid.js')]
 
     def get_extra_context(self, pk=None):
         prefix = 'admin:django_netjsonconfig_{}'.format(self.model.__name__.lower())
