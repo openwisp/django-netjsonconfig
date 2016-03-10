@@ -1,4 +1,4 @@
-.djnjc-preformatted, .vLargeTextField#id_config{
+.djnjc-preformatted, .vLargeTextField#id_config, .jsoneditor .vLargeTextField{
     font-size:1em;
     font-family: "Bitstream Vera Sans Mono",
                  "Monaco",
@@ -12,13 +12,13 @@
     white-space: pre-wrap;
     word-wrap: break-word;
     padding: 20px;
+    line-height: 22px;
 }
 
 .vLargeTextField#id_config{
     min-width: 100%;
     min-height: 500px;
     box-sizing: border-box;
-    line-height: 22px;
 }
 
 .readonly{

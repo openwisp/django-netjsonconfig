@@ -11,6 +11,7 @@ from .base import TimeStampedEditableAdmin
 from .models import Config, Template
 from .settings import DEFAULT_BACKEND
 from .utils import send_file
+from .widgets import JsonSchemaWidget
 
 
 class BaseConfigAdmin(TimeStampedEditableAdmin):
@@ -126,6 +127,7 @@ class TemplateForm(BaseForm):
     class Meta:
         model = Template
         exclude = []
+        widgets = {'config': JsonSchemaWidget}
 
 
 class TemplateAdmin(BaseConfigAdmin):
@@ -147,6 +149,7 @@ class ConfigForm(BaseForm):
     class Meta:
         model = Config
         exclude = []
+        widgets = {'config': JsonSchemaWidget}
 
     def clean_templates(self):
         templates = self.cleaned_data.get('templates', [])

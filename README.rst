@@ -74,8 +74,16 @@ Add the controller URLs to your main ``urls.py``:
 .. code-block:: python
 
     urlpatterns = [
-        # ...
+        # ... other urls in your project ...
+
+        # controller URLs
+        # used by devices to download/update their configuration
+        # keep the namespace argument unchanged
         url(r'^', include('django_netjsonconfig.controller.urls', namespace='controller')),
+        # common URLs
+        # shared among django-netjsonconfig components
+        # keep the namespace argument unchanged
+        url(r'^', include('django_netjsonconfig.urls', namespace='netjsonconfig')),
     ]
 
 Then run:
