@@ -235,3 +235,14 @@ Contributing
 
 .. _PEP8, Style Guide for Python Code: http://www.python.org/dev/peps/pep-0008/
 .. _netjsonconfig: http://netjsonconfig.openwisp.org
+
+Changelog
+---------
+
+See `CHANGES <https://github.com/openwisp/django-netjsonconfig/blob/master/CHANGES.rst>`_.
+
+License
+-------
+
+See `LICENSE <https://github.com/openwisp/django-netjsonconfig/blob/master/LICENSE>`_.
+
