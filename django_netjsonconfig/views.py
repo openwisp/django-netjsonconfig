@@ -1,4 +1,5 @@
 import json
+from copy import deepcopy
 
 from django.http import HttpResponse
 from django.utils import timezone
@@ -13,7 +14,10 @@ from .settings import BACKENDS
 available_schemas = {}
 for backend_path, label in BACKENDS:  # noqa
     backend = import_string(backend_path)
-    available_schemas[backend_path] = backend.schema
+    schema = deepcopy(backend.schema)
+    # hide hostname because it's handled via models
+    del schema['properties']['general']['properties']['hostname']
+    available_schemas[backend_path] = schema
 available_schemas_json = json.dumps(available_schemas)
 
 login_required_error = json.dumps({'error': _('login required')})

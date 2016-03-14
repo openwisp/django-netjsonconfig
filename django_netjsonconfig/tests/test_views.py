@@ -21,3 +21,9 @@ class TestViews(TestCase):
         response = self.client.get(reverse('netjsonconfig:schema'))
         self.assertEqual(response.status_code, 200)
         self.assertIn('netjsonconfig.OpenWrt', response.json())
+
+    def test_schema_hostname_hidden(self):
+        from ..views import available_schemas
+        for key, schema in available_schemas.items():
+            if 'hostname' in schema['properties']['general']['properties']:
+                self.fail('hostname property must be hidden')
