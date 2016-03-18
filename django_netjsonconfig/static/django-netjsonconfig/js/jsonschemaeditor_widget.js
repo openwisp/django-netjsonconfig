@@ -1,15 +1,17 @@
 (function ($) {
-    var loadUi = function(backend, schemas){
+    var loadUi = function(backend, schemas, setInitialValue){
         $('.jsoneditor-raw').each(function(i, el){
             var field = $(el),
                 form = field.parents('form').eq(0),
                 value = JSON.parse(field.val()),
                 id = field.attr('id') + '_jsoneditor',
+                initialField = $('#initial-' + field.attr('id')),
                 container = field.parents('.form-row').eq(0),
                 labelText = container.find('label').text(),
                 startval = $.isEmptyObject(value) ? null : value,
                 editorContainer = $('#' + id),
-                html, editor, options, wrapper, header;
+                html, editor, options, wrapper, header,
+                getEditorValue, updateRaw;
             // inject editor unless already present
             if(!editorContainer.length){
                 html =  '<div class="jsoneditor-wrapper">';
@@ -33,9 +35,16 @@
                 schema: backend ? schemas[backend] : {}
             }
             editor = new JSONEditor(document.getElementById(id), options);
-            updateRaw = function(){
-                field.val(JSON.stringify(editor.getValue(), null, 4));
+            getEditorValue = function(){
+                return JSON.stringify(editor.getValue(), null, 4)
             };
+            updateRaw = function(){
+                field.val(getEditorValue());
+            };
+            // set initial field value to the schema default
+            if (setInitialValue) {
+                initialField.val(getEditorValue());
+            }
             // update raw value on change event
             editor.on('change', updateRaw);
             // update raw value before form submit
@@ -63,12 +72,13 @@
     };
     $(function() {
         $.getJSON(django._netjsonconfigSchemaUrl).success(function(schemas){
-            var backend = $('#id_backend'),
-                reload = function(){ loadUi(backend.val(), schemas) };
+            var backend = $('#id_backend');
             // load first time
-            reload();
+            loadUi(backend.val(), schemas, true)
             // reload when backend is changed
-            backend.change(reload);
+            backend.change(function(){
+                loadUi(backend.val(), schemas);
+            });
         })
     });
 })(django.jQuery);

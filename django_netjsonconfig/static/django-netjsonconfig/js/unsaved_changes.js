@@ -22,7 +22,10 @@
         if (gettext) { message = gettext(message); }  // i18n if enabled
         // compare initial with current values
         for (name in django._njc_initial_values) {
-            if (django._njc_initial_values[name] != current_values[name]) {
+            // use initial values from initial fields if present
+            var initialField = $('#initial-id_' + name),
+                initialValue = initialField.length ? initialField.val() : django._njc_initial_values[name];
+            if (initialValue != current_values[name]) {
                 changed = true;
                 break;
             }
@@ -31,7 +34,7 @@
             e.returnValue = message;
             return message;
         }
-    }
+    };
 
     $(window).load(function(){
         if (!$('.submit-row').length) { return }
@@ -42,7 +45,7 @@
         $(form).submit(function() {
             $(window).unbind('beforeunload', unsaved_changes);
         })
+        // bind unload event
+        $(window).bind('beforeunload', unsaved_changes);
     });
-
-    $(window).bind('beforeunload', unsaved_changes);
 })(django.jQuery);
