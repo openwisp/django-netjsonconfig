@@ -161,3 +161,8 @@ span.control input{ margin: 0 0 0 15px }
 .jsoneditor .property-selector .form-row{
     padding: 2px 10px !important
 }
+
+.jsoneditor .errorlist{
+    margin-top: 3px;
+    margin-left: 175px;
+}

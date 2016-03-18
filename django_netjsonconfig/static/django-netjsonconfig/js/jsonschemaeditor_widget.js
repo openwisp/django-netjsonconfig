@@ -306,17 +306,26 @@ JSONEditor.defaults.themes.django = JSONEditor.AbstractTheme.extend({
         var el = document.createElement('td');
         return el;
     },
-    getErrorMessage: function(text) {
-        var el = document.createElement('p');
-        el.style = el.style || {};
-        el.style.color = 'red';
-        el.appendChild(document.createTextNode(text));
-        return el;
+    getErrorMessage: function(text) {},
+    addInputError: function(input, text) {
+        input.parentNode.className += ' errors';
+        if(!input.errmsg) {
+            input.errmsg = document.createElement('li');
+            var ul = document.createElement('ul');
+            ul.className = 'errorlist';
+            ul.appendChild(input.errmsg)
+            input.parentNode.appendChild(ul);
+        }
+        else {
+            input.errmsg.parentNode.style.display = '';
+        }
+        input.errmsg.textContent = text;
     },
-    addInputError: function(input, text) {},
-    removeInputError: function(input) {},
-    addTableRowError: function(row) {},
-    removeTableRowError: function(row) {},
+    removeInputError: function(input) {
+        if(!input.errmsg) return;
+        input.errmsg.parentNode.style.display = 'none';
+        input.parentNode.className = input.parentNode.className.replace(/\s?errors/g,'');
+    },
     getTabHolder: function() {
         var el = document.createElement('div');
         el.innerHTML = "<div style='float: left; width: 130px;' class='tabs'></div><div class='content' style='margin-left: 130px;'></div><div style='clear:both;'></div>";
