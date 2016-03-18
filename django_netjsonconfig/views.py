@@ -17,6 +17,9 @@ for backend_path, label in BACKENDS:  # noqa
     schema = deepcopy(backend.schema)
     # hide hostname because it's handled via models
     del schema['properties']['general']['properties']['hostname']
+    # remove hosname from required properties
+    if 'hostname' in schema['properties']['general'].get('required', []):
+        del schema['properties']['general']['required']
     available_schemas[backend_path] = schema
 available_schemas_json = json.dumps(available_schemas)
 
