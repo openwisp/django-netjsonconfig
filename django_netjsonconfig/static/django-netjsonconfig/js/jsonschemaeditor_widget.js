@@ -28,6 +28,7 @@
                 disable_collapse: true,
                 disable_edit_json: true,
                 startval: startval,
+                keep_oneof_values: false,
                 // if no backend selected use empty schema
                 schema: backend ? schemas[backend] : {}
             }
