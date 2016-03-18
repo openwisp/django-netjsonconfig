@@ -92,18 +92,21 @@ JSONEditor.defaults.themes.django = JSONEditor.AbstractTheme.extend({
     },
     getGridContainer: function() {
         var el = document.createElement('div');
+        el.className = 'grid-container';
         return el;
     },
     getGridRow: function() {
         var el = document.createElement('div');
+        el.className = 'grid-row';
         return el;
     },
     getGridColumn: function() {
         var el = document.createElement('div');
+        el.className = 'grid-column';
         return el;
     },
     setGridColumnSize: function(el, size) {
-
+        return el;
     },
     getLink: function(text) {
         var el = document.createElement('a');
@@ -130,7 +133,6 @@ JSONEditor.defaults.themes.django = JSONEditor.AbstractTheme.extend({
     },
     getCheckboxLabel: function(text) {
         var el = this.getFormInputLabel(text);
-        el.style.fontWeight = 'normal';
         return el;
     },
     getHeader: function(text) {

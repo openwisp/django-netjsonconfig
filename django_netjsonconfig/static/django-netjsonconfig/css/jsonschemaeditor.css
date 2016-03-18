@@ -9,17 +9,23 @@ input.deletelink:focus{ background: #a41515 }
 }
 
 .form-row .json-editor-btn-edit{ margin-bottom: 10px !important }
-.jsoneditor .form-row{ padding: 15px }
+.jsoneditor .form-row{ padding: 15px 15px 15px 0 }
+.jsoneditor label{ margin-left: 15px }
 .jsoneditor .form-row:last-child{ border-bottom-width: 0 }
 .jsoneditor .inline-group{
     clear: both;
-    margin-top: 15px;
+    margin: 0;
     border: 1px solid #eee;
 }
 
-.jsoneditor .inline-group:last-child{ margin-bottom: 0 }
-.jsoneditor .inline-related .inline-related .inline-related{ padding: 15px }
-.jsoneditor .inline-group > .inline-related{ padding: 0 !important }
+.jsoneditor > div > h3.controls{
+    padding: 15px 0;
+    margin: 0;
+}
+
+.jsoneditor  div[data-schematype="array"] > .inline-related > div > .inline-group{
+    margin: 15px 15px 0;
+}
 .jsoneditor div.control{ margin: 15px 0 }
 .jsoneditor h3{ overflow: hidden }
 .jsoneditor h3 span{
@@ -27,6 +33,90 @@ input.deletelink:focus{ background: #a41515 }
     padding: 6px 0 6px 10px;
     margin-right: 15px;
 }
+.jsoneditor > div > .inline-related > div > div h3{
+    border: 1px solid #eee;
+}
+
+.jsoneditor div[data-schemapath="root.interfaces"] > div > div > div {
+    border-bottom: 2px dotted #ccc;
+    padding: 15px 15px 20px !important;
+    margin-bottom: 5px;
+}
+.jsoneditor div[data-schemapath="root.interfaces"] > div > div > div > div > .inline-group{
+    margin: 8px 0 0
+}
+.jsoneditor div[data-schemapath="root.interfaces"] > div > div > div > label{
+    margin-left: 13px
+}
+.jsoneditor div[data-schemapath="root.interfaces"] > div > div > div > .control{
+    margin-bottom: 0;
+}
+
+div[data-schematype="array"] > div > div >
+div[data-schematype="string"].inline-related .control{
+    margin: -49px 10px 0;
+    float: right;
+    clear: both;
+}
+div[data-schematype="array"] > div > div >
+div[data-schematype="string"].inline-related{ padding: 0 !important }
+
+/* hide empty divs */
+.jsoneditor div:empty{ display: none !important }
+
+/* begin custom properties adjustments */
+.jsoneditor .inline-group{ margin-bottom: 0 }
+.jsoneditor .inline-group > label,
+.jsoneditor .inline-group > select{
+    vertical-align: top;
+    margin: 15px 0;
+}
+.jsoneditor .inline-group > label{
+    font-style: italic;
+    display: inline-block;
+    clear: both;
+    float: none;
+    margin-left: 15px;
+}
+.jsoneditor .inline-related > label,
+.jsoneditor .inline-related > select{
+    margin-bottom: 10px;
+}
+.inline-group[data-schematype="object"] > .inline-related > .grid-container >
+div > .grid-row > .inline-group > div > .inline-group{
+    border: 0 none !important;
+}
+div[data-schematype="object"] > .inline-related > .grid-container >
+div > .grid-row > .inline-group {
+    border-bottom: 1px solid #eee;
+}
+
+.grid-row > .inline-group > div > .inline-group > div.form-row{
+    border: 0 none;
+    padding: 0;
+    margin: 15px 0 15px 25px;
+}
+
+div[data-schematype="object"] > .inline-related > .grid-container > div >
+.grid-row > .inline-group > div > div{
+    border: 0 none;
+}
+
+div[data-schematype="object"] > .inline-related > .grid-container > div >
+.grid-row > .inline-group > div{
+    display: inline-block;
+}
+
+.jsoneditor > div > .inline-related > .grid-container > div > .grid-row >
+.inline-group > div {
+    display: block;
+}
+
+.jsoneditor > div > .inline-related > .grid-container > div > .grid-row >
+.inline-group > div > .inline-group > .inline-related > div {
+    margin: 10px 15px 0;
+}
+/* end custom properties adjustments */
 
 .jsoneditor .control .button{ margin-bottom: 1px }
 span.control input{ margin: 0 0 0 15px }
@@ -38,7 +128,6 @@ span.control input{ margin: 0 0 0 15px }
     padding: 0;
     float: right;
 }
-
 
 .jsoneditor .modal{
     position: absolute;
@@ -57,9 +146,8 @@ span.control input{ margin: 0 0 0 15px }
     margin-bottom: 3px !important
 }
 
-.jsoneditor textarea{
-    min-height: 300px;
-}
+.jsoneditor input[type=checkbox]{ margin-right: 7px }
+.jsoneditor textarea{ min-height: 300px }
 .jsoneditor .modal textarea{
     margin-bottom: 10px;
     min-width: 450px;
