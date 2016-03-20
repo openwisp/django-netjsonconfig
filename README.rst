@@ -223,7 +223,7 @@ Set it to ``None`` in order to force the user to choose explicitly.
 Contributing
 ------------
 
-1. Announce your intentions in the `issue tracker <https://github.com/openwisp/django-netjsonconfig/issues>`__
+1. Announce your intentions in the `OpenWISP Mailing List <https://groups.google.com/d/forum/openwisp>`_
 2. Fork this repo and install it
 3. Follow `PEP8, Style Guide for Python Code`_
 4. Write code
@@ -245,4 +245,3 @@ License
 -------
 
 See `LICENSE <https://github.com/openwisp/django-netjsonconfig/blob/master/LICENSE>`_.
-
