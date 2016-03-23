@@ -57,7 +57,6 @@ class TestConfig(TestCase):
         d.templates.add(dhcp)
         d.templates.add(radio)
         full_config = {
-            'type': 'DeviceConfiguration',
             'general': {
                 'hostname': 'json-test'
             },
@@ -101,6 +100,7 @@ class TestConfig(TestCase):
             "files": [
                 {
                     "path": "/test",
+                    "mode": "0644",
                     "contents": "test"
                 }
             ]
@@ -211,7 +211,6 @@ class TestConfig(TestCase):
         c.full_clean()
         c.save()
         expected = {
-            'type': 'DeviceConfiguration',
             'general': {'hostname': 'automate-me'}
         }
         self.assertDictEqual(c.backend_instance.config, expected)

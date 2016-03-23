@@ -69,7 +69,7 @@ class TestAdmin(TestCase):
                             'family': 'ipv4',
                             'proto': 'static',
                             'address': '127.0.0.1',
-                            'netmask': '8'
+                            'mask': 8
                         }
                     ]
                 }
