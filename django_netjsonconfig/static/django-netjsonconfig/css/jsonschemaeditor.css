@@ -1,3 +1,8 @@
+.jsoneditor-wrapper > fieldset{
+    margin-bottom: 0;
+    border-bottom: 1px solid #eee;
+}
+.jsoneditor-wrapper h2{ padding: 18px }
 input.deletelink{ background: #ba2121 }
 input.deletelink:hover,
 input.deletelink:focus{ background: #a41515 }
@@ -10,7 +15,7 @@ input.deletelink:focus{ background: #a41515 }
 
 .form-row .json-editor-btn-edit{ margin-bottom: 10px !important }
 .jsoneditor .form-row{ padding: 15px 15px 15px 0 }
-.jsoneditor label{ margin-left: 15px }
+.jsoneditor label{ margin-left: 20px }
 .jsoneditor .form-row:last-child{ border-bottom-width: 0 }
 .jsoneditor .inline-group{
     clear: both;
@@ -18,36 +23,64 @@ input.deletelink:focus{ background: #a41515 }
     border: 1px solid #eee;
 }
 
+/* advanced mode and object properties */
 .jsoneditor > div > h3.controls{
-    padding: 15px 0;
+    padding: 12px 0;
     margin: 0;
 }
+.jsoneditor > div > h3.controls .button{ margin: 0 13px }
 
+.jsoneditor  div[data-schematype="array"] > .inline-related > div > .inline-related,
 .jsoneditor  div[data-schematype="array"] > .inline-related > div > .inline-group{
-    margin: 15px 15px 0;
+    margin: 20px;
 }
-.jsoneditor div.control{ margin: 15px 0 }
-.jsoneditor h3{ overflow: hidden }
-.jsoneditor h3 span{
-    display: inline-block;
-    padding: 6px 0 6px 10px;
-    margin-right: 15px;
+.jsoneditor  div[data-schematype="array"] > .inline-related > div > .inline-related:last-child,
+.jsoneditor  div[data-schematype="array"] > .inline-related > div > .inline-group:last-child{
+    margin-bottom: 0
 }
-.jsoneditor > div > .inline-related > div > div h3{
-    border: 1px solid #eee;
+.jsoneditor  div[data-schematype="array"] > .inline-related > div > .inline-related[data-schematype="string"]{
+    margin: 0;
 }
 
 .jsoneditor div[data-schemapath="root.interfaces"] > div > div > div {
     border-bottom: 2px dotted #ccc;
-    padding: 15px 15px 20px !important;
-    margin-bottom: 5px;
 }
-.jsoneditor div[data-schemapath="root.interfaces"] > div > div > div > div > .inline-group{
-    margin: 8px 0 0
+
+.jsoneditor div.control{ margin: 15px 0 }
+.jsoneditor h3{
+    height: 56px;
+    line-height: 55px;
+    padding: 0 12px 0 15px;
+    overflow: hidden;
 }
-.jsoneditor div[data-schemapath="root.interfaces"] > div > div > div > label{
-    margin-left: 13px
+.jsoneditor h3 span{
+    display: inline-block;
+    margin-right: 15px;
+    line-height: 0;
 }
+.jsoneditor h3 span.control{
+    margin-top: 12px;
+    float: right;
+}
+.jsoneditor .grid-column > h3{
+    border: 1px solid #eee;
+}
+
+span.control input{ margin: 0 0 0 15px }
+.jsoneditor span.control{
+    padding: 0;
+    margin-right: 0;
+}
+
+.jsoneditor div[data-schemapath="root.interfaces"] > div > div > div {
+    border-bottom: 2px dotted #ccc;
+    padding-bottom: 20px;
+    margin-bottom: 22px !important;
+}
+.jsoneditor div[data-schemapath="root.interfaces"] > div > div > div:last-child {
+    margin-bottom: 0 !important;
+}
+
 .jsoneditor div[data-schemapath="root.interfaces"] > div > div > div > .control{
     margin-bottom: 0;
 }
@@ -77,10 +110,6 @@ div[data-schematype="string"].inline-related{ padding: 0 !important }
     clear: both;
     float: none;
     margin-left: 15px;
-}
-.jsoneditor .inline-related > label,
-.jsoneditor .inline-related > select{
-    margin-bottom: 10px;
 }
 .inline-group[data-schematype="object"] > .inline-related > .grid-container >
 div > .grid-row > .inline-group > div > .inline-group{
@@ -112,22 +141,31 @@ div[data-schematype="object"] > .inline-related > .grid-container > div >
     display: block;
 }
 
-.jsoneditor > div > .inline-related > .grid-container > div > .grid-row >
-.inline-group > div > .inline-group > .inline-related > div {
-    margin: 10px 15px 0;
+.jsoneditor .grid-row > .inline-group > div > .inline-group > h3 span{ display: inline-block !important }
+.jsoneditor .grid-row > .inline-group > div > .inline-group > .inline-related > div > .inline-related > label,
+.jsoneditor .grid-row > .inline-group > div > .inline-group > .inline-related > div > .inline-related > select{
+    position: static;
+    margin-bottom: 15px;
 }
 /* end custom properties adjustments */
 
-.jsoneditor .control .button{ margin-bottom: 1px }
-span.control input{ margin: 0 0 0 15px }
-.jsoneditor span.control{
-    padding: 0;
-    margin-right: 0;
+/* oneOf switcher */
+.jsoneditor .inline-related > label,
+.jsoneditor .inline-related > select,
+.jsoneditor .grid-column > label,
+.jsoneditor .grid-column > select{
+    position: absolute;
+    top: 14px;
+    left: 0;
+    z-index: 1;
+    font-weight: bold;
 }
-.jsoneditor .inline-group span.control{
-    padding: 0;
-    float: right;
+.jsoneditor .inline-related > select,
+.jsoneditor .grid-column > select{
+    margin-left: 188px;
+    background-color: #fff
 }
+.jsoneditor .grid-row .grid-column{ position: relative }
 
 .jsoneditor .modal{
     position: absolute;
@@ -136,13 +174,13 @@ span.control input{ margin: 0 0 0 15px }
     border: 1px solid #ddd;
     padding-bottom: 10px;
 }
-.jsoneditor .inline-group .modal{
-    width: 320px;
-    margin-left: -195px;
+.jsoneditor .modal{
+    width: 340px;
+    margin-left: -215px;
 }
 .jsoneditor .modal .vTextField[type=text],
 .jsoneditor .modal .button{
-    margin-top: 15px;
+    margin-top: 12px !important;
     margin-bottom: 3px !important
 }
 
@@ -151,6 +189,11 @@ span.control input{ margin: 0 0 0 15px }
 .jsoneditor .modal textarea{
     margin-bottom: 10px;
     min-width: 450px;
+}
+.jsoneditor .modal label{ margin-left: 5px }
+.jsoneditor .property-selector{
+    max-height: 240px !important;
+    width: auto !important;
 }
 .jsoneditor .property-selector{
     padding: 10px !important;
