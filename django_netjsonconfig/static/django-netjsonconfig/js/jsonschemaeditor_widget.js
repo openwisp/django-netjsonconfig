@@ -305,7 +305,13 @@ JSONEditor.defaults.themes.django = JSONEditor.AbstractTheme.extend({
         var el = document.createElement('td');
         return el;
     },
-    getErrorMessage: function(text) {},
+    getErrorMessage: function(text) {
+      var el = document.createElement('p');
+      el.style = el.style || {};
+      el.style.color = 'red';
+      el.appendChild(document.createTextNode(text));
+      return el;
+    },
     addInputError: function(input, text) {
         input.parentNode.className += ' errors';
         if(!input.errmsg) {
@@ -325,6 +331,8 @@ JSONEditor.defaults.themes.django = JSONEditor.AbstractTheme.extend({
         input.errmsg.parentNode.style.display = 'none';
         input.parentNode.className = input.parentNode.className.replace(/\s?errors/g,'');
     },
+    addTableRowError: function(row) {},
+    removeTableRowError: function(row) {},
     getTabHolder: function() {
         var el = document.createElement('div');
         el.innerHTML = "<div style='float: left; width: 130px;' class='tabs'></div><div class='content' style='margin-left: 130px;'></div><div style='clear:both;'></div>";
