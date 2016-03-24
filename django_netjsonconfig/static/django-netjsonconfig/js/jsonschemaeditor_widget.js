@@ -30,6 +30,8 @@
                 disable_collapse: true,
                 disable_edit_json: true,
                 startval: startval,
+                keep_oneof_values: false,
+                show_errors: 'change',
                 // if no backend selected use empty schema
                 schema: backend ? schemas[backend] : {}
             }
@@ -52,8 +54,8 @@
             });
             // add advanced edit button
             header = editorContainer.find('> div > h3');
-            header.find('span:first-child').hide();  // hides "root"
-            header.attr('class', 'controls')
+            header.find('span:first-child').hide();  // hides editor title
+            header.attr('class', 'controls');
             // move advanced mode button in auto-generated UI
             container.find('.advanced-mode').clone().prependTo(header);
             // advanced mode & normal mode buttons
