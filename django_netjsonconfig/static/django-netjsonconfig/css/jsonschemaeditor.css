@@ -187,7 +187,10 @@ div[data-schematype="object"] > .inline-related > .grid-container > div >
 }
 
 .jsoneditor input[type=checkbox]{ margin-right: 7px }
-.jsoneditor textarea{ min-height: 300px }
+.jsoneditor textarea{
+    min-width: 75%;
+    min-height: 330px
+}
 .jsoneditor .modal textarea{
     margin-bottom: 10px;
     min-width: 450px;
