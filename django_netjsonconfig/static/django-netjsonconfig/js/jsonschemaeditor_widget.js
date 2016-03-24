@@ -55,7 +55,7 @@
             header.find('span:first-child').hide();  // hides "root"
             header.attr('class', 'controls')
             // move advanced mode button in auto-generated UI
-            container.find('.advanced-mode').prependTo(header);
+            container.find('.advanced-mode').clone().prependTo(header);
             // advanced mode & normal mode buttons
             header.find('.advanced-mode').click(function(){
                 wrapper.hide();
