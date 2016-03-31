@@ -86,3 +86,5 @@
     white-space: pre-line;
     word-break: break-all;
 }
+.form-row select{ background-color: #fff }
+.form-row input[disabled], .form-row select[disabled]{ background-color: #f4f4f4 }
