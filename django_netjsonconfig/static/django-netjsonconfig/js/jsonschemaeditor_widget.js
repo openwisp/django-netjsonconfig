@@ -80,7 +80,15 @@
             backend.change(function(){
                 loadUi(backend.val(), schemas);
             });
-        })
+        });
+        // allow to add object properties by pressing enter
+        $('#config_form').on('keypress', '.jsoneditor .modal input[type=text]', function(e){
+            if(e.keyCode == 13){
+                e.preventDefault();
+                $(e.target).siblings('input.json-editor-btn-add').trigger('click');
+                $(e.target).val('');
+            }
+        });
     });
 })(django.jQuery);
 
