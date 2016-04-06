@@ -227,3 +227,5 @@ div[data-schematype="object"] > .inline-related > .grid-container > div >
     border-bottom: 1px solid #eee;
     font-size: 13px;
 }
+
+.jsoneditor .modal label{ width: auto }
