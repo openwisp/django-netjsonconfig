@@ -92,6 +92,14 @@
     });
 })(django.jQuery);
 
+var matchKey = (function () {
+    var elem = document.documentElement;
+    if (elem.matches) return 'matches';
+    else if (elem.webkitMatchesSelector) return 'webkitMatchesSelector';
+    else if (elem.mozMatchesSelector) return 'mozMatchesSelector';
+    else if (elem.msMatchesSelector) return 'msMatchesSelector';
+    else if (elem.oMatchesSelector) return 'oMatchesSelector';
+})();
 // JSON-Schema Edtor django theme
 JSONEditor.defaults.themes.django = JSONEditor.AbstractTheme.extend({
     getContainer: function() {
@@ -260,6 +268,7 @@ JSONEditor.defaults.themes.django = JSONEditor.AbstractTheme.extend({
     },
     getDescription: function(text) {
         var el = document.createElement('p');
+        el.className = 'help'
         el.innerHTML = text;
         return el;
     },

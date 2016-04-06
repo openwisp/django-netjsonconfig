@@ -214,3 +214,16 @@ div[data-schematype="object"] > .inline-related > .grid-container > div >
     margin-top: 3px;
     margin-left: 175px;
 }
+
+.jsoneditor div.form-row > .help{
+    margin-left: 180px;
+    margin-top: 2px;
+    font-size: 12px;
+}
+
+.jsoneditor .inline-group > .help{
+    padding: 20px 15px 20px 18px;
+    margin: 0;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
