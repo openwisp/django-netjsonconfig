@@ -212,16 +212,18 @@ div[data-schematype="object"] > .inline-related > .grid-container > div >
 
 .jsoneditor .errorlist{
     margin-top: 3px;
-    margin-left: 175px;
+    margin-left: 181px;
 }
 
 .jsoneditor div.form-row > .help{
-    margin-left: 180px;
-    margin-top: 2px;
-    font-size: 12px;
+    margin-left: 181px;
+    margin-top: 4px;
+    font-size: 13px;
+    color: #888;
 }
 
-.jsoneditor .inline-group > .help{
+.jsoneditor .inline-group > .help,
+.jsoneditor .grid-column > .help{
     padding: 20px 15px 20px 18px;
     margin: 0;
     border-bottom: 1px solid #eee;
@@ -229,3 +231,12 @@ div[data-schematype="object"] > .inline-related > .grid-container > div >
 }
 
 .jsoneditor .modal label{ width: auto }
+
+.jsoneditor div.grid-column[data-schematype="boolean"] label{
+    float: left;
+}
+.jsoneditor div.grid-column[data-schematype="boolean"] .help{
+    float: left;
+    clear: none;
+    margin: 0;
+}
