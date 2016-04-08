@@ -155,7 +155,7 @@ Settings
 | **default**: | ``[]``      |
 +--------------+-------------+
 
-Additional custom `netjsonconfig backends <http://netjsonconfig.openwisp.org/en/latest/general/basics.html#backends>`_.
+Additional custom `netjsonconfig backends <http://netjsonconfig.openwisp.org/en/latest/general/basics.html#backend>`_.
 
 ``NETJSONCONFIG_REGISTRATION_ENABLED``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
