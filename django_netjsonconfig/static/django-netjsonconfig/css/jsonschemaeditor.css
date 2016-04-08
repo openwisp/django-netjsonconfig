@@ -25,6 +25,12 @@ input.deletelink:focus{ background: #a41515 }
     border: 1px solid #eee;
 }
 
+/* avoid redundant borders */
+.jsoneditor .inline-group > .inline-related > .grid-container > div > .grid-row > .grid-column > div > .inline-group,
+.jsoneditor .inline-group > .inline-related > .grid-container > div > .inline-group{
+    border: 0 none;
+}
+
 /* advanced mode and object properties */
 .jsoneditor > div > h3.controls{
     padding: 12px 0;
@@ -65,7 +71,8 @@ input.deletelink:focus{ background: #a41515 }
     float: right;
 }
 .jsoneditor .grid-column > h3{
-    border: 1px solid #eee;
+    border: 0 none;
+    outline: 1px solid #eee;
 }
 
 span.control input{ margin: 0 0 0 15px }
@@ -104,7 +111,7 @@ div[data-schematype="string"].inline-related{ padding: 0 !important }
 .jsoneditor .inline-group > label,
 .jsoneditor .inline-group > select{
     vertical-align: top;
-    margin: 15px 0;
+    margin: 15px 0 10px 15px;
 }
 .jsoneditor .inline-group > label{
     font-style: italic;
@@ -112,6 +119,7 @@ div[data-schematype="string"].inline-related{ padding: 0 !important }
     clear: both;
     float: none;
     margin-left: 15px;
+    margin-bottom: 0;
 }
 .inline-group[data-schematype="object"] > .inline-related > .grid-container >
 div > .grid-row > .inline-group > div > .inline-group{
@@ -125,17 +133,12 @@ div > .grid-row > .inline-group {
 .grid-row > .inline-group > div > .inline-group > div.form-row{
     border: 0 none;
     padding: 0;
-    margin: 15px 0 15px 25px;
+    margin: 0 0 15px 15px;
 }
 
 div[data-schematype="object"] > .inline-related > .grid-container > div >
 .grid-row > .inline-group > div > div{
     border: 0 none;
-}
-
-div[data-schematype="object"] > .inline-related > .grid-container > div >
-.grid-row > .inline-group > div{
-    display: inline-block;
 }
 
 .jsoneditor > div > .inline-related > .grid-container > div > .grid-row >
@@ -148,6 +151,25 @@ div[data-schematype="object"] > .inline-related > .grid-container > div >
 .jsoneditor .grid-row > .inline-group > div > .inline-group > .inline-related > div > .inline-related > select{
     position: static;
     margin-bottom: 15px;
+    margin-left: 0;
+}
+
+.jsoneditor .grid-row > .inline-group > div > .inline-group > .inline-related > div > .inline-related
+.grid-row > .inline-group{
+    border-top: 0 none;
+    border-left: 0 none;
+    border-right: 0 none;
+}
+
+.jsoneditor .grid-row > .inline-group > div > .inline-group > .inline-related > div > .inline-related
+.inline-group[data-schematype="array"] .inline-related > div > .inline-related > div > .inline-group .form-row{
+    margin-left: 15px;
+    border: 0 none;
+}
+
+.jsoneditor .grid-row > .inline-group > div > .inline-group > .inline-related > div > .inline-related
+.inline-group[data-schematype="array"] .inline-related > div > .inline-related .deletelink{
+    margin-left: 0;
 }
 /* end custom properties adjustments */
 
