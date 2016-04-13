@@ -4,6 +4,7 @@ django.jQuery(function($) {
         inner = overlay.find('.inner'),
         preview_url = $('.previewlink').attr('data-url');
     var openPreview = function() {
+        // gather data to send in POST
         var data = {
             'name': $('#id_name').val(),
             'backend': $('#id_backend').val(),
@@ -43,9 +44,13 @@ django.jQuery(function($) {
         openPreview();
     });
     $(document).keyup(function(e) {
-        // CTRL+SHIFT+P
+        // ALT+P
         if (e.altKey && e.which == 80) {
-            openPreview();
+            // unfocus any active input before proceeding
+            $(document.activeElement).trigger('blur');
+            // wait for JSON editor to update the
+            // corresonding raw value before proceding
+            setTimeout(openPreview, 15);
         }
         // ESC
         else if (!e.ctrlKey && e.which == 27) {
