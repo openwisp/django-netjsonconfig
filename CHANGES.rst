@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Version 0.3.0 [unreleased]
+Version 0.3.0 [2016-04-15]
 --------------------------
 
 - `0948999 <https://github.com/openwisp/django-netjsonconfig/commit/0948999>`_: [admin] ensured ``default_templates`` variable is included only in ``Config`` admin
