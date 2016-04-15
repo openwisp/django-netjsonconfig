@@ -302,7 +302,7 @@ Contributing
 4. Write code
 5. Write tests for your code
 6. Ensure all tests pass
-7. Ensure test coverage is not under 90%
+7. Ensure test coverage does not decrease
 8. Document your changes
 9. Send pull request
 
