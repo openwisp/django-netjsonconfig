@@ -59,6 +59,7 @@ target/
 # other
 *.DS_Store*
 *~
+._*
 local_settings.py
 *.db
 *.tar.gz
