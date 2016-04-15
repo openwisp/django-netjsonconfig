@@ -4,7 +4,13 @@ Changelog
 Version 0.3.0 [unreleased]
 --------------------------
 
-WIP
+- `0948999 <https://github.com/openwisp/django-netjsonconfig/commit/0948999>`_: [admin] ensured ``default_templates`` variable is included only in ``Config`` admin
+- `#13 <https://github.com/openwisp/django-netjsonconfig/issues/13>`_: [admin] added json-schema editor UI in ``Config`` admin
+- `6044ac3 <https://github.com/openwisp/django-netjsonconfig/commit/6044ac3>`_: [admin] improved look of disabled inputs & selects
+- `4b4c6a1 <https://github.com/openwisp/django-netjsonconfig/commit/4b4c6a1>`_: fixed requirements.txt (had to be ``<`` instead of ``<=``)
+- `#22 <https://github.com/openwisp/django-netjsonconfig/issues/22>`_: updated django-sortedm2m dependency
+- `751e24e <https://github.com/openwisp/django-netjsonconfig/commit/751e24e>`_: [admin] preview: wait when keyboard shortcut is used
+- `739c9bc <https://github.com/openwisp/django-netjsonconfig/commit/739c9bc>`_: updated minimum netjsonconfig version to 0.4.2 in requirements.txt
 
 Version 0.2.5 [2016-03-08]
 --------------------------
