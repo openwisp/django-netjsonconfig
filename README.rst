@@ -26,8 +26,12 @@ Based on the `NetJSON`_ format and the `netjsonconfig`_ library.
 .. image:: https://github.com/openwisp/django-netjsonconfig/blob/master/docs/images/adhoc-interface.png
    :alt: adhoc interface
 
+------------
+
 .. image:: https://github.com/openwisp/django-netjsonconfig/blob/master/docs/images/preview.png
    :alt: preview
+
+------------
 
 .. contents:: **Table of Contents**:
    :backlinks: none
@@ -264,17 +268,27 @@ Screenshots
 .. image:: https://raw.githubusercontent.com/openwisp/django-netjsonconfig/master/docs/images/configuration-ui.png
    :alt: configuration item
 
+------------
+
 .. image:: https://github.com/openwisp/django-netjsonconfig/blob/master/docs/images/bridge.png
    :alt: bridge
+
+------------
 
 .. image:: https://github.com/openwisp/django-netjsonconfig/blob/master/docs/images/radio.png
    :alt: radio
 
+------------
+
 .. image:: https://github.com/openwisp/django-netjsonconfig/blob/master/docs/images/wpa-enterprise.png
   :alt: wpa enterprise
 
+------------
+
 .. image:: https://github.com/openwisp/django-netjsonconfig/blob/master/docs/images/preview.png
   :alt: preview
+
+------------
 
 .. image:: https://github.com/openwisp/django-netjsonconfig/blob/master/docs/images/adhoc-interface.png
    :alt: adhoc interface
