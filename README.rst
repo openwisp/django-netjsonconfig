@@ -23,6 +23,12 @@ Configuration manager for embedded devices, implemented as a reusable django-app
 
 Based on the `NetJSON`_ format and the `netjsonconfig`_ library.
 
+.. image:: https://github.com/openwisp/django-netjsonconfig/blob/master/docs/images/adhoc-interface.png
+   :alt: adhoc interface
+
+.. image:: https://github.com/openwisp/django-netjsonconfig/blob/master/docs/images/preview.png
+   :alt: preview
+
 .. contents:: **Table of Contents**:
    :backlinks: none
    :depth: 3
@@ -251,6 +257,27 @@ The preferred backend that will be used as initial value when adding new ``Confi
 ``Template`` objects in the admin.
 
 Set it to ``None`` in order to force the user to choose explicitly.
+
+Screenshots
+-----------
+
+.. image:: https://raw.githubusercontent.com/openwisp/django-netjsonconfig/master/docs/images/configuration-ui.png
+   :alt: configuration item
+
+.. image:: https://github.com/openwisp/django-netjsonconfig/blob/master/docs/images/bridge.png
+   :alt: bridge
+
+.. image:: https://github.com/openwisp/django-netjsonconfig/blob/master/docs/images/radio.png
+   :alt: radio
+
+.. image:: https://github.com/openwisp/django-netjsonconfig/blob/master/docs/images/wpa-enterprise.png
+  :alt: wpa enterprise
+
+.. image:: https://github.com/openwisp/django-netjsonconfig/blob/master/docs/images/preview.png
+  :alt: preview
+
+.. image:: https://github.com/openwisp/django-netjsonconfig/blob/master/docs/images/adhoc-interface.png
+   :alt: adhoc interface
 
 Contributing
 ------------
