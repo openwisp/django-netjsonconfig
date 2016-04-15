@@ -19,8 +19,40 @@ django-netjsonconfig
 
 ------------
 
-Django implementation of `NetJSON <http://netjson.org>`_ DeviceConfiguration based
-on `netjsonconfig`_.
+Configuration manager for embedded devices, implemented as a reusable django-app.
+
+Based on the `NetJSON`_ format and the `netjsonconfig`_ library.
+
+.. contents:: **Table of Contents**:
+   :backlinks: none
+   :depth: 3
+
+------------
+
+Current features
+----------------
+
+* **configuration management** for embedded devices supporting different firmwares:
+    - `OpenWRT <http://openwrt.org>`_
+    - `OpenWISP Firmware <https://github.com/openwisp/OpenWISP-Firmware>`_
+    - support for additional firmware can be added by `specifying custom backends <#netjsonconfig-backends>`_
+* **configuration editor** based on `JSON-Schema editor <https://github.com/jdorn/json-editor>`_
+* **advanced edit mode**: edit `NetJSON`_ *DeviceConfiguration* objects for maximum flexibility
+* **configuration templates**: reduce repetition to the minimum
+* **configuration context**: reference ansible-like variables in the configuration
+* **simple HTTP resources**: allow devices to automatically download configuration updates
+
+Project goals
+-------------
+
+* automate configuration management for embedded devices
+* allow to minimize repetition by using templates
+* make it easy to integrate in larger django projects to improve reusability
+* make it easy to extend its models by providing abstract models
+* provide ways to support more firmwares by adding custom backends
+* keep the core as simple as possible
+* provide ways to extend the default behaviour
+* encourage new features to be published as extensions
 
 Install stable version from pypi
 --------------------------------
@@ -234,6 +266,7 @@ Contributing
 9. Send pull request
 
 .. _PEP8, Style Guide for Python Code: http://www.python.org/dev/peps/pep-0008/
+.. _NetJSON: http://netjson.org
 .. _netjsonconfig: http://netjsonconfig.openwisp.org
 
 Changelog
