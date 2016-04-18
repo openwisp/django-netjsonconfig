@@ -41,7 +41,7 @@ setup(
     url='http://netjson.org',
     download_url='https://github.com/openwisp/django-netjsonconfig/releases',
     platforms=['Platform Indipendent'],
-    keywords=['django', 'netjson', 'openwrt', 'networking'],
+    keywords=['django', 'netjson', 'openwrt', 'networking', 'openwisp'],
     packages=find_packages(exclude=['tests', 'tests.*', 'docs', 'docs.*']),
     include_package_data=True,
     zip_safe=False,
