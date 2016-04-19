@@ -1,10 +1,11 @@
 Changelog
 =========
 
-Version 0.3.1 [unreleased]
+Version 0.3.1 [2016-04-19]
 --------------------------
 
-WIP
+- `b4ca30a <https://github.com/openwisp/django-netjsonconfig/commit/b4ca30a>`_: [pypi] added openwisp tag to pypi release
+- `d7c3aea <https://github.com/openwisp/django-netjsonconfig/commit/d7c3aea>`_: [pypi] eliminated accidentally included test database from pypi release
 
 Version 0.3.0 [2016-04-15]
 --------------------------
