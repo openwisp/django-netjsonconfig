@@ -212,6 +212,9 @@ Whether devices can automatically register through the controller or not.
 
 This feature is enabled by default.
 
+Autoregistration must be supported on the devices in order to work, see `openwisp-config automatic
+registration <https://github.com/openwisp/openwisp-config#automatic-registration>`_ for more information.
+
 ``NETJSONCONFIG_SHARED_SECRET``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -221,7 +224,8 @@ This feature is enabled by default.
 | **default**: | ``""``           |
 +--------------+------------------+
 
-A secret key which must be used by devices to perform automatic registration.
+A secret key which must be used by devices to perform `automatic registration
+<https://github.com/openwisp/openwisp-config#automatic-registration>`_.
 
 This key MUST be explicitly set in production (if ``settings.DEBUG is False``), otherwise
 an ``ImproperlyConfigured`` exception will be raised on startup.
