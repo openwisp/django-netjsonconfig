@@ -80,7 +80,7 @@ class AbstractConfig(TimeStampedEditableModel):
         c = deepcopy(config)
         c.setdefault('general', {})
         if 'hostname' not in c['general']:
-            c['general']['hostname'] = self.name
+            c['general']['hostname'] = self.name.replace(':', '-')
         return c
 
     @classmethod

@@ -244,3 +244,10 @@ class TestConfig(TestCase):
                    config=config)
         output = c.backend_instance.render()
         self.assertIn('vpn.testdomain.com', output)
+
+    def test_mac_address_as_hostname(self):
+        c = Config(name='00:11:22:33:44:55',
+                   backend='netjsonconfig.OpenWrt')
+        c.full_clean()
+        c.save()
+        self.assertIn('00-11-22-33-44-55', c.backend_instance.render())
