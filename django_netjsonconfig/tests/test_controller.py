@@ -4,6 +4,7 @@ from django.test import TestCase
 
 from django_netjsonconfig.models import Config
 
+TEST_MACADDR = '00:11:22:33:44:55'
 
 class TestController(TestCase):
     """
@@ -88,7 +89,7 @@ class TestController(TestCase):
     def test_register(self):
         response = self.client.post(self.register_url, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
-            'name': '00:11:22:33:44:55',
+            'name': TEST_MACADDR,
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertEqual(response.status_code, 201)
@@ -103,7 +104,7 @@ class TestController(TestCase):
     def test_register_400(self):
         # missing secret
         response = self.client.post(self.register_url, {
-            'name': '00:11:22:33:44:55',
+            'name': TEST_MACADDR,
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertContains(response, 'secret', status_code=400)
@@ -116,7 +117,7 @@ class TestController(TestCase):
         # missing backend
         response = self.client.post(self.register_url, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
-            'name': '00:11:22:33:44:55',
+            'name': TEST_MACADDR,
         })
         self.assertContains(response, 'backend', status_code=400)
         self._check_header(response)
@@ -125,14 +126,14 @@ class TestController(TestCase):
         # wrong secret
         response = self.client.post(self.register_url, {
             'secret': 'WRONG',
-            'name': '00:11:22:33:44:55',
+            'name': TEST_MACADDR,
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertContains(response, 'wrong secret', status_code=403)
         # wrong backend
         response = self.client.post(self.register_url, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
-            'name': '00:11:22:33:44:55',
+            'name': TEST_MACADDR,
             'backend': 'wrong'
         })
         self.assertContains(response, 'wrong backend', status_code=403)
