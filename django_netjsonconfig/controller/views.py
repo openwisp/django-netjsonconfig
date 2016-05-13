@@ -52,52 +52,53 @@ def report_status(request, pk):
                               content_type='text/plain')
 
 
-if settings.REGISTRATION_ENABLED:
-    @csrf_exempt
-    @require_http_methods(['POST'])
-    def register(request):
-        """
-        registers new config
-        """
-        # ensure request is well formed and authorized
-        allowed_backends = [path for path, name in settings.BACKENDS]
-        required_params = [('secret', settings.SHARED_SECRET),
-                           ('name', None),
-                           ('backend', allowed_backends)]
-        # valid required params or forbid
-        for key, value in required_params:
-            bad_response = forbid_unallowed(request, 'POST', key, value)
-            if bad_response:
-                return bad_response
-        key = None
-        last_ip = request.META.get('REMOTE_ADDR')
-        if settings.CONSISTENT_REGISTRATION:
-            key = request.POST.get('key')
-        # try retrieving existing Config first
-        # (key is filled only if CONSISTENT_REGISTRATION is enabled)
-        try:
-            config = Config.objects.get(key=key)
-        # create new Config otherwise
-        except Config.DoesNotExist:
-            new = True
-            options = dict(name=request.POST.get('name'),
-                           backend=request.POST.get('backend'),
-                           last_ip=last_ip)
-            # do not specify key if ``None``, would cause exception
-            if key:
-                options['key'] = key
-            config = Config.objects.create(**options)
-        # update last_ip on existing configs
-        else:
-            new = False
-            config.last_ip = last_ip
-            config.save()
-        # return id and key in response
-        s = 'registration-result: success\n' \
-            'uuid: {id}\n' \
-            'key: {key}\n' \
-            'hostname: {name}\n'
-        s += 'is-new: %s\n' % (int(new))
-        return ControllerResponse(s.format(**config.__dict__),
-                                  content_type='text/plain',
-                                  status=201)
+@csrf_exempt
+@require_http_methods(['POST'])
+def register(request):
+    """
+    registers new config
+    """
+    if not settings.REGISTRATION_ENABLED:
+        return ControllerResponse(status=404)
+    # ensure request is well formed and authorized
+    allowed_backends = [path for path, name in settings.BACKENDS]
+    required_params = [('secret', settings.SHARED_SECRET),
+                       ('name', None),
+                       ('backend', allowed_backends)]
+    # valid required params or forbid
+    for key, value in required_params:
+        bad_response = forbid_unallowed(request, 'POST', key, value)
+        if bad_response:
+            return bad_response
+    key = None
+    last_ip = request.META.get('REMOTE_ADDR')
+    if settings.CONSISTENT_REGISTRATION:
+        key = request.POST.get('key')
+    # try retrieving existing Config first
+    # (key is filled only if CONSISTENT_REGISTRATION is enabled)
+    try:
+        config = Config.objects.get(key=key)
+    # create new Config otherwise
+    except Config.DoesNotExist:
+        new = True
+        options = dict(name=request.POST.get('name'),
+                       backend=request.POST.get('backend'),
+                       last_ip=last_ip)
+        # do not specify key if ``None``, would cause exception
+        if key:
+            options['key'] = key
+        config = Config.objects.create(**options)
+    # update last_ip on existing configs
+    else:
+        new = False
+        config.last_ip = last_ip
+        config.save()
+    # return id and key in response
+    s = 'registration-result: success\n' \
+        'uuid: {id}\n' \
+        'key: {key}\n' \
+        'hostname: {name}\n'
+    s += 'is-new: %s\n' % (int(new))
+    return ControllerResponse(s.format(**config.__dict__),
+                              content_type='text/plain',
+                              status=201)

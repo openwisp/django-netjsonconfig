@@ -10,14 +10,13 @@ from django_netjsonconfig.models import Config
 TEST_MACADDR = '00:11:22:33:44:55'
 mac_plus_secret = '%s+%s' % (TEST_MACADDR, settings.NETJSONCONFIG_SHARED_SECRET)
 TEST_CONSISTENT_KEY = md5(mac_plus_secret.encode()).hexdigest()
+REGISTER_URL = reverse('controller:register')
 
 
 class TestController(TestCase):
     """
     tests for django_netjsonconfig.controller
     """
-    register_url = reverse('controller:register')
-
     def _create_config(self):
         d = Config(name='test',
                    backend='netjsonconfig.OpenWrt',
@@ -93,7 +92,7 @@ class TestController(TestCase):
         self.assertEqual(response.status_code, 405)
 
     def test_register(self):
-        response = self.client.post(self.register_url, {
+        response = self.client.post(REGISTER_URL, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
             'backend': 'netjsonconfig.OpenWrt'
@@ -109,19 +108,19 @@ class TestController(TestCase):
 
     def test_register_400(self):
         # missing secret
-        response = self.client.post(self.register_url, {
+        response = self.client.post(REGISTER_URL, {
             'name': TEST_MACADDR,
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertContains(response, 'secret', status_code=400)
         # missing name
-        response = self.client.post(self.register_url, {
+        response = self.client.post(REGISTER_URL, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertContains(response, 'name', status_code=400)
         # missing backend
-        response = self.client.post(self.register_url, {
+        response = self.client.post(REGISTER_URL, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
         })
@@ -130,14 +129,14 @@ class TestController(TestCase):
 
     def test_register_403(self):
         # wrong secret
-        response = self.client.post(self.register_url, {
+        response = self.client.post(REGISTER_URL, {
             'secret': 'WRONG',
             'name': TEST_MACADDR,
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertContains(response, 'wrong secret', status_code=403)
         # wrong backend
-        response = self.client.post(self.register_url, {
+        response = self.client.post(REGISTER_URL, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
             'backend': 'wrong'
@@ -146,11 +145,11 @@ class TestController(TestCase):
         self._check_header(response)
 
     def test_register_405(self):
-        response = self.client.get(self.register_url)
+        response = self.client.get(REGISTER_URL)
         self.assertEqual(response.status_code, 405)
 
     def test_consistent_registration_new(self):
-        response = self.client.post(self.register_url, {
+        response = self.client.post(REGISTER_URL, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
             'key': TEST_CONSISTENT_KEY,
@@ -172,7 +171,7 @@ class TestController(TestCase):
         c = self._create_config()
         c.key = TEST_CONSISTENT_KEY
         c.save()
-        response = self.client.post(self.register_url, {
+        response = self.client.post(REGISTER_URL, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
             'key': TEST_CONSISTENT_KEY,
@@ -245,11 +244,6 @@ class TestController(TestCase):
 
 
 class TestConsistentRegistrationDisabled(TestCase):
-    """
-    tests for django_netjsonconfig.controller
-    """
-    register_url = reverse('controller:register')
-
     @classmethod
     def setUpClass(cls):
         super(TestConsistentRegistrationDisabled, cls).setUpClass()
@@ -261,7 +255,7 @@ class TestConsistentRegistrationDisabled(TestCase):
         app_settings.CONSISTENT_REGISTRATION = True
 
     def test_consistent_registration_disabled(self):
-        response = self.client.post(self.register_url, {
+        response = self.client.post(REGISTER_URL, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
             'key': TEST_CONSISTENT_KEY,
@@ -276,3 +270,23 @@ class TestConsistentRegistrationDisabled(TestCase):
         self.assertNotEqual(key, TEST_CONSISTENT_KEY)
         self.assertEqual(Config.objects.filter(key=TEST_CONSISTENT_KEY).count(), 0)
         self.assertEqual(Config.objects.filter(key=key).count(), 1)
+
+
+class TestRegistrationDisabled(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(TestRegistrationDisabled, cls).setUpClass()
+        app_settings.REGISTRATION_ENABLED = False
+
+    @classmethod
+    def tearDownClass(cls):
+        super(TestRegistrationDisabled, cls).tearDownClass()
+        app_settings.REGISTRATION_ENABLED = True
+
+    def test_register_404(self):
+        response = self.client.post(REGISTER_URL, {
+            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+            'name': TEST_MACADDR,
+            'backend': 'netjsonconfig.OpenWrt'
+        })
+        self.assertEqual(response.status_code, 404)

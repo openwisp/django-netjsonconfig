@@ -1,7 +1,6 @@
 from django.conf.urls import url
 
 from . import views
-from ..settings import REGISTRATION_ENABLED
 
 urlpatterns = [
     url(r'^controller/checksum/(?P<pk>[^/]+)/$',
@@ -13,11 +12,7 @@ urlpatterns = [
     url(r'^controller/report-status/(?P<pk>[^/]+)/$',
         views.report_status,
         name='report_status'),
+    url(r'^controller/register/$',
+        views.register,
+        name='register'),
 ]
-
-if REGISTRATION_ENABLED:
-    urlpatterns += [
-        url(r'^controller/register/$',
-            views.register,
-            name='register'),
-    ]
