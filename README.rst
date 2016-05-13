@@ -215,6 +215,24 @@ This feature is enabled by default.
 Autoregistration must be supported on the devices in order to work, see `openwisp-config automatic
 registration <https://github.com/openwisp/openwisp-config#automatic-registration>`_ for more information.
 
+``NETJSONCONFIG_CONSISTENT_REGISTRATION``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+-------------+
+| **type**:    | ``bool``    |
++--------------+-------------+
+| **default**: | ``True``    |
++--------------+-------------+
+
+Whether devices that are already registered are recognized when reflashed or reset, hence keeping
+the existing configuration without creating a new one.
+
+This feature is enabled by default.
+
+Autoregistration must be enabled also on the devices in order to work, see `openwisp-config
+consistent key generation <https://github.com/openwisp/openwisp-config#consistent-key-generation>`_
+for more information.
+
 ``NETJSONCONFIG_SHARED_SECRET``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -1,10 +1,16 @@
+from hashlib import md5
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
+from django_netjsonconfig import settings as app_settings
 from django_netjsonconfig.models import Config
 
 TEST_MACADDR = '00:11:22:33:44:55'
+mac_plus_secret = '%s+%s' % (TEST_MACADDR, settings.NETJSONCONFIG_SHARED_SECRET)
+TEST_CONSISTENT_KEY = md5(mac_plus_secret.encode()).hexdigest()
+
 
 class TestController(TestCase):
     """
@@ -143,6 +149,48 @@ class TestController(TestCase):
         response = self.client.get(self.register_url)
         self.assertEqual(response.status_code, 405)
 
+    def test_consistent_registration_new(self):
+        response = self.client.post(self.register_url, {
+            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+            'name': TEST_MACADDR,
+            'key': TEST_CONSISTENT_KEY,
+            'backend': 'netjsonconfig.OpenWrt'
+        })
+        self.assertEqual(response.status_code, 201)
+        lines = response.content.decode().split('\n')
+        self.assertEqual(lines[0], 'registration-result: success')
+        uuid = lines[1].replace('uuid: ', '')
+        key = lines[2].replace('key: ', '')
+        new = lines[4].replace('is-new: ', '')
+        self.assertEqual(new, '1')
+        self.assertEqual(key, TEST_CONSISTENT_KEY)
+        c = Config.objects.get(pk=uuid, key=TEST_CONSISTENT_KEY)
+        self._check_header(response)
+        self.assertIsNotNone(c.last_ip)
+
+    def test_consistent_registration_existing(self):
+        c = self._create_config()
+        c.key = TEST_CONSISTENT_KEY
+        c.save()
+        response = self.client.post(self.register_url, {
+            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+            'name': TEST_MACADDR,
+            'key': TEST_CONSISTENT_KEY,
+            'backend': 'netjsonconfig.OpenWrt'
+        })
+        self.assertEqual(response.status_code, 201)
+        lines = response.content.decode().split('\n')
+        self.assertEqual(lines[0], 'registration-result: success')
+        uuid = lines[1].replace('uuid: ', '')
+        key = lines[2].replace('key: ', '')
+        hostname = lines[3].replace('hostname: ', '')
+        new = lines[4].replace('is-new: ', '')
+        self.assertEqual(hostname, c.name)
+        self.assertEqual(new, '0')
+        c2 = Config.objects.get(pk=uuid, key=key)
+        self.assertEqual(c2.id, c.id)
+        self.assertEqual(c2.key, c.key)
+
     def test_report_status_running(self):
         c = self._create_config()
         response = self.client.post(reverse('controller:report_status', args=[c.pk]),
@@ -194,3 +242,37 @@ class TestController(TestCase):
         response = self.client.get(reverse('controller:report_status', args=[c.pk]),
                                    {'key': c.key, 'status': 'running'})
         self.assertEqual(response.status_code, 405)
+
+
+class TestConsistentRegistrationDisabled(TestCase):
+    """
+    tests for django_netjsonconfig.controller
+    """
+    register_url = reverse('controller:register')
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestConsistentRegistrationDisabled, cls).setUpClass()
+        app_settings.CONSISTENT_REGISTRATION = False
+
+    @classmethod
+    def tearDownClass(cls):
+        super(TestConsistentRegistrationDisabled, cls).tearDownClass()
+        app_settings.CONSISTENT_REGISTRATION = True
+
+    def test_consistent_registration_disabled(self):
+        response = self.client.post(self.register_url, {
+            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+            'name': TEST_MACADDR,
+            'key': TEST_CONSISTENT_KEY,
+            'backend': 'netjsonconfig.OpenWrt'
+        })
+        self.assertEqual(response.status_code, 201)
+        lines = response.content.decode().split('\n')
+        self.assertEqual(lines[0], 'registration-result: success')
+        key = lines[2].replace('key: ', '')
+        new = lines[4].replace('is-new: ', '')
+        self.assertEqual(new, '1')
+        self.assertNotEqual(key, TEST_CONSISTENT_KEY)
+        self.assertEqual(Config.objects.filter(key=TEST_CONSISTENT_KEY).count(), 0)
+        self.assertEqual(Config.objects.filter(key=key).count(), 1)
