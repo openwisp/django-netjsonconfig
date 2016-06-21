@@ -1,10 +1,11 @@
 Changelog
 =========
 
-Version 0.3.2 [unreleased]
+Version 0.3.2 [2016-06-21]
 --------------------------
 
-WIP
+- `ddb6a13 <https://github.com/openwisp/django-netjsonconfig/commit/ddb6a13>`_: [config] replace ':' with '-' in hostname when generating configuration
+- `6f22de8 <https://github.com/openwisp/django-netjsonconfig/commit/6f22de8>`_: added consistent registration feature
 
 Version 0.3.1 [2016-04-19]
 --------------------------
