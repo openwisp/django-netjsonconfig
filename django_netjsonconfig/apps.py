@@ -2,6 +2,7 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models.signals import m2m_changed
+from django.utils.translation import ugettext_lazy as _
 
 from .settings import REGISTRATION_ENABLED, SHARED_SECRET
 
@@ -9,7 +10,8 @@ from .settings import REGISTRATION_ENABLED, SHARED_SECRET
 class DjangoNetjsonconfigApp(AppConfig):
     name = 'django_netjsonconfig'
     label = 'django_netjsonconfig'
-    verbose_name = 'django-netjsonconfig'
+    verbose_name = _('Device Configuration')
+    verbose_name_plural = _('Device Configurations')
 
     def connect_signals(self):
         """
