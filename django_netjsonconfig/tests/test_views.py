@@ -9,7 +9,10 @@ class TestViews(TestCase):
     """
     tests for django_netjsonconfig.views
     """
-    fixtures = ['test_users']
+    def setUp(self):
+        User.objects.create_superuser(username='admin',
+                                      password='tester',
+                                      email='admin@admin.com')
 
     def test_schema_403(self):
         response = self.client.get(reverse('netjsonconfig:schema'))

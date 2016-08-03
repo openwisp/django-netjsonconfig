@@ -1,5 +1,6 @@
 import json
 
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
@@ -10,11 +11,14 @@ class TestAdmin(TestCase):
     """
     tests for Config model
     """
-    fixtures = ['test_templates', 'test_users']
+    fixtures = ['test_templates']
     maxDiff = None
     TEST_KEY = '00:11:22:33:44:55'
 
     def setUp(self):
+        User.objects.create_superuser(username='admin',
+                                      password='tester',
+                                      email='admin@admin.com')
         self.client.login(username='admin', password='tester')
 
     def test_change_config_clean_templates(self):
