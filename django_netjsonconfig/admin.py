@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 
 from .base import TimeStampedEditableAdmin
-from .models import Config, Template
+from .models import Config, Template, Vpn
 from .settings import DEFAULT_BACKEND
 from .utils import send_file
 from .widgets import JsonSchemaWidget
@@ -209,5 +209,15 @@ class ConfigAdmin(BaseConfigAdmin):
     def get_readonly_fields(self, request, obj=None):
         return self._get_fields(self.readonly_fields, request, obj)
 
+
+class VpnAdmin(TimeStampedEditableAdmin):
+    list_display = ('name', 'backend', 'created', 'modified')
+    list_filter = ('backend', 'created',)
+    search_fields = ('id', 'name')
+    actions_on_bottom = True
+    save_on_top = True
+
+
 admin.site.register(Template, TemplateAdmin)
 admin.site.register(Config, ConfigAdmin)
+admin.site.register(Vpn, VpnAdmin)
