@@ -24,7 +24,8 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django_netjsonconfig',
     'sortedm2m',
-    'reversion'
+    'reversion',
+    'django_x509'
 ]
 
 MIDDLEWARE_CLASSES = [

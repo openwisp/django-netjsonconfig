@@ -10,7 +10,7 @@ from .settings import REGISTRATION_ENABLED, SHARED_SECRET
 class DjangoNetjsonconfigApp(AppConfig):
     name = 'django_netjsonconfig'
     label = 'django_netjsonconfig'
-    verbose_name = _('Device Configurations')
+    verbose_name = _('Configurations')
 
     def connect_signals(self):
         """

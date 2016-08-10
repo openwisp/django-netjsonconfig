@@ -15,6 +15,7 @@ urlpatterns = [
     # shared among django-netjsonconfig components
     # keep the namespace argument unchanged
     url(r'^', include('django_netjsonconfig.urls', namespace='netjsonconfig')),
+    url(r'^', include('django_x509.urls', namespace='x509')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
