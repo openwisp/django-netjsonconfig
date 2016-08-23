@@ -9,7 +9,14 @@
                 if (!name || name.substr(0, 1) == '_' || name.substr(0, 8) == 'initial-') {
                     return;
                 }
-                object[name] = value;
+                // fix checkbox values inconsistency
+                if (field.attr('type') == 'checkbox') {
+                    object[name] = field.is(':checked')
+                }
+                else {
+                    object[name] = value;
+                }
+
             });
         };
 
@@ -25,6 +32,9 @@
             // use initial values from initial fields if present
             var initialField = $('#initial-id_' + name),
                 initialValue = initialField.length ? initialField.val() : django._njc_initial_values[name];
+            // fix checkbox value inconsistency
+            if (initialValue == 'True') { initialValue = true }
+            else if (initialValue == 'False') { initialValue = false }
             if (initialValue != current_values[name]) {
                 changed = true;
                 break;
