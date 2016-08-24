@@ -141,7 +141,7 @@ class TemplateAdmin(BaseConfigAdmin):
               'type',
               'backend',
               'vpn',
-              'create_cert',
+              'auto_cert',
               'default',
               'config',
               'created',

@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
-from ..settings import DEFAULT_CREATE_CERT
+from ..settings import DEFAULT_AUTO_CERT
 from .config import AbstractConfig
 
 TYPE_CHOICES = (
@@ -12,12 +12,12 @@ TYPE_CHOICES = (
 )
 
 
-def default_create_cert():
+def default_auto_cert():
     """
-    returns the default value for create_cert field
+    returns the default value for auto_cert field
     (this avoids to set the exact default value in the database migration)
     """
-    return DEFAULT_CREATE_CERT
+    return DEFAULT_AUTO_CERT
 
 
 @python_2_unicode_compatible
@@ -42,13 +42,13 @@ class BaseTemplate(AbstractConfig):
                                   db_index=True,
                                   help_text=_('whether new configurations will have '
                                               'this template enabled by default'))
-    create_cert = models.BooleanField(_('create certificate'),
-                                      default=default_create_cert,
-                                      db_index=True,
-                                      help_text=_('whether a new x509 certificate should '
-                                                  'be created automatically for each '
-                                                  'configuration using this template, '
-                                                  'valid only for the VPN type'))
+    auto_cert = models.BooleanField(_('auto certificate'),
+                                    default=default_auto_cert,
+                                    db_index=True,
+                                    help_text=_('whether x509 client certificates should '
+                                                'be automatically managed behind the scenes '
+                                                'for each configuration using this template, '
+                                                'valid only for the VPN type'))
 
     class Meta:
         abstract = True
@@ -90,7 +90,7 @@ class BaseTemplate(AbstractConfig):
             })
         elif self.type != 'vpn':
             self.vpn = None
-            self.create_cert = False
+            self.auto_cert = False
 
 
 class Template(BaseTemplate):

@@ -94,8 +94,24 @@ class VpnClient(models.Model):
                                 on_delete=models.CASCADE,
                                 blank=True,
                                 null=True)
+    # this flags indicates whether the certificate must be
+    # automatically managed, which is going to be almost in all cases
+    auto_cert = models.BooleanField(default=False)
 
-    def auto_create_cert(self, name, common_name):
+
+    def save(self, *args, **kwargs):
+        if self.auto_cert:
+            self._auto_create_cert(name=self.config.name,
+                                   common_name=self.config.name)
+        super(VpnClient, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        delete = self.auto_cert
+        super(VpnClient, self).delete(*args, **kwargs)
+        if delete:
+            self.cert.delete()
+
+    def _auto_create_cert(self, name, common_name):
         """
         Automatically creates and assigns a x509 certificate
         """
@@ -121,7 +137,6 @@ class VpnClient(models.Model):
                           extensions=server_extensions)
         cert.save()
         self.cert = cert
-        self.save()
         return cert
 
 

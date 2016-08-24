@@ -276,11 +276,12 @@ class TemplatesVpnMixin(models.Model):
             instance.save()
 
     @classmethod
-    def manage_vpn_client(cls, action, instance, pk_set, **kwargs):
+    def manage_vpn_clients(cls, action, instance, pk_set, **kwargs):
         """
         automatically manages associated vpn clients if the
         instance is using templates which have type set to "VPN"
-        this method is called from a django signal (m2m_changed)
+        and "auto_cert" set to True.
+        This method is called from a django signal (m2m_changed)
         see django_netjsonconfig.apps.DjangoNetjsonconfigApp.connect_signals
         """
         if action not in ['post_add', 'post_remove', 'post_clear']:
@@ -295,20 +296,20 @@ class TemplatesVpnMixin(models.Model):
             templates = pk_set
         # when clearing all templates
         if action == 'post_clear':
-            instance.vpnclient_set.all().delete()
+            for client in instance.vpnclient_set.all():
+                client.delete()
             return
         # when adding or removing specific templates
         for template in templates.filter(type='vpn'):
             if action == 'post_add':
                 client = vpn_client_model(config=instance,
-                                          vpn=template.vpn)
-                if template.create_cert:
-                    client.auto_create_cert(name=instance.name,
-                                            common_name=instance.name)
+                                          vpn=template.vpn,
+                                          auto_cert=template.auto_cert)
                 client.full_clean()
                 client.save()
             elif action == 'post_remove':
-                instance.vpnclient_set.filter(vpn=template.vpn).delete()
+                for client in instance.vpnclient_set.filter(vpn=template.vpn):
+                    client.delete()
 
     class Meta:
         abstract = True

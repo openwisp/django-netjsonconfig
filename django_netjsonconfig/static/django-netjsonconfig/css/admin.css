@@ -89,6 +89,6 @@
 .form-row select{ background-color: #fff }
 .form-row input[disabled], .form-row select[disabled]{ background-color: #f4f4f4 }
 /* hide vpn specific fields by default */
-.field-vpn, .field-create_cert{
+.field-vpn, .field-auto_cert{
     display: none;
 }
