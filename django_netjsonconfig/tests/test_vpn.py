@@ -1,13 +1,13 @@
-# from django.contrib.auth import get_user_model
-# from django.core.urlresolvers import reverse
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from django_x509.models import Ca
 
-from ..models import Vpn
+from . import CreateTemplateMixin, CreateVpnMixin
+from ..models import Config, Vpn, VpnClient
 
 
-class TestVpn(TestCase):
+class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
     """
     tests for Vpn model
     """
@@ -40,3 +40,23 @@ class TestVpn(TestCase):
             }
         ]
         self.assertEqual(vpn.cert.extensions, server_extensions)
+
+    def test_vpn_client_unique_together(self):
+        vpn = self._create_vpn()
+        t = self._create_template(name='vpn-test', type='vpn', vpn=vpn)
+        c = Config(name='test-create-cert',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general': {}})
+        c.full_clean()
+        c.save()
+        c.templates.add(t)
+        # one VpnClient instance has been automatically created
+        # now try to create a duplicate
+        client = VpnClient(vpn=vpn, config=c, auto_cert=True)
+        try:
+            client.full_clean()
+        except ValidationError as e:
+            self.assertIn('Vpn client with this Config and Vpn already exists.',
+                          e.message_dict['__all__'])
+        else:
+            self.fail('unique_together clause not triggered')

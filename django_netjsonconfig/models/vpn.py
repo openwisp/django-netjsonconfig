@@ -98,6 +98,8 @@ class VpnClient(models.Model):
     # automatically managed, which is going to be almost in all cases
     auto_cert = models.BooleanField(default=False)
 
+    class Meta:
+        unique_together = ('config', 'vpn')
 
     def save(self, *args, **kwargs):
         if self.auto_cert:
