@@ -82,6 +82,49 @@ class AbstractVpn(TimeStampedEditableModel):
         abstract = True
 
 
+class VpnClient(models.Model):
+    """
+    m2m through model
+    """
+    config = models.ForeignKey('django_netjsonconfig.Config',
+                               on_delete=models.CASCADE)
+    vpn = models.ForeignKey('django_netjsonconfig.Vpn',
+                            on_delete=models.CASCADE)
+    cert = models.OneToOneField('django_x509.Cert',
+                                on_delete=models.CASCADE,
+                                blank=True,
+                                null=True)
+
+    def auto_create_cert(self, name, common_name):
+        """
+        Automatically creates and assigns a x509 certificate
+        """
+        server_extensions = [
+            {
+                "name": "nsCertType",
+                "value": "client",
+                "critical": False
+            }
+        ]
+        ca = self.vpn.ca
+        cert_model = VpnClient.cert.field.related_model
+        cert = cert_model(name=name,
+                          ca=ca,
+                          key_length=ca.key_length,
+                          digest=ca.digest,
+                          country_code=ca.country_code,
+                          state=ca.state,
+                          city=ca.city,
+                          organization=ca.organization,
+                          email=ca.email,
+                          common_name=common_name,
+                          extensions=server_extensions)
+        cert.save()
+        self.cert = cert
+        self.save()
+        return cert
+
+
 class Vpn(AbstractVpn):
     """
     Abstract VPN model

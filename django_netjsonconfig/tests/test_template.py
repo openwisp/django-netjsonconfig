@@ -3,35 +3,17 @@ from django.test import TestCase
 
 from netjsonconfig import OpenWrt
 
+from . import CreateTemplateMixin, CreateVpnMixin
 from ..models import Config, Template
 
 
-class TestTemplate(TestCase):
+class TestTemplate(CreateTemplateMixin, CreateVpnMixin, TestCase):
     """
     tests for Template model
     """
-    def _create_template(self, **kwargs):
-        model_kwargs = {
-            "name": "dhcp",
-            "backend": "netjsonconfig.OpenWrt",
-            "config": {
-                "interfaces": [
-                    {
-                        "name": "eth0",
-                        "type": "ethernet"
-                    }
-                ]
-            }
-        }
-        model_kwargs.update(kwargs)
-        t = Template(**model_kwargs)
-        t.full_clean()
-        t.save()
-        return t
-
     def test_str(self):
         t = Template(name='test', backend='netjsonconfig.OpenWrt')
-        self.assertEqual(str(t), '[OpenWRT] test')
+        self.assertEqual(str(t), '[Generic-OpenWRT] test')
 
     def test_backend_class(self):
         t = Template(name='test', backend='netjsonconfig.OpenWrt')
@@ -81,3 +63,41 @@ class TestTemplate(TestCase):
         c.save()
         self.assertEqual(c.templates.count(), 1)
         self.assertEqual(c.templates.first().id, t.id)
+
+    def test_vpn_missing(self):
+        try:
+            self._create_template(type='vpn')
+        except ValidationError as err:
+            self.assertTrue('vpn' in err.message_dict)
+        else:
+            self.fail('ValidationError not raised')
+
+    def test_generic_has_no_vpn(self):
+        t = self._create_template(vpn=self._create_vpn())
+        self.assertIsNone(t.vpn)
+        self.assertFalse(t.create_cert)
+
+    def test_generic_has_create_cert_false(self):
+        t = self._create_template()
+        self.assertFalse(t.create_cert)
+
+    def test_create_cert(self):
+        vpn = self._create_vpn()
+        t = self._create_template(type='vpn', vpn=vpn)
+        c = Config(name='test-create-cert',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general': {}})
+        c.full_clean()
+        c.save()
+        c.templates.add(t)
+        c.save()
+        vpnclient = c.vpnclient_set.first()
+        self.assertIsNotNone(vpnclient)
+        self.assertIsNotNone(vpnclient.cert)
+        self.assertEqual(c.vpnclient_set.count(), 1)
+
+    def test_automatically_created_cert_deleted(self):
+        self.test_create_cert()
+        c = Config.objects.get(name='test-create-cert')
+        c.vpn.clear()
+        self.assertEqual(c.vpnclient_set.count(), 0)

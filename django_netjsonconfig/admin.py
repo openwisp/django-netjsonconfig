@@ -25,7 +25,8 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
         js = [static('{0}/js/{1}'.format(prefix, f))
               for f in ('preview.js',
                         'unsaved_changes.js',
-                        'uuid.js')]
+                        'uuid.js',
+                        'switcher.js')]
 
     def get_extra_context(self, pk=None):
         prefix = 'admin:django_netjsonconfig_{}'.format(self.model.__name__.lower())
@@ -134,10 +135,13 @@ class TemplateForm(BaseForm):
 
 class TemplateAdmin(BaseConfigAdmin):
     list_display = ('name', 'backend', 'default', 'created', 'modified')
-    list_filter = ('backend', 'default', 'created',)
+    list_filter = ('backend', 'type', 'default', 'created',)
     search_fields = ('name',)
     fields = ['name',
+              'type',
               'backend',
+              'vpn',
+              'create_cert',
               'default',
               'config',
               'created',

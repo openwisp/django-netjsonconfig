@@ -284,6 +284,21 @@ The preferred backend that will be used as initial value when adding new ``Confi
 
 Set it to ``None`` in order to force the user to choose explicitly.
 
+``NETJSONCONFIG_DEFAULT_CREATE_CERT``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+---------------------------+
+| **type**:    | ``bool``                  |
++--------------+---------------------------+
+| **default**: | ``True``                  |
++--------------+---------------------------+
+
+The default value of the ``create_cert`` field for new ``Template`` objects.
+
+The ``create_cert`` field is valid only for templates which have ``type``
+set to ``VPN`` and indicates whether a new x509 certificate should be created
+automatically for each configuration using that template.
+
 Screenshots
 -----------
 

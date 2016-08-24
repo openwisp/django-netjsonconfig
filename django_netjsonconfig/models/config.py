@@ -210,10 +210,11 @@ class BaseConfig(AbstractConfig):
 BaseConfig._meta.get_field('config').blank = True
 
 
-class TemplatesMixin(models.Model):
+class TemplatesVpnMixin(models.Model):
     """
-    Provides a mixins that adds a m2m relationship
-    with the concrete Template model
+    Provides a mixin that adds two m2m relationships:
+        * Template
+        * Vpn
     """
     templates = SortedManyToManyField('django_netjsonconfig.Template',
                                       related_name='config_relations',
@@ -221,10 +222,16 @@ class TemplatesMixin(models.Model):
                                       blank=True,
                                       help_text=_('configuration templates, applied from'
                                                   'first to last'))
+    vpn = models.ManyToManyField('django_netjsonconfig.Vpn',
+                                 through='django_netjsonconfig.VpnClient',
+                                 related_name='vpn_relations',
+                                 verbose_name=_('VPN'),
+                                 blank=True,
+                                 help_text=_('Automated VPN configurations'))
 
     def save(self, *args, **kwargs):
         created = self._state.adding
-        super(TemplatesMixin, self).save(*args, **kwargs)
+        super(TemplatesVpnMixin, self).save(*args, **kwargs)
         if created:
             default = self.templates.model.objects.filter(default=True)
             if default:
@@ -236,6 +243,8 @@ class TemplatesMixin(models.Model):
         validates resulting configuration of config + templates
         raises a ValidationError if invalid
         must be called from forms or APIs
+        this method is called from a django signal (m2m_changed)
+        see django_netjsonconfig.apps.DjangoNetjsonconfigApp.connect_signals
         """
         if action != 'pre_add':
             return
@@ -257,7 +266,8 @@ class TemplatesMixin(models.Model):
     @classmethod
     def templates_changed(cls, action, instance, **kwargs):
         """
-        called from m2m_changed signal
+        this method is called from a django signal (m2m_changed)
+        see django_netjsonconfig.apps.DjangoNetjsonconfigApp.connect_signals
         """
         if action not in ['post_add', 'post_remove', 'post_clear']:
             return
@@ -265,11 +275,46 @@ class TemplatesMixin(models.Model):
             instance.status = 'modified'
             instance.save()
 
+    @classmethod
+    def manage_vpn_client(cls, action, instance, pk_set, **kwargs):
+        """
+        automatically manages associated vpn clients if the
+        instance is using templates which have type set to "VPN"
+        this method is called from a django signal (m2m_changed)
+        see django_netjsonconfig.apps.DjangoNetjsonconfigApp.connect_signals
+        """
+        if action not in ['post_add', 'post_remove', 'post_clear']:
+            return
+        vpn_client_model = cls.vpn.through
+        # coming from signal
+        if isinstance(pk_set, set):
+            template_model = cls.templates.rel.model
+            templates = template_model.objects.filter(pk__in=list(pk_set))
+        # coming from admin ModelForm
+        else:
+            templates = pk_set
+        # when clearing all templates
+        if action == 'post_clear':
+            instance.vpnclient_set.all().delete()
+            return
+        # when adding or removing specific templates
+        for template in templates.filter(type='vpn'):
+            if action == 'post_add':
+                client = vpn_client_model(config=instance,
+                                          vpn=template.vpn)
+                if template.create_cert:
+                    client.auto_create_cert(name=instance.name,
+                                            common_name=instance.name)
+                client.full_clean()
+                client.save()
+            elif action == 'post_remove':
+                instance.vpnclient_set.filter(vpn=template.vpn).delete()
+
     class Meta:
         abstract = True
 
 
-class Config(BaseConfig, TemplatesMixin):
+class Config(BaseConfig, TemplatesVpnMixin):
     """
     Concrete Config model
     """

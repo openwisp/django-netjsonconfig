@@ -6,10 +6,11 @@ from django.test import TestCase
 
 from netjsonconfig import OpenWrt
 
+from . import CreateTemplateMixin, CreateVpnMixin
 from ..models import Config, Template
 
 
-class TestConfig(TestCase):
+class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
     """
     tests for Config model
     """
@@ -251,3 +252,40 @@ class TestConfig(TestCase):
         c.full_clean()
         c.save()
         self.assertIn('00-11-22-33-44-55', c.backend_instance.render())
+
+    def test_create_vpnclient(self):
+        vpn = self._create_vpn()
+        t = self._create_template(name='test-network',
+                                  type='vpn',
+                                  vpn=vpn)
+        c = Config(name='test-create-cert',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general': {}})
+        c.full_clean()
+        c.save()
+        c.templates.add(t)
+        c.save()
+        vpnclient = c.vpnclient_set.first()
+        self.assertIsNotNone(vpnclient)
+        self.assertEqual(c.vpnclient_set.count(), 1)
+        self.assertEqual(vpnclient.config, c)
+        self.assertEqual(vpnclient.vpn, vpn)
+
+    def test_delete_vpnclient(self):
+        self.test_create_vpnclient()
+        c = Config.objects.get(name='test-create-cert')
+        t = Template.objects.get(name='test-network')
+        c.templates.remove(t)
+        c.save()
+        vpnclient = c.vpnclient_set.first()
+        self.assertIsNone(vpnclient)
+        self.assertEqual(c.vpnclient_set.count(), 0)
+
+    def test_clear_vpnclient(self):
+        self.test_create_vpnclient()
+        c = Config.objects.get(name='test-create-cert')
+        c.templates.clear()
+        c.save()
+        vpnclient = c.vpnclient_set.first()
+        self.assertIsNone(vpnclient)
+        self.assertEqual(c.vpnclient_set.count(), 0)
