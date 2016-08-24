@@ -1,10 +1,13 @@
 Changelog
 =========
 
-Version 0.3.3 [unreleased]
+Version 0.3.3 [2016-08-24]
 --------------------------
 
-WIP
+- `#24 <https://github.com/openwisp/django-netjsonconfig/issues/24>`_: updated outdated dependencies
+- `9cd6348 <https://github.com/openwisp/django-netjsonconfig/commit/9cd6348>`_: added a more human readable app verbose name
+- `93ddb9f <https://github.com/openwisp/django-netjsonconfig/commit/93ddb9f>`_: removed incorrect ``verbose_name_plural`` from ``AppConfig``
+- `4fd23a1 <https://github.com/openwisp/django-netjsonconfig/commit/4fd23a1>`_: updated requirements to be less strict
 
 Version 0.3.2 [2016-06-21]
 --------------------------
