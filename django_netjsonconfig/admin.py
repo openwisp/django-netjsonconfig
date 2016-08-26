@@ -110,7 +110,7 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
 
     def download_view(self, request, pk):
         config = get_object_or_404(self.model, pk=pk)
-        config_archive = config.backend_instance.generate()
+        config_archive = config.generate()
         return send_file(filename='{0}.tar.gz'.format(config.name),
                          contents=config_archive.getvalue())
 
