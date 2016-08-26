@@ -17,8 +17,8 @@ from sortedm2m.fields import SortedManyToManyField
 
 from netjsonconfig.exceptions import ValidationError as SchemaError
 
+from .. import settings as app_settings
 from ..base import TimeStampedEditableModel
-from ..settings import BACKENDS, CONTEXT
 from ..validators import key_validator
 
 
@@ -33,7 +33,7 @@ class AbstractConfig(TimeStampedEditableModel):
     """
     name = models.CharField(max_length=63)
     backend = models.CharField(_('backend'),
-                               choices=BACKENDS,
+                               choices=app_settings.BACKENDS,
                                max_length=128,
                                help_text=_('Select netjsonconfig backend'))
     config = JSONField(_('configuration'),
@@ -201,7 +201,7 @@ class BaseConfig(AbstractConfig):
             'key': self.key,
             'name': self.name
         }
-        c.update(CONTEXT)
+        c.update(app_settings.CONTEXT)
         return c
 
     class Meta:
@@ -311,11 +311,50 @@ class TemplatesVpnMixin(models.Model):
                 for client in instance.vpnclient_set.filter(vpn=template.vpn):
                     client.delete()
 
+    def get_context(self):
+        """
+        adds VPN client certificates to configuration context
+        """
+        c = super(TemplatesVpnMixin, self).get_context()
+        for vpnclient in self.vpnclient_set.all().select_related('vpn', 'cert'):
+            vpn = vpnclient.vpn
+            vpn_id = vpn.pk.hex
+            ca = vpn.ca
+            cert = vpnclient.cert
+            # ca path
+            ca_path_key = 'ca_path_{0}'.format(vpn_id)
+            ca_filename = 'ca-{0}-{1}.pem'.format(ca.pk, ca.common_name)
+            ca_path_value = '{0}/{1}'.format(app_settings.CERT_PATH, ca_filename)
+            # ca contents
+            ca_contents_key = 'ca_contents_{0}'.format(vpn_id)
+            ca_contents_value = ca.certificate
+            # update context
+            c.update({
+                ca_path_key: ca_path_value,
+                ca_contents_key: ca_contents_value
+            })
+            # conditional needed for VPN without x509 authentication
+            # eg: simple password authentication
+            if cert:
+                # cert path
+                cert_path_key = 'auto_cert_path_{0}'.format(vpn_id)
+                cert_filename = 'client-{0}-{1}.pem'.format(cert.pk, cert.common_name)
+                cert_path_value = '{0}/{1}'.format(app_settings.CERT_PATH, cert_filename)
+                # cert contents
+                cert_contents_key = 'auto_cert_contents_{0}'.format(vpn_id)
+                cert_contents_value = '{0}{1}'.format(cert.certificate, cert.private_key)
+                # update context
+                c.update({
+                    cert_path_key: cert_path_value,
+                    cert_contents_key: cert_contents_value,
+                })
+        return c
+
     class Meta:
         abstract = True
 
 
-class Config(BaseConfig, TemplatesVpnMixin):
+class Config(TemplatesVpnMixin, BaseConfig):
     """
     Concrete Config model
     """

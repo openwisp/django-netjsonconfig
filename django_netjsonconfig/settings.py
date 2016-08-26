@@ -16,3 +16,4 @@ DEFAULT_VPN_BACKENDS = [
     ('netjsonconfig.OpenVpn', 'OpenVPN')
 ]
 DEFAULT_AUTO_CERT = getattr(settings, 'NETJSONCONFIG_DEFAULT_AUTO_CERT', True)
+CERT_PATH = getattr(settings, 'NETJSONCONFIG_CERT_PATH', '/etc/x509')

@@ -4,6 +4,7 @@ from django.test import TestCase
 from netjsonconfig import OpenWrt
 
 from . import CreateTemplateMixin, CreateVpnMixin
+from .. import settings as app_settings
 from ..models import Config, Template
 
 
@@ -136,3 +137,65 @@ class TestTemplate(CreateTemplateMixin, CreateVpnMixin, TestCase):
         self.assertFalse(vpnclient.auto_cert)
         self.assertIsNone(vpnclient.cert)
         self.assertEqual(c.vpnclient_set.count(), 1)
+
+    def _get_vpn_context(self):
+        self.test_create_cert()
+        c = Config.objects.get(name='test-create-cert')
+        context = c.get_context()
+        vpnclient = c.vpnclient_set.first()
+        return context, vpnclient
+
+    def test_vpn_context_cert_path(self):
+        context, vpnclient = self._get_vpn_context()
+        cert = vpnclient.cert
+        key = 'auto_cert_path_{0}'.format(vpnclient.vpn.pk.hex)
+        filename = 'client-{0}-{1}.pem'.format(cert.pk, cert.common_name)
+        value = '{0}/{1}'.format(app_settings.CERT_PATH, filename)
+        self.assertIn(key, context)
+        self.assertIn(value, context[key])
+
+    def test_vpn_context_cert_contents(self):
+        context, vpnclient = self._get_vpn_context()
+        cert = vpnclient.cert
+        key = 'auto_cert_contents_{0}'.format(vpnclient.vpn.pk.hex)
+        value = '{0}{1}'.format(cert.certificate, cert.private_key)
+        self.assertIn(key, context)
+        self.assertIn(value, context[key])
+
+    def test_vpn_context_ca_path(self):
+        context, vpnclient = self._get_vpn_context()
+        ca = vpnclient.cert.ca
+        key = 'ca_path_{0}'.format(vpnclient.vpn.pk.hex)
+        filename = 'ca-{0}-{1}.pem'.format(ca.pk, ca.common_name)
+        value = '{0}/{1}'.format(app_settings.CERT_PATH, filename)
+        self.assertIn(key, context)
+        self.assertIn(value, context[key])
+
+    def test_vpn_context_ca_contents(self):
+        context, vpnclient = self._get_vpn_context()
+        ca = vpnclient.cert.ca
+        key = 'ca_contents_{0}'.format(vpnclient.vpn.pk.hex)
+        value = ca.certificate
+        self.assertIn(key, context)
+        self.assertIn(value, context[key])
+
+    def test_vpn_context_no_cert(self):
+        vpn = self._create_vpn()
+        t = self._create_template(type='vpn', auto_cert=False, vpn=vpn)
+        c = Config(name='test-create-cert-false',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general': {}})
+        c.full_clean()
+        c.save()
+        c.templates.add(t)
+        c.save()
+        context = c.get_context()
+        vpn_id = vpn.pk.hex
+        cert_path_key = 'auto_cert_path_{0}'.format(vpn_id)
+        cert_contents_key = 'auto_cert_contents_{0}'.format(vpn_id)
+        ca_path_key = 'ca_path_{0}'.format(vpn_id)
+        ca_contents_key = 'ca_contents_{0}'.format(vpn_id)
+        self.assertNotIn(cert_path_key, context)
+        self.assertNotIn(cert_contents_key, context)
+        self.assertIn(ca_path_key, context)
+        self.assertIn(ca_contents_key, context)

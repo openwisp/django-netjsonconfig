@@ -299,8 +299,21 @@ The ``auto_cert`` field is valid only for templates which have ``type``
 set to ``VPN`` and indicates whether a new x509 certificate should be created
 automatically for each configuration using that template.
 
-The automatically created certificates will also be removed when they are not needed anymore
-(eg: when the VPN template is removed from a configuration object).
+The automatically created certificates will also be removed when they are not
+needed anymore (eg: when the VPN template is removed from a configuration object).
+
+
+``NETJSONCONFIG_CERT_PATH``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+---------------------------+
+| **type**:    | ``str``                   |
++--------------+---------------------------+
+| **default**: | ``/etc/x509``             |
++--------------+---------------------------+
+
+The filesystem path where x509 certificate will be installed when
+downloaded on routers when ``auto_cert`` is being used (enabled by default).
 
 Screenshots
 -----------
