@@ -1,5 +1,6 @@
 import collections
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import slugify
@@ -43,6 +44,11 @@ class AbstractVpn(TimeStampedEditableModel):
 
     def __str__(self):
         return self.name
+
+    def clean(self, *args, **kwargs):
+        if self.cert and self.cert.ca is not self.ca:
+            msg = _('The selected certificate must match the selected CA.')
+            raise ValidationError({'cert': msg})
 
     def save(self, *args, **kwargs):
         """

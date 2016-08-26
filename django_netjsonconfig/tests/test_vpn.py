@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from django_x509.models import Ca
+from django_x509.models import Ca, Cert
 
 from . import CreateTemplateMixin, CreateVpnMixin
 from ..models import Config, Vpn, VpnClient
@@ -60,3 +60,30 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
                           e.message_dict['__all__'])
         else:
             self.fail('unique_together clause not triggered')
+
+    def test_vpn_cert_and_ca_mismatch(self):
+        ca = self._create_ca()
+        different_ca = self._create_ca()
+        cert = Cert(name='test-cert-vpn',
+                    ca=ca,
+                    key_length='2048',
+                    digest='sha256',
+                    country_code='IT',
+                    state='RM',
+                    city='Rome',
+                    organization='OpenWISP',
+                    email='test@test.com',
+                    common_name='openwisp.org')
+        cert.full_clean()
+        cert.save()
+        vpn = Vpn(name='test',
+                  ca=different_ca,
+                  cert=cert,
+                  backend='netjsonconfig.OpenVpn')
+        try:
+            vpn.full_clean()
+        except ValidationError as e:
+            self.assertIn('cert', e.message_dict)
+        else:
+            self.fail('Mismatch between ca and cert but '
+                      'ValidationError not raised')
