@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, editable=False, verbose_name='created')),
                 ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, editable=False, verbose_name='modified')),
-                ('name', models.CharField(max_length=64)),
+                ('name', models.CharField(max_length=64, unique=True)),
                 ('notes', models.TextField(blank=True)),
                 ('backend', models.CharField(choices=[('netjsonconfig.OpenVpn', 'OpenVPN')], help_text='Select VPN configuration backend', max_length=128, verbose_name='VPN backend')),
                 ('server_config', jsonfield.fields.JSONField(blank=True, default=dict, help_text='configuration in NetJSON DeviceConfiguration format', verbose_name='server configuration')),

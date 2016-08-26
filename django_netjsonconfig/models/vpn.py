@@ -18,7 +18,7 @@ class AbstractVpn(TimeStampedEditableModel):
     """
     Abstract VPN model
     """
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=64, unique=True)
     notes = models.TextField(blank=True)
     ca = models.ForeignKey('django_x509.Ca', verbose_name=_('CA'))
     cert = models.ForeignKey('django_x509.Cert',
