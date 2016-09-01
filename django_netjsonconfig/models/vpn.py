@@ -46,7 +46,7 @@ class AbstractVpn(TimeStampedEditableModel):
         return self.name
 
     def clean(self, *args, **kwargs):
-        if self.cert and self.cert.ca is not self.ca:
+        if self.cert and self.cert.ca.pk is not self.ca.pk:
             msg = _('The selected certificate must match the selected CA.')
             raise ValidationError({'cert': msg})
 
