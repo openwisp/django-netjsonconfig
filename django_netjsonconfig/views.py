@@ -15,11 +15,14 @@ available_schemas = {}
 for backend_path, label in BACKENDS:  # noqa
     backend = import_string(backend_path)
     schema = deepcopy(backend.schema)
-    # hide hostname because it's handled via models
-    del schema['properties']['general']['properties']['hostname']
-    # remove hosname from required properties
-    if 'hostname' in schema['properties']['general'].get('required', []):
-        del schema['properties']['general']['required']
+    # must use conditional because some custom backends might not specify an hostname
+    if 'general' in schema['properties']:
+        # hide hostname because it's handled via models
+        if 'hostname' in schema['properties']['general']['properties']:
+            del schema['properties']['general']['properties']['hostname']
+        # remove hosname from required properties
+        if 'hostname' in schema['properties']['general'].get('required', []):
+            del schema['properties']['general']['required']
     available_schemas[backend_path] = schema
 available_schemas_json = json.dumps(available_schemas)
 
