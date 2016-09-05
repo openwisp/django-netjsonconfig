@@ -8,7 +8,7 @@ from .config import AbstractConfig
 
 TYPE_CHOICES = (
     ('generic', _('Generic')),
-    ('vpn', _('VPN')),
+    ('vpn', _('VPN-client')),
 )
 
 

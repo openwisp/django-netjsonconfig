@@ -153,5 +153,5 @@ class Vpn(AbstractVpn):
     Abstract VPN model
     """
     class Meta:
-        verbose_name = _('VPN')
-        verbose_name_plural = _('VPN')
+        verbose_name = _('VPN Server')
+        verbose_name_plural = _('VPN Servers')
