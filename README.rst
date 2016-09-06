@@ -302,7 +302,6 @@ automatically for each configuration using that template.
 The automatically created certificates will also be removed when they are not
 needed anymore (eg: when the VPN template is removed from a configuration object).
 
-
 ``NETJSONCONFIG_CERT_PATH``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
