@@ -19,7 +19,7 @@ class AbstractVpn(TimeStampedEditableModel):
     Abstract VPN model
     """
     name = models.CharField(max_length=64, unique=True)
-    notes = models.TextField(blank=True)
+    host = models.CharField(max_length=64, help_text=_('VPN server hostname or ip address'))
     ca = models.ForeignKey('django_x509.Ca', verbose_name=_('CA'))
     cert = models.ForeignKey('django_x509.Cert',
                              verbose_name=_('x509 Certificate'),
@@ -29,18 +29,13 @@ class AbstractVpn(TimeStampedEditableModel):
                                choices=DEFAULT_VPN_BACKENDS,
                                max_length=128,
                                help_text=_('Select VPN configuration backend'))
-    server_config = JSONField(_('server configuration'),
-                              blank=True,
-                              default=dict,
-                              help_text=_('configuration in NetJSON DeviceConfiguration format'),
-                              load_kwargs={'object_pairs_hook': collections.OrderedDict},
-                              dump_kwargs={'indent': 4})
-    client_config = JSONField(_('client configuration'),
-                              blank=True,
-                              default=dict,
-                              help_text=_('configuration in NetJSON DeviceConfiguration format'),
-                              load_kwargs={'object_pairs_hook': collections.OrderedDict},
-                              dump_kwargs={'indent': 4})
+    notes = models.TextField(blank=True)
+    config = JSONField(_('server configuration'),
+                       blank=True,
+                       default=dict,
+                       help_text=_('configuration in NetJSON DeviceConfiguration format'),
+                       load_kwargs={'object_pairs_hook': collections.OrderedDict},
+                       dump_kwargs={'indent': 4})
 
     def __str__(self):
         return self.name

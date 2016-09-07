@@ -28,16 +28,16 @@ class Migration(migrations.Migration):
                 ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, editable=False, verbose_name='created')),
                 ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, editable=False, verbose_name='modified')),
                 ('name', models.CharField(max_length=64, unique=True)),
+                ('host', models.CharField(max_length=64, help_text='VPN server hostname or ip address')),
                 ('notes', models.TextField(blank=True)),
                 ('backend', models.CharField(choices=[('netjsonconfig.OpenVpn', 'OpenVPN')], help_text='Select VPN configuration backend', max_length=128, verbose_name='VPN backend')),
-                ('server_config', jsonfield.fields.JSONField(blank=True, default=dict, help_text='configuration in NetJSON DeviceConfiguration format', verbose_name='server configuration')),
-                ('client_config', jsonfield.fields.JSONField(blank=True, default=dict, help_text='configuration in NetJSON DeviceConfiguration format', verbose_name='client configuration')),
+                ('config', jsonfield.fields.JSONField(blank=True, default=dict, help_text='configuration in NetJSON DeviceConfiguration format', verbose_name='server configuration')),
                 ('ca', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='django_x509.Ca', verbose_name='CA')),
                 ('cert', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_x509.Cert', verbose_name='x509 Certificate')),
             ],
             options={
-                'verbose_name_plural': 'VPN',
-                'verbose_name': 'VPN',
+                'verbose_name_plural': 'VPN Servers',
+                'verbose_name': 'VPN Server',
             },
         ),
         migrations.CreateModel(
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='template',
             name='type',
-            field=models.CharField(choices=[('generic', 'Generic'), ('vpn', 'VPN')], db_index=True, default='generic', help_text='template type, determines which features are available', max_length=16, verbose_name='type'),
+            field=models.CharField(choices=[('generic', 'Generic'), ('vpn', 'VPN-client')], db_index=True, default='generic', help_text='template type, determines which features are available', max_length=16, verbose_name='type'),
         ),
         migrations.AddField(
             model_name='config',

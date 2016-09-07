@@ -216,8 +216,8 @@ class ConfigAdmin(BaseConfigAdmin):
 
 class VpnAdmin(TimeStampedEditableAdmin):
     list_display = ('name', 'backend', 'created', 'modified')
-    list_filter = ('backend', 'created',)
-    search_fields = ('id', 'name')
+    list_filter = ('backend', 'ca', 'created',)
+    search_fields = ('id', 'name', 'host')
     actions_on_bottom = True
     save_on_top = True
 
