@@ -14,9 +14,6 @@ django-netjsonconfig
 .. image:: https://badge.fury.io/py/django-netjsonconfig.svg
    :target: http://badge.fury.io/py/django-netjsonconfig
 
-.. image:: https://img.shields.io/pypi/dm/django-netjsonconfig.svg
-   :target: https://pypi.python.org/pypi/django-netjsonconfig
-
 ------------
 
 Configuration manager for embedded devices, implemented as a reusable django-app.
