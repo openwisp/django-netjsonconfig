@@ -134,7 +134,7 @@ class TemplateForm(BaseForm):
 
 
 class TemplateAdmin(BaseConfigAdmin):
-    list_display = ('name', 'backend', 'default', 'created', 'modified')
+    list_display = ('name', 'type', 'backend', 'default', 'created', 'modified')
     list_filter = ('backend', 'type', 'default', 'created',)
     search_fields = ('name',)
     fields = ['name',
