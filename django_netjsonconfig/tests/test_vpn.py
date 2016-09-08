@@ -27,6 +27,7 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
 
     def test_automatic_cert_creation(self):
         vpn = Vpn(name='test',
+                  host='vpn1.test.com',
                   ca=self._create_ca(),
                   backend='netjsonconfig.OpenVpn')
         vpn.full_clean()
@@ -77,6 +78,7 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
         cert.full_clean()
         cert.save()
         vpn = Vpn(name='test',
+                  host='vpn1.test.com',
                   ca=different_ca,
                   cert=cert,
                   backend='netjsonconfig.OpenVpn')

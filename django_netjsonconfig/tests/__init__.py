@@ -37,6 +37,7 @@ class CreateVpnMixin(object):
         ca.full_clean()
         ca.save()
         vpn = Vpn(name='test',
+                  host='vpn1.test.com',
                   ca=ca,
                   backend='netjsonconfig.OpenVpn')
         vpn.full_clean()
