@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-
 from django_x509.models import Ca, Cert
+from netjsonconfig import OpenVpn
 
 from . import CreateTemplateMixin, CreateVpnMixin
 from ..models import Config, Vpn, VpnClient
@@ -25,13 +25,50 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
         ca.save()
         return ca
 
+    def test_config_not_none(self):
+        v = Vpn(name='test',
+                host='vpn1.test.com',
+                ca=self._create_ca(),
+                backend='netjsonconfig.OpenVpn',
+                config=None)
+        try:
+            v.full_clean()
+        except ValidationError:
+            pass
+        self.assertEqual(v.config, {})
+
+    def test_backend_class(self):
+        v = Vpn(name='test',
+                host='vpn1.test.com',
+                ca=self._create_ca(),
+                backend='netjsonconfig.OpenVpn')
+        self.assertIs(v.backend_class, OpenVpn)
+
+    def test_backend_instance(self):
+        v = Vpn(name='test',
+                host='vpn1.test.com',
+                ca=self._create_ca(),
+                backend='netjsonconfig.OpenVpn',
+                config={})
+        self.assertIsInstance(v.backend_instance, OpenVpn)
+
+    def test_validation(self):
+        config = {'openvpn': {'invalid': True}}
+        v = Vpn(name='test',
+                host='vpn1.test.com',
+                ca=self._create_ca(),
+                backend='netjsonconfig.OpenVpn',
+                config=config)
+        # ensure django ValidationError is raised
+        with self.assertRaises(ValidationError):
+            v.full_clean()
+
+    def test_json(self):
+        v = self._create_vpn()
+        self.assertDictEqual(v.json(dict=True), self._vpn_config)
+
     def test_automatic_cert_creation(self):
-        vpn = Vpn(name='test',
-                  host='vpn1.test.com',
-                  ca=self._create_ca(),
-                  backend='netjsonconfig.OpenVpn')
-        vpn.full_clean()
-        vpn.save()
+        vpn = self._create_vpn()
         self.assertIsNotNone(vpn.cert)
         server_extensions = [
             {

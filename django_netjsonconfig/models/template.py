@@ -4,7 +4,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from ..settings import DEFAULT_AUTO_CERT
-from .config import AbstractConfig
+from .base import AbstractConfig
 
 TYPE_CHOICES = (
     ('generic', _('Generic')),
@@ -49,11 +49,10 @@ class BaseTemplate(AbstractConfig):
                                                 'be automatically managed behind the scenes '
                                                 'for each configuration using this template, '
                                                 'valid only for the VPN type'))
+    __template__ = True
 
     class Meta:
         abstract = True
-
-    __template__ = True
 
     def __str__(self):
         return '[{0}-{1}] {2}'.format(self.get_type_display(),

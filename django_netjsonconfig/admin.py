@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.admin.templatetags.admin_static import static
@@ -8,13 +9,26 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 
-from .base import TimeStampedEditableAdmin
 from .models import Config, Template, Vpn
 from .settings import DEFAULT_BACKEND
 from .utils import send_file
 from .widgets import JsonSchemaWidget
 
 prefix = 'django-netjsonconfig/'
+
+if 'reversion' in settings.INSTALLED_APPS:
+    from reversion.admin import VersionAdmin as BaseAdmin
+else:  # pragma: nocover
+    from django.contrib.admin import ModelAdmin as BaseAdmin
+
+
+class TimeStampedEditableAdmin(BaseAdmin):
+    """
+    ModelAdmin for TimeStampedEditableModel
+    """
+    def __init__(self, *args, **kwargs):
+        self.readonly_fields += ('created', 'modified',)
+        super(TimeStampedEditableAdmin, self).__init__(*args, **kwargs)
 
 
 class BaseConfigAdmin(TimeStampedEditableAdmin):
@@ -220,6 +234,15 @@ class VpnAdmin(TimeStampedEditableAdmin):
     search_fields = ('id', 'name', 'host')
     actions_on_bottom = True
     save_on_top = True
+    fields = ['name',
+              'host',
+              'ca',
+              'cert',
+              'backend',
+              'notes',
+              'config',
+              'created',
+              'modified']
 
 
 admin.site.register(Template, TemplateAdmin)

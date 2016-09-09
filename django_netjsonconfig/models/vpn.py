@@ -1,20 +1,17 @@
-import collections
-
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
-from jsonfield import JSONField
 
 from django_x509.models import Cert
 
-from ..base import TimeStampedEditableModel
 from ..settings import DEFAULT_VPN_BACKENDS
+from .base import AbstractConfig
 
 
 @python_2_unicode_compatible
-class AbstractVpn(TimeStampedEditableModel):
+class BaseVpn(AbstractConfig):
     """
     Abstract VPN model
     """
@@ -30,17 +27,17 @@ class AbstractVpn(TimeStampedEditableModel):
                                max_length=128,
                                help_text=_('Select VPN configuration backend'))
     notes = models.TextField(blank=True)
-    config = JSONField(_('server configuration'),
-                       blank=True,
-                       default=dict,
-                       help_text=_('configuration in NetJSON DeviceConfiguration format'),
-                       load_kwargs={'object_pairs_hook': collections.OrderedDict},
-                       dump_kwargs={'indent': 4})
+
+    __vpn__ = True
+
+    class Meta:
+        abstract = True
 
     def __str__(self):
         return self.name
 
     def clean(self, *args, **kwargs):
+        super(BaseVpn, self).clean(*args, **kwargs)
         if self.cert and self.cert.ca.pk is not self.ca.pk:
             msg = _('The selected certificate must match the selected CA.')
             raise ValidationError({'cert': msg})
@@ -51,7 +48,7 @@ class AbstractVpn(TimeStampedEditableModel):
         """
         if not self.cert:
             self.cert = self._auto_create_cert()
-        super(AbstractVpn, self).save(*args, **kwargs)
+        super(BaseVpn, self).save(*args, **kwargs)
 
     def _auto_create_cert(self):
         """
@@ -78,9 +75,6 @@ class AbstractVpn(TimeStampedEditableModel):
                     extensions=server_extensions)
         cert.save()
         return cert
-
-    class Meta:
-        abstract = True
 
 
 class VpnClient(models.Model):
@@ -143,9 +137,9 @@ class VpnClient(models.Model):
         return cert
 
 
-class Vpn(AbstractVpn):
+class Vpn(BaseVpn):
     """
-    Abstract VPN model
+    Concrete VPN model
     """
     class Meta:
         verbose_name = _('VPN Server')

@@ -24,6 +24,19 @@ class CreateTemplateMixin(object):
 
 
 class CreateVpnMixin(object):
+    _vpn_config = config = {
+        "ca": "ca.pem",
+        "cert": "cert.pem",
+        "dev": "tap0",
+        "dev_type": "tap",
+        "dh": "dh.pem",
+        "key": "key.pem",
+        "mode": "server",
+        "name": "example-vpn",
+        "proto": "udp",
+        "tls_server": True
+    }
+
     def _create_vpn(self):
         ca = Ca(name='test-ca',
                 key_length='2048',
@@ -39,7 +52,8 @@ class CreateVpnMixin(object):
         vpn = Vpn(name='test',
                   host='vpn1.test.com',
                   ca=ca,
-                  backend='netjsonconfig.OpenVpn')
+                  backend='netjsonconfig.OpenVpn',
+                  config=self._vpn_config)
         vpn.full_clean()
         vpn.save()
         return vpn
