@@ -138,29 +138,35 @@ class TestTemplate(CreateTemplateMixin, CreateVpnMixin, TestCase):
         self.assertIsNone(vpnclient.cert)
         self.assertEqual(c.vpnclient_set.count(), 1)
 
+    def test_auto_client_template(self):
+        vpn = self._create_vpn()
+        t = self._create_template(name='autoclient',
+                                  type='vpn',
+                                  auto_cert=True,
+                                  vpn=vpn,
+                                  config={})
+        control = t.vpn.auto_client()
+        self.assertDictEqual(t.config, control)
+
+    def test_auto_client_template_auto_cert_False(self):
+        vpn = self._create_vpn()
+        t = self._create_template(name='autoclient',
+                                  type='vpn',
+                                  auto_cert=False,
+                                  vpn=vpn,
+                                  config={})
+        vpn = t.config['openvpn'][0]
+        self.assertEqual(vpn['cert'], 'cert.pem')
+        self.assertEqual(vpn['key'], 'key.pem')
+        self.assertEqual(len(t.config['files']), 1)
+        self.assertIn('ca_path', t.config['files'][0]['path'])
+
     def _get_vpn_context(self):
         self.test_create_cert()
         c = Config.objects.get(name='test-create-cert')
         context = c.get_context()
         vpnclient = c.vpnclient_set.first()
         return context, vpnclient
-
-    def test_vpn_context_cert_path(self):
-        context, vpnclient = self._get_vpn_context()
-        cert = vpnclient.cert
-        key = 'auto_cert_path_{0}'.format(vpnclient.vpn.pk.hex)
-        filename = 'client-{0}-{1}.pem'.format(cert.pk, cert.common_name)
-        value = '{0}/{1}'.format(app_settings.CERT_PATH, filename)
-        self.assertIn(key, context)
-        self.assertIn(value, context[key])
-
-    def test_vpn_context_cert_contents(self):
-        context, vpnclient = self._get_vpn_context()
-        cert = vpnclient.cert
-        key = 'auto_cert_contents_{0}'.format(vpnclient.vpn.pk.hex)
-        value = '{0}{1}'.format(cert.certificate, cert.private_key)
-        self.assertIn(key, context)
-        self.assertIn(value, context[key])
 
     def test_vpn_context_ca_path(self):
         context, vpnclient = self._get_vpn_context()
@@ -173,9 +179,42 @@ class TestTemplate(CreateTemplateMixin, CreateVpnMixin, TestCase):
 
     def test_vpn_context_ca_contents(self):
         context, vpnclient = self._get_vpn_context()
-        ca = vpnclient.cert.ca
         key = 'ca_contents_{0}'.format(vpnclient.vpn.pk.hex)
-        value = ca.certificate
+        value = vpnclient.cert.ca.certificate
+        self.assertIn(key, context)
+        self.assertIn(value, context[key])
+
+    def test_vpn_context_cert_path(self):
+        context, vpnclient = self._get_vpn_context()
+        vpn_pk = vpnclient.vpn.pk.hex
+        key = 'cert_path_{0}'.format(vpn_pk)
+        filename = 'client-{0}.pem'.format(vpn_pk)
+        value = '{0}/{1}'.format(app_settings.CERT_PATH, filename)
+        self.assertIn(key, context)
+        self.assertIn(value, context[key])
+
+    def test_vpn_context_cert_contents(self):
+        context, vpnclient = self._get_vpn_context()
+        vpn_pk = vpnclient.vpn.pk.hex
+        key = 'cert_contents_{0}'.format(vpn_pk)
+        value = vpnclient.cert.certificate
+        self.assertIn(key, context)
+        self.assertIn(value, context[key])
+
+    def test_vpn_context_key_path(self):
+        context, vpnclient = self._get_vpn_context()
+        vpn_pk = vpnclient.vpn.pk.hex
+        key = 'key_path_{0}'.format(vpn_pk)
+        filename = 'key-{0}.pem'.format(vpn_pk)
+        value = '{0}/{1}'.format(app_settings.CERT_PATH, filename)
+        self.assertIn(key, context)
+        self.assertIn(value, context[key])
+
+    def test_vpn_context_key_contents(self):
+        context, vpnclient = self._get_vpn_context()
+        vpn_pk = vpnclient.vpn.pk.hex
+        key = 'key_contents_{0}'.format(vpn_pk)
+        value = vpnclient.cert.private_key
         self.assertIn(key, context)
         self.assertIn(value, context[key])
 
@@ -191,11 +230,15 @@ class TestTemplate(CreateTemplateMixin, CreateVpnMixin, TestCase):
         c.save()
         context = c.get_context()
         vpn_id = vpn.pk.hex
-        cert_path_key = 'auto_cert_path_{0}'.format(vpn_id)
-        cert_contents_key = 'auto_cert_contents_{0}'.format(vpn_id)
+        cert_path_key = 'cert_path_{0}'.format(vpn_id)
+        cert_contents_key = 'cert_contents_{0}'.format(vpn_id)
+        key_path_key = 'key_path_{0}'.format(vpn_id)
+        key_contents_key = 'key_contents_{0}'.format(vpn_id)
         ca_path_key = 'ca_path_{0}'.format(vpn_id)
         ca_contents_key = 'ca_contents_{0}'.format(vpn_id)
         self.assertNotIn(cert_path_key, context)
         self.assertNotIn(cert_contents_key, context)
+        self.assertNotIn(key_path_key, context)
+        self.assertNotIn(key_contents_key, context)
         self.assertIn(ca_path_key, context)
         self.assertIn(ca_contents_key, context)

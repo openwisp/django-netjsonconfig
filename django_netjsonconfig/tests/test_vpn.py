@@ -126,3 +126,65 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
         else:
             self.fail('Mismatch between ca and cert but '
                       'ValidationError not raised')
+
+    def test_auto_client(self):
+        vpn = self._create_vpn()
+        auto = vpn.auto_client()
+        context_keys = vpn._get_auto_context_keys()
+        for key in context_keys.keys():
+            context_keys[key] = '{{%s}}' % context_keys[key]
+        control = vpn.backend_class.auto_client(host=vpn.host,
+                                                server=self._vpn_config,
+                                                **context_keys)
+        control['files'] = [
+            {
+                'path': context_keys['ca_path'],
+                'mode': '0644',
+                'contents': context_keys['ca_contents']
+            },
+            {
+                'path': context_keys['cert_path'],
+                'mode': '0644',
+                'contents': context_keys['cert_contents']
+            },
+            {
+                'path': context_keys['key_path'],
+                'mode': '0644',
+                'contents': context_keys['key_contents']
+            }
+        ]
+        self.assertDictEqual(auto, control)
+
+    def test_auto_client_auto_cert_False(self):
+        vpn = self._create_vpn()
+        auto = vpn.auto_client(auto_cert=False)
+        context_keys = vpn._get_auto_context_keys()
+        for key in context_keys.keys():
+            context_keys[key] = '{{%s}}' % context_keys[key]
+        for key in ['cert_path', 'cert_contents', 'key_path', 'key_contents']:
+            del context_keys[key]
+        control = vpn.backend_class.auto_client(host=vpn.host,
+                                                server=self._vpn_config,
+                                                **context_keys)
+        control['files'] = [
+            {
+                'path': context_keys['ca_path'],
+                'mode': '0644',
+                'contents': context_keys['ca_contents']
+            }
+        ]
+        self.assertDictEqual(auto, control)
+
+    def test_get_auto_context_keys(self):
+        vpn = self._create_vpn()
+        keys = vpn._get_auto_context_keys()
+        pk = vpn.pk.hex
+        control = {
+            'ca_path': 'ca_path_{0}'.format(pk),
+            'ca_contents': 'ca_contents_{0}'.format(pk),
+            'cert_path': 'cert_path_{0}'.format(pk),
+            'cert_contents': 'cert_contents_{0}'.format(pk),
+            'key_path': 'key_path_{0}'.format(pk),
+            'key_contents': 'key_contents_{0}'.format(pk),
+        }
+        self.assertEqual(keys, control)

@@ -81,6 +81,7 @@ class BaseTemplate(AbstractConfig):
         """
         * ensures VPN is selected if type is VPN
         * clears VPN specific fields if type is not VPN
+        * automatically determines configuration if necessary
         """
         super(BaseTemplate, self).clean(*args, **kwargs)
         if self.type == 'vpn' and not self.vpn:
@@ -90,6 +91,10 @@ class BaseTemplate(AbstractConfig):
         elif self.type != 'vpn':
             self.vpn = None
             self.auto_cert = False
+        if self.type == 'vpn' and not self.config:
+            self.config = self.vpn.auto_client(auto_cert=self.auto_cert)
+
+BaseTemplate._meta.get_field('config').blank = True
 
 
 class Template(BaseTemplate):

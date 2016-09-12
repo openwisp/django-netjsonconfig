@@ -180,34 +180,32 @@ class TemplatesVpnMixin(models.Model):
         for vpnclient in self.vpnclient_set.all().select_related('vpn', 'cert'):
             vpn = vpnclient.vpn
             vpn_id = vpn.pk.hex
+            context_keys = vpn._get_auto_context_keys()
             ca = vpn.ca
             cert = vpnclient.cert
-            # ca path
-            ca_path_key = 'ca_path_{0}'.format(vpn_id)
+            # CA
             ca_filename = 'ca-{0}-{1}.pem'.format(ca.pk, ca.common_name)
-            ca_path_value = '{0}/{1}'.format(app_settings.CERT_PATH, ca_filename)
-            # ca contents
-            ca_contents_key = 'ca_contents_{0}'.format(vpn_id)
-            ca_contents_value = ca.certificate
+            ca_path = '{0}/{1}'.format(app_settings.CERT_PATH, ca_filename)
             # update context
             c.update({
-                ca_path_key: ca_path_value,
-                ca_contents_key: ca_contents_value
+                context_keys['ca_path']: ca_path,
+                context_keys['ca_contents']: ca.certificate
             })
             # conditional needed for VPN without x509 authentication
             # eg: simple password authentication
             if cert:
-                # cert path
-                cert_path_key = 'auto_cert_path_{0}'.format(vpn_id)
-                cert_filename = 'client-{0}-{1}.pem'.format(cert.pk, cert.common_name)
-                cert_path_value = '{0}/{1}'.format(app_settings.CERT_PATH, cert_filename)
-                # cert contents
-                cert_contents_key = 'auto_cert_contents_{0}'.format(vpn_id)
-                cert_contents_value = '{0}{1}'.format(cert.certificate, cert.private_key)
+                # cert
+                cert_filename = 'client-{0}.pem'.format(vpn_id)
+                cert_path = '{0}/{1}'.format(app_settings.CERT_PATH, cert_filename)
+                # key
+                key_filename = 'key-{0}.pem'.format(vpn_id)
+                key_path = '{0}/{1}'.format(app_settings.CERT_PATH, key_filename)
                 # update context
                 c.update({
-                    cert_path_key: cert_path_value,
-                    cert_contents_key: cert_contents_value,
+                    context_keys['cert_path']: cert_path,
+                    context_keys['cert_contents']: cert.certificate,
+                    context_keys['key_path']: key_path,
+                    context_keys['key_contents']: cert.private_key,
                 })
         return c
 
