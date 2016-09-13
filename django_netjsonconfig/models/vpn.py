@@ -175,6 +175,7 @@ class VpnClient(models.Model):
                           email=ca.email,
                           common_name=common_name,
                           extensions=server_extensions)
+        cert.full_clean()
         cert.save()
         self.cert = cert
         return cert

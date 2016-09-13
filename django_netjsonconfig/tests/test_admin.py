@@ -4,10 +4,11 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
+from . import CreateVpnMixin
 from ..models import Config, Template
 
 
-class TestAdmin(TestCase):
+class TestAdmin(CreateVpnMixin, TestCase):
     """
     tests for Config model
     """
@@ -245,3 +246,25 @@ class TestAdmin(TestCase):
         self.assertContains(response, "cid &#39;{0}&#39;".format(str(c.id)))
         self.assertContains(response, "ckey &#39;{0}&#39;".format(c.key))
         self.assertContains(response, "cname &#39;{0}&#39;".format(c.name))
+
+    def test_download_vpn_config(self):
+        v = self._create_vpn()
+        path = reverse('admin:django_netjsonconfig_vpn_download', args=[v.pk])
+        response = self.client.get(path)
+        self.assertEqual(response.get('content-type'), 'application/octet-stream')
+
+    def test_preview_vpn(self):
+        v = self._create_vpn()
+        path = reverse('admin:django_netjsonconfig_vpn_preview')
+        data = {
+            'name': v.name,
+            'backend': v.backend,
+            'host': v.host,
+            'ca': v.ca_id,
+            'cert': v.cert_id,
+            'config': json.dumps(v.config),
+            'csrfmiddlewaretoken': 'test'
+        }
+        response = self.client.post(path, data)
+        self.assertContains(response, '<pre class="djnjc-preformatted')
+        self.assertContains(response, '# openvpn config:')

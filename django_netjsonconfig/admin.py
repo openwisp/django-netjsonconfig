@@ -73,24 +73,37 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
                 name='{0}_preview'.format(url_prefix))
         ] + super(BaseConfigAdmin, self).get_urls()
 
+    def _prepare_preview_model(self, request):
+        # this object is instanciated only to generate the preview
+        # it won't be saved to the database
+        model = self.model(name=self.model().pk.hex,  # randomize
+                           backend=request.POST.get('backend'),
+                           config=request.POST.get('config'))
+        # fill attributes that are not shared between all models conditionally
+        for attr in ['host', 'ca']:
+            attr_name = attr
+            # relations are a special case
+            if attr in ['ca']:
+                attr_name = '{0}_id'.format(attr)
+            if request.POST.get(attr) is not None:
+                setattr(model, attr_name, request.POST[attr])
+        model.full_clean()
+        # some attributes must be added in after validation to avoid unique checks
+        check_after = ['id', 'key', 'name']
+        for attr in check_after:
+            if request.POST.get(attr) is not None:
+                setattr(model, attr, request.POST[attr])
+        return model
+
     def preview_view(self, request):
         if request.method != 'POST':
             return HttpResponse(status=405)
         error = None
         output = None
         try:
-            # this object is instanciated only to generate the preview
-            # it won't be saved to the database
-            model = self.model(name=request.POST.get('name'),
-                               backend=request.POST.get('backend'),
-                               config=request.POST.get('config'))
-            model.full_clean()
+            model = self._prepare_preview_model(request)
         except ValidationError as e:
             return HttpResponse(str(e), status=400)
-        # add id and key after validation to avoid unique checks
-        if request.POST.get('id') and request.POST.get('key'):
-            model.id = request.POST.get('id')
-            model.key = request.POST.get('key')
         template_ids = request.POST.get('templates')
         if template_ids:
             templates = Template.objects.filter(pk__in=template_ids.split(','))
@@ -244,6 +257,7 @@ class VpnForm(BaseForm):
                   'modified']
 
 
+class VpnAdmin(BaseConfigAdmin):
     list_display = ('name', 'backend', 'created', 'modified')
     list_filter = ('backend', 'ca', 'created',)
     search_fields = ('id', 'name', 'host')

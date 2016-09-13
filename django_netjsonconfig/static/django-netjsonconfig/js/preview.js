@@ -10,7 +10,9 @@ django.jQuery(function($) {
             'backend': $('#id_backend').val(),
             'config': $('#id_config').val(),
             'csrfmiddlewaretoken': $('form input[name=csrfmiddlewaretoken]').val(),
-            'templates': $('#id_templates').val()
+            'templates': $('#id_templates').val(),
+            'host': $('#id_host').val(),
+            'ca': $('#id_ca').val()
         },
             $id = $('#id_id'),
             $key = $('#id_key');
