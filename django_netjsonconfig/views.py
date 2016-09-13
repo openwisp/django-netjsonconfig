@@ -25,6 +25,9 @@ for backend_path, label in ALL_BACKENDS:  # noqa
         # remove hosname from required properties
         if 'hostname' in schema['properties']['general'].get('required', []):
             del schema['properties']['general']['required']
+    # start editor empty by default, except for VPN schemas
+    if (backend_path, label) not in VPN_BACKENDS:
+        schema['defaultProperties'] = []
     available_schemas[backend_path] = schema
 available_schemas_json = json.dumps(available_schemas)
 
