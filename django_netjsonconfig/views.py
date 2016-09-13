@@ -7,12 +7,14 @@ from django.utils.module_loading import import_string
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import last_modified
 
-from .settings import BACKENDS
+from .settings import BACKENDS, VPN_BACKENDS
+
+ALL_BACKENDS = BACKENDS + VPN_BACKENDS
 
 # ``available_schemas`` and ``available_schemas_json``
 # will be generated only once at startup
 available_schemas = {}
-for backend_path, label in BACKENDS:  # noqa
+for backend_path, label in ALL_BACKENDS:  # noqa
     backend = import_string(backend_path)
     schema = deepcopy(backend.schema)
     # must use conditional because some custom backends might not specify an hostname

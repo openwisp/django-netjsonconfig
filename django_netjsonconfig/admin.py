@@ -228,21 +228,28 @@ class ConfigAdmin(BaseConfigAdmin):
         return self._get_fields(self.readonly_fields, request, obj)
 
 
-class VpnAdmin(TimeStampedEditableAdmin):
+class VpnForm(BaseForm):
+    class Meta:
+        model = Vpn
+        widgets = {'config': JsonSchemaWidget}
+        exclude = []
+        fields = ['name',
+                  'host',
+                  'ca',
+                  'cert',
+                  'backend',
+                  'notes',
+                  'config',
+                  'created',
+                  'modified']
+
+
     list_display = ('name', 'backend', 'created', 'modified')
     list_filter = ('backend', 'ca', 'created',)
     search_fields = ('id', 'name', 'host')
     actions_on_bottom = True
     save_on_top = True
-    fields = ['name',
-              'host',
-              'ca',
-              'cert',
-              'backend',
-              'notes',
-              'config',
-              'created',
-              'modified']
+    form = VpnForm
 
 
 admin.site.register(Template, TemplateAdmin)

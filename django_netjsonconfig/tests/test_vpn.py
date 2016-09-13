@@ -1,16 +1,18 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_x509.models import Ca, Cert
-from netjsonconfig import OpenVpn
 
 from . import CreateTemplateMixin, CreateVpnMixin
 from ..models import Config, Vpn, VpnClient
+from ..vpn_backends import OpenVpn
 
 
 class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
     """
     tests for Vpn model
     """
+    maxDiff = None
+
     def _create_ca(self):
         ca = Ca(name='test-ca',
                 key_length='2048',
@@ -29,7 +31,7 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
         v = Vpn(name='test',
                 host='vpn1.test.com',
                 ca=self._create_ca(),
-                backend='netjsonconfig.OpenVpn',
+                backend='django_netjsonconfig.vpn_backends.OpenVpn',
                 config=None)
         try:
             v.full_clean()
@@ -41,14 +43,14 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
         v = Vpn(name='test',
                 host='vpn1.test.com',
                 ca=self._create_ca(),
-                backend='netjsonconfig.OpenVpn')
+                backend='django_netjsonconfig.vpn_backends.OpenVpn')
         self.assertIs(v.backend_class, OpenVpn)
 
     def test_backend_instance(self):
         v = Vpn(name='test',
                 host='vpn1.test.com',
                 ca=self._create_ca(),
-                backend='netjsonconfig.OpenVpn',
+                backend='django_netjsonconfig.vpn_backends.OpenVpn',
                 config={})
         self.assertIsInstance(v.backend_instance, OpenVpn)
 
@@ -57,7 +59,7 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
         v = Vpn(name='test',
                 host='vpn1.test.com',
                 ca=self._create_ca(),
-                backend='netjsonconfig.OpenVpn',
+                backend='django_netjsonconfig.vpn_backends.OpenVpn',
                 config=config)
         # ensure django ValidationError is raised
         with self.assertRaises(ValidationError):
@@ -118,7 +120,7 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
                   host='vpn1.test.com',
                   ca=different_ca,
                   cert=cert,
-                  backend='netjsonconfig.OpenVpn')
+                  backend='django_netjsonconfig.vpn_backends.OpenVpn')
         try:
             vpn.full_clean()
         except ValidationError as e:
@@ -134,7 +136,7 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
         for key in context_keys.keys():
             context_keys[key] = '{{%s}}' % context_keys[key]
         control = vpn.backend_class.auto_client(host=vpn.host,
-                                                server=self._vpn_config,
+                                                server=self._vpn_config['openvpn'][0],
                                                 **context_keys)
         control['files'] = [
             {
@@ -164,7 +166,7 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
         for key in ['cert_path', 'cert_contents', 'key_path', 'key_contents']:
             del context_keys[key]
         control = vpn.backend_class.auto_client(host=vpn.host,
-                                                server=self._vpn_config,
+                                                server=self._vpn_config['openvpn'][0],
                                                 **context_keys)
         control['files'] = [
             {

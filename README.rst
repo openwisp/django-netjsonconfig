@@ -196,6 +196,27 @@ Settings
 
 Additional custom `netjsonconfig backends <http://netjsonconfig.openwisp.org/en/latest/general/basics.html#backend>`_.
 
+``NETJSONCONFIG_VPN_BACKENDS``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+-------------+
+| **type**:    | ``list``    |
++--------------+-------------+
+| **default**: | ``[]``      |
++--------------+-------------+
+
+Additional custom VPN backends that will be available when managind VPN Server objects.
+Eg: `OpenVPN netjsonconfig backend
+<http://netjsonconfig.openwisp.org/en/latest/backends/openvpn.html>`_.
+
+A custom backend must follow some basic rules in order to be compatible:
+
+* it MUST allow at minimum and at maximum one VPN instance
+* the main *NetJSON* property MUST match the lowercase version of the class name,
+  eg: when using the ``OpenVpn`` backend, the system will look into
+  ``config['openvpn']``
+* it SHOULD focus on the server capabilities of the VPN software being used
+
 ``NETJSONCONFIG_REGISTRATION_ENABLED``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

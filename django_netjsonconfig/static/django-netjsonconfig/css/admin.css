@@ -22,7 +22,7 @@
     font-weight: bold
 }
 
-.vLargeTextField#id_config{
+.vLargeTextField.jsoneditor-raw{
     min-width: 100%;
     min-height: 500px;
     box-sizing: border-box;

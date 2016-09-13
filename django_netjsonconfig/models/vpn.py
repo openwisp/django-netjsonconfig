@@ -112,8 +112,9 @@ class BaseVpn(AbstractConfig):
             if not auto_cert:
                 for key in ['cert_path', 'cert_contents', 'key_path', 'key_contents']:
                     del context_keys[key]
+            conifg_dict_key = self.backend_class.__name__.lower()
             auto = backend.auto_client(host=self.host,
-                                       server=self.config,
+                                       server=self.config[conifg_dict_key][0],
                                        **context_keys)
             config.update(auto)
         return config

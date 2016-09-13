@@ -28,5 +28,7 @@ class TestViews(TestCase):
     def test_schema_hostname_hidden(self):
         from ..views import available_schemas
         for key, schema in available_schemas.items():
+            if 'general' not in schema['properties']:
+                continue
             if 'hostname' in schema['properties']['general']['properties']:
                 self.fail('hostname property must be hidden')
