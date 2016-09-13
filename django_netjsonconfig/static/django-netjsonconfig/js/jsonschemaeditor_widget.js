@@ -36,6 +36,7 @@
                 schema: backend ? schemas[backend] : {}
             }
             editor = new JSONEditor(document.getElementById(id), options);
+            editor.editors.root.addproperty_button.value = 'Configuration Menu'
             getEditorValue = function(){
                 return JSON.stringify(editor.getValue(), null, 4)
             };

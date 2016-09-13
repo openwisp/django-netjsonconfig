@@ -1,3 +1,5 @@
+.jsoneditor .grid-row > .inline-group{ margin-top: 15px }
+.jsoneditor .grid-row:first-child > .inline-group{ margin-top: 0 }
 .form-row.field-config{ display: none }
 .form-row.field-config .advanced-mode{ display: none }
 .jsoneditor-wrapper > fieldset{
@@ -197,10 +199,18 @@ div[data-schematype="object"] > .inline-related > .grid-container > div >
     background-color: white;
     border: 1px solid #ddd;
     padding-bottom: 10px;
-}
-.jsoneditor .modal{
     width: 340px;
     margin-left: -215px;
+}
+/* header */
+.jsoneditor .advanced-mode{ margin-top: -4px !important }
+.normal-mode{ float: right }
+.jsoneditor > div > h3.controls{ text-align: right }
+.jsoneditor > div > h3.controls > .control{ float: left }
+/* configuration menu modal */
+.jsoneditor > div > h3.controls > .control > .modal{
+    margin-left: 0;
+    width: auto;
 }
 .jsoneditor .modal .vTextField[type=text],
 .jsoneditor .modal .button{
