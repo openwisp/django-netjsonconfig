@@ -302,6 +302,19 @@ The preferred backend that will be used as initial value when adding new ``Confi
 
 Set it to ``None`` in order to force the user to choose explicitly.
 
+``NETJSONCONFIG_DEFAULT_VPN_BACKEND``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+-----------------------------------------------+
+| **type**:    | ``str``                                       |
++--------------+-----------------------------------------------+
+| **default**: | ``django_netjsonconfig.vpn_backends.OpenVpn`` |
++--------------+-----------------------------------------------+
+
+The preferred backend that will be used as initial value when adding new ``Vpn`` objects in the admin.
+
+Set it to ``None`` in order to force the user to choose explicitly.
+
 ``NETJSONCONFIG_DEFAULT_AUTO_CERT``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

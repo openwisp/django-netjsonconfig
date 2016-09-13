@@ -9,8 +9,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 
+from . import settings as app_settings
 from .models import Config, Template, Vpn
-from .settings import DEFAULT_BACKEND
 from .utils import send_file
 from .widgets import JsonSchemaWidget
 
@@ -146,10 +146,10 @@ class BaseForm(forms.ModelForm):
     """
     Adds support for ``NETJSONCONFIG_DEFAULT_BACKEND``
     """
-    if DEFAULT_BACKEND:
+    if app_settings.DEFAULT_BACKEND:
         def __init__(self, *args, **kwargs):
             if 'initial' in kwargs:
-                kwargs['initial'].update({'backend': DEFAULT_BACKEND})
+                kwargs['initial'].update({'backend': app_settings.DEFAULT_BACKEND})
             super(BaseForm, self).__init__(*args, **kwargs)
 
 
@@ -241,7 +241,16 @@ class ConfigAdmin(BaseConfigAdmin):
         return self._get_fields(self.readonly_fields, request, obj)
 
 
-class VpnForm(BaseForm):
+class VpnForm(forms.ModelForm):
+    """
+    Adds support for ``NETJSONCONFIG_DEFAULT_BACKEND``
+    """
+    if app_settings.DEFAULT_VPN_BACKEND:
+        def __init__(self, *args, **kwargs):
+            if 'initial' in kwargs:
+                kwargs['initial'].update({'backend': app_settings.DEFAULT_VPN_BACKEND})
+            super(VpnForm, self).__init__(*args, **kwargs)
+
     class Meta:
         model = Vpn
         widgets = {'config': JsonSchemaWidget}
