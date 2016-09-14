@@ -1,4 +1,5 @@
 from copy import deepcopy
+
 from netjsonconfig import OpenVpn as BaseOpenVpn
 
 # adapt OpenVPN schema in order to limit it to 1 item only

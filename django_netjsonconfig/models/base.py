@@ -24,7 +24,7 @@ class AbstractConfig(models.Model):
     Base logic shared between BaseConfig and BaseVpn
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=64, unique=True)
     backend = models.CharField(_('backend'),
                                choices=app_settings.BACKENDS,
                                max_length=128,

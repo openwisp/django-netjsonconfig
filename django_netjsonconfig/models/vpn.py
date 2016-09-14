@@ -15,7 +15,6 @@ class BaseVpn(AbstractConfig):
     """
     Abstract VPN model
     """
-    name = models.CharField(max_length=64, unique=True)
     host = models.CharField(max_length=64, help_text=_('VPN server hostname or ip address'))
     ca = models.ForeignKey('django_x509.Ca', verbose_name=_('CA'))
     cert = models.ForeignKey('django_x509.Cert',

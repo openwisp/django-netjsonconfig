@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+
 from django_x509.models import Ca, Cert
 
 from . import CreateTemplateMixin, CreateVpnMixin
