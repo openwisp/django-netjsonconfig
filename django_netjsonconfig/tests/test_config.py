@@ -240,7 +240,8 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
             'general': {
                 'id': '{{ id }}',
                 'key': '{{ key }}',
-                'name': '{{ name }}'
+                'name': '{{ name }}',
+                'mac_address': '{{ mac_address }}'
             }
         }
         c = Config(name='context-test',
@@ -251,6 +252,7 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
         self.assertIn(str(c.id), output)
         self.assertIn(c.key, output)
         self.assertIn(c.name, output)
+        self.assertIn(c.mac_address, output)
 
     def test_context_setting(self):
         config = {

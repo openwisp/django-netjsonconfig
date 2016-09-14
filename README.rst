@@ -282,6 +282,7 @@ Each ``Config`` object gets the following attributes passed as configuration var
 * ``id``
 * ``key``
 * ``name``
+* ``mac_address``
 
 ``NETJSONCONFIG_CONTEXT`` can be used to define system-wide configuration variables.
 

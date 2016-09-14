@@ -77,7 +77,8 @@ class BaseConfig(AbstractConfig):
         c = {
             'id': str(self.id),
             'key': self.key,
-            'name': self.name
+            'name': self.name,
+            'mac_address': self.mac_address
         }
         c.update(app_settings.CONTEXT)
         return c
