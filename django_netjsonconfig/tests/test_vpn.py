@@ -86,6 +86,7 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
         vpn = self._create_vpn()
         t = self._create_template(name='vpn-test', type='vpn', vpn=vpn)
         c = Config(name='test-create-cert',
+                   mac_address='00:11:22:33:44:55',
                    backend='netjsonconfig.OpenWrt',
                    config={'general': {}})
         c.full_clean()

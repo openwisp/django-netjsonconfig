@@ -11,6 +11,7 @@ from django.template.response import TemplateResponse
 
 from . import settings as app_settings
 from .models import Config, Template, Vpn
+from .models.config import get_random_mac
 from .utils import send_file
 from .widgets import JsonSchemaWidget
 
@@ -87,9 +88,11 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
                 attr_name = '{0}_id'.format(attr)
             if request.POST.get(attr) is not None:
                 setattr(model, attr_name, request.POST[attr])
+        if request.POST.get('mac_address') is not None:
+            model.mac_address = get_random_mac()
         model.full_clean()
         # some attributes must be added in after validation to avoid unique checks
-        check_after = ['id', 'key', 'name']
+        check_after = ['id', 'key', 'name', 'mac_address']
         for attr in check_after:
             if request.POST.get(attr) is not None:
                 setattr(model, attr, request.POST[attr])
@@ -207,12 +210,13 @@ class ConfigForm(BaseForm):
 class ConfigAdmin(BaseConfigAdmin):
     list_display = ('name', 'backend', 'status', 'last_ip', 'created', 'modified')
     list_filter = ('backend', 'status', 'created',)
-    search_fields = ('id', 'name', 'key', 'last_ip')
+    search_fields = ('id', 'name', 'key', 'mac_address', 'last_ip')
     readonly_fields = ['id', 'status', 'last_ip']
     fields = ['name',
               'backend',
               'id',
               'key',
+              'mac_address',
               'status',
               'last_ip',
               'templates',

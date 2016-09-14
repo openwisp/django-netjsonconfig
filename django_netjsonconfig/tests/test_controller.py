@@ -20,6 +20,7 @@ class TestController(TestCase):
     def _create_config(self):
         d = Config(name='test',
                    backend='netjsonconfig.OpenWrt',
+                   mac_address=TEST_MACADDR,
                    config={'general': {'hostname': 'test'}},
                    key='iaASGWE3fpRX0q44WiaY0rjF8ddQ2f7l')
         d.full_clean()
@@ -95,6 +96,7 @@ class TestController(TestCase):
         response = self.client.post(REGISTER_URL, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
+            'mac_address': TEST_MACADDR,
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertEqual(response.status_code, 201)
@@ -110,17 +112,20 @@ class TestController(TestCase):
         # missing secret
         response = self.client.post(REGISTER_URL, {
             'name': TEST_MACADDR,
+            'mac_address': TEST_MACADDR,
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertContains(response, 'secret', status_code=400)
         # missing name
         response = self.client.post(REGISTER_URL, {
+            'mac_address': TEST_MACADDR,
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertContains(response, 'name', status_code=400)
         # missing backend
         response = self.client.post(REGISTER_URL, {
+            'mac_address': TEST_MACADDR,
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
         })
@@ -132,6 +137,7 @@ class TestController(TestCase):
         response = self.client.post(REGISTER_URL, {
             'secret': 'WRONG',
             'name': TEST_MACADDR,
+            'mac_address': TEST_MACADDR,
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertContains(response, 'wrong secret', status_code=403)
@@ -139,6 +145,7 @@ class TestController(TestCase):
         response = self.client.post(REGISTER_URL, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
+            'mac_address': TEST_MACADDR,
             'backend': 'wrong'
         })
         self.assertContains(response, 'wrong backend', status_code=403)
@@ -153,6 +160,7 @@ class TestController(TestCase):
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
             'key': TEST_CONSISTENT_KEY,
+            'mac_address': TEST_MACADDR,
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertEqual(response.status_code, 201)
@@ -174,6 +182,7 @@ class TestController(TestCase):
         response = self.client.post(REGISTER_URL, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
+            'mac_address': TEST_MACADDR,
             'key': TEST_CONSISTENT_KEY,
             'backend': 'netjsonconfig.OpenWrt'
         })
@@ -259,6 +268,7 @@ class TestConsistentRegistrationDisabled(TestCase):
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
             'key': TEST_CONSISTENT_KEY,
+            'mac_address': TEST_MACADDR,
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertEqual(response.status_code, 201)
@@ -287,6 +297,7 @@ class TestRegistrationDisabled(TestCase):
         response = self.client.post(REGISTER_URL, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
+            'mac_address': TEST_MACADDR,
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertEqual(response.status_code, 404)

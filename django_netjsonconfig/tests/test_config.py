@@ -16,29 +16,39 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
     """
     fixtures = ['test_templates']
     maxDiff = None
-    TEST_KEY = '00:11:22:33:44:55'
+    TEST_KEY = 'w1gwJxKaHcamUw62TQIPgYchwLKn3AA0'
+    TEST_MAC_ADDRESS = '00:11:22:33:44:55'
 
     def test_str(self):
         d = Config(name='test')
         self.assertEqual(str(d), 'test')
 
     def test_config_not_none(self):
-        c = Config(name='test', backend='netjsonconfig.OpenWrt', config=None)
+        c = Config(name='test',
+                   mac_address=self.TEST_MAC_ADDRESS,
+                   backend='netjsonconfig.OpenWrt',
+                   config=None)
         c.full_clean()
         self.assertEqual(c.config, {})
 
     def test_backend_class(self):
-        d = Config(name='test', backend='netjsonconfig.OpenWrt')
+        d = Config(name='test',
+                   mac_address=self.TEST_MAC_ADDRESS,
+                   backend='netjsonconfig.OpenWrt')
         self.assertIs(d.backend_class, OpenWrt)
 
     def test_backend_instance(self):
         config = {'general': {'hostname': 'config'}}
-        d = Config(name='test', backend='netjsonconfig.OpenWrt', config=config)
+        d = Config(name='test',
+                   mac_address=self.TEST_MAC_ADDRESS,
+                   backend='netjsonconfig.OpenWrt',
+                   config=config)
         self.assertIsInstance(d.backend_instance, OpenWrt)
 
     def test_validation(self):
         config = {'interfaces': {'invalid': True}}
         d = Config(name='test',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    backend='netjsonconfig.OpenWrt',
                    config=config,
                    key=self.TEST_KEY)
@@ -50,6 +60,7 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
         dhcp = Template.objects.get(name='dhcp')
         radio = Template.objects.get(name='radio0')
         d = Config(name='test',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    backend='netjsonconfig.OpenWrt',
                    config={'general': {'hostname': 'json-test'}},
                    key=self.TEST_KEY)
@@ -114,6 +125,7 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
         t.save()
         d = Config(name='test',
                    key=self.TEST_KEY,
+                   mac_address=self.TEST_MAC_ADDRESS,
                    backend='netjsonconfig.OpenWrt',
                    config=config_copy)
         d.full_clean()
@@ -132,6 +144,7 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
 
     def test_key_validation(self):
         d = Config(name='test',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    backend='netjsonconfig.OpenWrt',
                    config={'general': {'hostname': 'json-test'}})
         d.key = 'key/key'
@@ -148,6 +161,7 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
 
     def test_checksum(self):
         d = Config(name='test',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    backend='netjsonconfig.OpenWrt',
                    config={'general': {'hostname': 'json-test'}},
                    key=self.TEST_KEY)
@@ -175,6 +189,7 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
         c = Config(name='test-status',
                    status='running',
                    backend='netjsonconfig.OpenWrt',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    config={'general': {}})
         c.full_clean()
         c.save()
@@ -189,6 +204,7 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
         c = Config(name='test-status',
                    status='running',
                    backend='netjsonconfig.OpenWrt',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    config={'general': {}})
         c.full_clean()
         c.save()
@@ -208,6 +224,7 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
     def test_auto_hostname(self):
         c = Config(name='automate-me',
                    backend='netjsonconfig.OpenWrt',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    config={'general': {}})
         c.full_clean()
         c.save()
@@ -228,6 +245,7 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
         }
         c = Config(name='context-test',
                    backend='netjsonconfig.OpenWrt',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    config=config)
         output = c.backend_instance.render()
         self.assertIn(str(c.id), output)
@@ -242,13 +260,15 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
         }
         c = Config(name='context-setting-test',
                    backend='netjsonconfig.OpenWrt',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    config=config)
         output = c.backend_instance.render()
         self.assertIn('vpn.testdomain.com', output)
 
     def test_mac_address_as_hostname(self):
         c = Config(name='00:11:22:33:44:55',
-                   backend='netjsonconfig.OpenWrt')
+                   backend='netjsonconfig.OpenWrt',
+                   mac_address=self.TEST_MAC_ADDRESS)
         c.full_clean()
         c.save()
         self.assertIn('00-11-22-33-44-55', c.backend_instance.render())
@@ -260,7 +280,8 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
                                   vpn=vpn)
         c = Config(name='test-create-cert',
                    backend='netjsonconfig.OpenWrt',
-                   config={'general': {}})
+                   config={'general': {}},
+                   mac_address=self.TEST_MAC_ADDRESS)
         c.full_clean()
         c.save()
         c.templates.add(t)
@@ -289,3 +310,16 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
         vpnclient = c.vpnclient_set.first()
         self.assertIsNone(vpnclient)
         self.assertEqual(c.vpnclient_set.count(), 0)
+
+    def test_mac_address_validator(self):
+        d = Config(name='test',
+                   mac_address='WRONG',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general': {'hostname': 'json-test'}},
+                   key=self.TEST_KEY)
+        try:
+            d.full_clean()
+        except ValidationError as e:
+            self.assertIn('mac_address', e.message_dict)
+        else:
+            self.fail('ValidationError not raised')

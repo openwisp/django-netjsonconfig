@@ -7,6 +7,7 @@ django.jQuery(function($) {
         // gather data to send in POST
         var data = {
             'name': $('#id_name').val(),
+            'mac_address': $('#id_mac_address').val(),
             'backend': $('#id_backend').val(),
             'config': $('#id_config').val(),
             'csrfmiddlewaretoken': $('form input[name=csrfmiddlewaretoken]').val(),

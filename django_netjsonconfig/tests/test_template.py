@@ -12,6 +12,8 @@ class TestTemplate(CreateTemplateMixin, CreateVpnMixin, TestCase):
     """
     tests for Template model
     """
+    TEST_MAC_ADDRESS = '00:11:22:33:44:55'
+
     def test_str(self):
         t = Template(name='test', backend='netjsonconfig.OpenWrt')
         self.assertEqual(str(t), '[Generic-OpenWRT] test')
@@ -36,6 +38,7 @@ class TestTemplate(CreateTemplateMixin, CreateVpnMixin, TestCase):
         t = self._create_template()
         c = Config(name='test-status',
                    backend='netjsonconfig.OpenWrt',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    config={'general': {}})
         c.full_clean()
         c.save()
@@ -59,7 +62,8 @@ class TestTemplate(CreateTemplateMixin, CreateVpnMixin, TestCase):
     def test_default_template(self):
         t = self._create_template(default=True)
         c = Config(name='test-default',
-                   backend='netjsonconfig.OpenWrt')
+                   backend='netjsonconfig.OpenWrt',
+                   mac_address=self.TEST_MAC_ADDRESS)
         c.full_clean()
         c.save()
         self.assertEqual(c.templates.count(), 1)
@@ -90,6 +94,7 @@ class TestTemplate(CreateTemplateMixin, CreateVpnMixin, TestCase):
                                   auto_cert=True)
         c = Config(name='test-create-cert',
                    backend='netjsonconfig.OpenWrt',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    config={'general': {}})
         c.full_clean()
         c.save()
@@ -127,6 +132,7 @@ class TestTemplate(CreateTemplateMixin, CreateVpnMixin, TestCase):
         t = self._create_template(type='vpn', auto_cert=False, vpn=vpn)
         c = Config(name='test-create-cert-false',
                    backend='netjsonconfig.OpenWrt',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    config={'general': {}})
         c.full_clean()
         c.save()
@@ -223,6 +229,7 @@ class TestTemplate(CreateTemplateMixin, CreateVpnMixin, TestCase):
         t = self._create_template(type='vpn', auto_cert=False, vpn=vpn)
         c = Config(name='test-create-cert-false',
                    backend='netjsonconfig.OpenWrt',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    config={'general': {}})
         c.full_clean()
         c.save()

@@ -14,7 +14,8 @@ class TestAdmin(CreateVpnMixin, TestCase):
     """
     fixtures = ['test_templates']
     maxDiff = None
-    TEST_KEY = '00:11:22:33:44:55'
+    TEST_KEY = 'w1gwJxKaHcamUw62TQIPgYchwLKn3AA0'
+    TEST_MAC_ADDRESS = '00:11:22:33:44:55'
 
     def setUp(self):
         User.objects.create_superuser(username='admin',
@@ -24,7 +25,11 @@ class TestAdmin(CreateVpnMixin, TestCase):
 
     def test_change_config_clean_templates(self):
         t = Template.objects.first()
-        d = Config(name='test', backend=t.backend, config=t.config, key=self.TEST_KEY)
+        d = Config(name='test',
+                   backend=t.backend,
+                   mac_address=self.TEST_MAC_ADDRESS,
+                   config=t.config,
+                   key=self.TEST_KEY)
         d.full_clean()
         d.save()
         path = reverse('admin:django_netjsonconfig_config_change', args=[d.pk])
@@ -40,6 +45,7 @@ class TestAdmin(CreateVpnMixin, TestCase):
         path = reverse('admin:django_netjsonconfig_config_add')
         params = {
             'name': 'add-config-test',
+            'mac_address': self.TEST_MAC_ADDRESS,
             'key': self.TEST_KEY,
             'templates': str(t.pk),
             'backend': 'netjsonconfig.OpenWrt',
@@ -53,6 +59,7 @@ class TestAdmin(CreateVpnMixin, TestCase):
     def test_download_config(self):
         d = Config(name='download',
                    backend='netjsonconfig.OpenWrt',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    config={'general': {'hostname': 'config'}},
                    key=self.TEST_KEY)
         d.full_clean()
@@ -82,6 +89,7 @@ class TestAdmin(CreateVpnMixin, TestCase):
         })
         data = {
             'name': 'test-config',
+            'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': config,
             'csrfmiddlewaretoken': 'test',
@@ -98,6 +106,7 @@ class TestAdmin(CreateVpnMixin, TestCase):
         path = reverse('admin:django_netjsonconfig_config_preview')
         data = {
             'name': 'test-config',
+            'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': '{}',
             'csrfmiddlewaretoken': 'test'
@@ -109,6 +118,7 @@ class TestAdmin(CreateVpnMixin, TestCase):
         path = reverse('admin:django_netjsonconfig_config_preview')
         data = {
             'name': 'test-config',
+            'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': '{}',
             'csrfmiddlewaretoken': 'test',
@@ -121,6 +131,7 @@ class TestAdmin(CreateVpnMixin, TestCase):
         path = reverse('admin:django_netjsonconfig_config_preview')
         data = {
             'name': 'test-config',
+            'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': '{"interfaces": {"wrong":"wrong"}}',
             'csrfmiddlewaretoken': 'test'
@@ -132,6 +143,7 @@ class TestAdmin(CreateVpnMixin, TestCase):
         path = reverse('admin:django_netjsonconfig_config_preview')
         data = {
             'name': 'test-config',
+            'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': 'WRONG',
             'csrfmiddlewaretoken': 'test'
@@ -150,6 +162,7 @@ class TestAdmin(CreateVpnMixin, TestCase):
         path = reverse('admin:django_netjsonconfig_config_preview')
         data = {
             'name': 'test-config',
+            'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': '{}',
             'csrfmiddlewaretoken': 'test',
@@ -191,7 +204,11 @@ class TestAdmin(CreateVpnMixin, TestCase):
 
     def test_uuid_field_in_change(self):
         t = Template.objects.first()
-        c = Config(name='test', backend=t.backend, config=t.config, key=self.TEST_KEY)
+        c = Config(name='test',
+                   backend=t.backend,
+                   mac_address=self.TEST_MAC_ADDRESS,
+                   config=t.config,
+                   key=self.TEST_KEY)
         c.full_clean()
         c.save()
         path = reverse('admin:django_netjsonconfig_config_change', args=[c.pk])
@@ -226,6 +243,7 @@ class TestAdmin(CreateVpnMixin, TestCase):
         path = reverse('admin:django_netjsonconfig_config_preview')
         c = Config(name='variables',
                    backend='netjsonconfig.OpenWrt',
+                   mac_address=self.TEST_MAC_ADDRESS,
                    config={'general': {'cid': '{{ id }}',
                                        'ckey': '{{ key }}',
                                        'cname': '{{ name }}'}})
@@ -236,6 +254,7 @@ class TestAdmin(CreateVpnMixin, TestCase):
         data = {
             'name': c.name,
             'id': c.id,
+            'mac_address': self.TEST_MAC_ADDRESS,
             'key': c.key,
             'backend': c.backend,
             'config': json.dumps(c.config),
