@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from django_x509.models import Cert
 
-from ..settings import DEFAULT_VPN_BACKENDS
+from .. import settings as app_settings
 from .base import AbstractConfig
 
 
@@ -22,7 +22,7 @@ class BaseVpn(AbstractConfig):
                              blank=True,
                              null=True)
     backend = models.CharField(_('VPN backend'),
-                               choices=DEFAULT_VPN_BACKENDS,
+                               choices=app_settings.DEFAULT_VPN_BACKENDS,
                                max_length=128,
                                help_text=_('Select VPN configuration backend'))
     notes = models.TextField(blank=True)
@@ -140,8 +140,9 @@ class VpnClient(models.Model):
 
     def save(self, *args, **kwargs):
         if self.auto_cert:
+            cn = app_settings.COMMON_NAME_FORMAT.format(**self.config.__dict__)
             self._auto_create_cert(name=self.config.name,
-                                   common_name=self.config.name)
+                                   common_name=cn)
         super(VpnClient, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):

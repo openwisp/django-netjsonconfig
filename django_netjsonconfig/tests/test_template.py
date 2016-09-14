@@ -106,6 +106,13 @@ class TestTemplate(CreateTemplateMixin, CreateVpnMixin, TestCase):
         self.assertIsNotNone(vpnclient.cert)
         self.assertEqual(c.vpnclient_set.count(), 1)
 
+    def test_automatically_created_cert_common_name_format(self):
+        self.test_create_cert()
+        c = Config.objects.get(name='test-create-cert')
+        vpnclient = c.vpnclient_set.first()
+        expected_cn = app_settings.COMMON_NAME_FORMAT.format(**c.__dict__)
+        self.assertEqual(vpnclient.cert.common_name, expected_cn)
+
     def test_automatically_created_cert_deleted_post_clear(self):
         self.test_create_cert()
         c = Config.objects.get(name='test-create-cert')

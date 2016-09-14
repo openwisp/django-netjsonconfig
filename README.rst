@@ -346,6 +346,18 @@ needed anymore (eg: when the VPN template is removed from a configuration object
 The filesystem path where x509 certificate will be installed when
 downloaded on routers when ``auto_cert`` is being used (enabled by default).
 
+``NETJSONCONFIG_COMMON_NAME_FORMAT``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+------------------------------+
+| **type**:    | ``str``                      |
++--------------+------------------------------+
+| **default**: | ``{mac_address}-{name}``     |
++--------------+------------------------------+
+
+Defines the format of the ``common_name`` attribute of VPN client certificates that are automatically
+created when using VPN templates which have ``auto_cert`` set to ``True``.
+
 Screenshots
 -----------
 
