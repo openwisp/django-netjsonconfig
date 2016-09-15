@@ -103,6 +103,26 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
         else:
             self.fail('unique_together clause not triggered')
 
+    def test_vpn_client_auto_cert_deletes_cert(self):
+        vpn = self._create_vpn()
+        t = self._create_template(name='vpn-test',
+                                  type='vpn',
+                                  vpn=vpn,
+                                  auto_cert=True)
+        c = Config(name='test-create-cert',
+                   mac_address='00:11:22:33:44:55',
+                   backend='netjsonconfig.OpenWrt',
+                   config={'general': {}})
+        c.full_clean()
+        c.save()
+        c.templates.add(t)
+        vpnclient = c.vpnclient_set.first()
+        cert_pk = vpnclient.cert.pk
+        self.assertEqual(Cert.objects.filter(pk=cert_pk).count(), 1)
+        c.delete()
+        self.assertEqual(VpnClient.objects.filter(pk=vpnclient.pk).count(), 0)
+        self.assertEqual(Cert.objects.filter(pk=cert_pk).count(), 0)
+
     def test_vpn_cert_and_ca_mismatch(self):
         ca = self._create_ca()
         different_ca = self._create_ca()

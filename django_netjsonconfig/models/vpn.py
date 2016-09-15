@@ -145,11 +145,11 @@ class VpnClient(models.Model):
                                    common_name=cn)
         super(VpnClient, self).save(*args, **kwargs)
 
-    def delete(self, *args, **kwargs):
-        delete = self.auto_cert
-        super(VpnClient, self).delete(*args, **kwargs)
-        if delete:
-            self.cert.delete()
+    @classmethod
+    def post_delete(cls, **kwargs):
+        instance = kwargs['instance']
+        if instance.auto_cert:
+            instance.cert.delete()
 
     def _auto_create_cert(self, name, common_name):
         """
