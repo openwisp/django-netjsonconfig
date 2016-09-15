@@ -1,3 +1,6 @@
+import json
+
+from django.core.exceptions import ValidationError
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
@@ -79,7 +82,7 @@ def register(request):
     # (key is filled only if CONSISTENT_REGISTRATION is enabled)
     try:
         config = Config.objects.get(key=key)
-    # create new Config otherwise
+    # otherwise create new Config
     except Config.DoesNotExist:
         new = True
         options = dict(name=request.POST.get('name'),
@@ -89,7 +92,17 @@ def register(request):
         # do not specify key if ``None``, would cause exception
         if key:
             options['key'] = key
-        config = Config.objects.create(**options)
+        config = Config(**options)
+        try:
+            config.full_clean()
+        except ValidationError as e:
+            # dump message_dict as JSON,
+            # this should make it easy to debug
+            return ControllerResponse(json.dumps(e.message_dict, indent=4, sort_keys=True),
+                                      content_type='text/plain',
+                                      status=400)
+        else:
+            config.save()
     # update last_ip on existing configs
     else:
         new = False

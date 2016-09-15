@@ -140,6 +140,16 @@ class TestController(TestCase):
         self.assertContains(response, 'mac_address', status_code=400)
         self._check_header(response)
 
+    def test_register_failed_creation(self):
+        self.test_register()
+        response = self.client.post(REGISTER_URL, {
+            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+            'name': TEST_MACADDR,
+            'mac_address': TEST_MACADDR,
+            'backend': 'netjsonconfig.OpenWrt'
+        })
+        self.assertContains(response, 'already exists', status_code=400)
+
     def test_register_403(self):
         # wrong secret
         response = self.client.post(REGISTER_URL, {
