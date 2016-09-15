@@ -107,6 +107,7 @@ class TestController(TestCase):
         c = Config.objects.get(pk=uuid, key=key)
         self._check_header(response)
         self.assertIsNotNone(c.last_ip)
+        self.assertEqual(c.mac_address, TEST_MACADDR)
 
     def test_register_400(self):
         # missing secret
@@ -130,6 +131,13 @@ class TestController(TestCase):
             'name': TEST_MACADDR,
         })
         self.assertContains(response, 'backend', status_code=400)
+        # missing mac_address
+        response = self.client.post(REGISTER_URL, {
+            'backend': 'netjsonconfig.OpenWrt',
+            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+            'name': TEST_MACADDR,
+        })
+        self.assertContains(response, 'mac_address', status_code=400)
         self._check_header(response)
 
     def test_register_403(self):

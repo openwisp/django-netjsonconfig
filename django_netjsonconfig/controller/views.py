@@ -64,6 +64,7 @@ def register(request):
     allowed_backends = [path for path, name in settings.BACKENDS]
     required_params = [('secret', settings.SHARED_SECRET),
                        ('name', None),
+                       ('mac_address', None),
                        ('backend', allowed_backends)]
     # valid required params or forbid
     for key, value in required_params:
@@ -82,6 +83,7 @@ def register(request):
     except Config.DoesNotExist:
         new = True
         options = dict(name=request.POST.get('name'),
+                       mac_address=request.POST.get('mac_address'),
                        backend=request.POST.get('backend'),
                        last_ip=last_ip)
         # do not specify key if ``None``, would cause exception
