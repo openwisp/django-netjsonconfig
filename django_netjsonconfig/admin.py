@@ -81,10 +81,10 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
                            backend=request.POST.get('backend'),
                            config=request.POST.get('config'))
         # fill attributes that are not shared between all models conditionally
-        for attr in ['host', 'ca']:
+        for attr in ['host', 'ca', 'cert']:
             attr_name = attr
             # relations are a special case
-            if attr in ['ca']:
+            if attr in ['ca', 'cert']:
                 attr_name = '{0}_id'.format(attr)
             if request.POST.get(attr) is not None:
                 setattr(model, attr_name, request.POST[attr])

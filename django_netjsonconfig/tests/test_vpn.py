@@ -212,3 +212,12 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
             'key_contents': 'key_contents_{0}'.format(pk),
         }
         self.assertEqual(keys, control)
+
+    def test_get_context(self):
+        v = self._create_vpn()
+        expected = {
+            'ca': v.ca.certificate,
+            'cert': v.cert.certificate,
+            'key': v.cert.private_key
+        }
+        self.assertEqual(v.get_context(), expected)

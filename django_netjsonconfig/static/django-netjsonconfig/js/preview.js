@@ -13,7 +13,8 @@ django.jQuery(function($) {
             'csrfmiddlewaretoken': $('form input[name=csrfmiddlewaretoken]').val(),
             'templates': $('#id_templates').val(),
             'host': $('#id_host').val(),
-            'ca': $('#id_ca').val()
+            'ca': $('#id_ca').val(),
+            'cert': $('#id_cert').val()
         },
             $id = $('#id_id'),
             $key = $('#id_key');

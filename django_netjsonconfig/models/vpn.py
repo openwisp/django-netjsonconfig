@@ -72,6 +72,15 @@ class BaseVpn(AbstractConfig):
         cert.save()
         return cert
 
+    def get_context(self):
+        c = {'ca': self.ca.certificate}
+        if self.cert:
+            c.update({
+                'cert': self.cert.certificate,
+                'key': self.cert.private_key
+            })
+        return c
+
     def _get_auto_context_keys(self):
         """
         returns a dictionary which indicates the names of
