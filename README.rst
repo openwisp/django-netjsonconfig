@@ -188,34 +188,76 @@ Settings
 ``NETJSONCONFIG_BACKENDS``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-+--------------+-------------+
-| **type**:    | ``list``    |
-+--------------+-------------+
-| **default**: | ``[]``      |
-+--------------+-------------+
++--------------+-----------------------------------------------+
+| **type**:    | ``tuple``                                     |
++--------------+-----------------------------------------------+
+| **default**: | .. code-block:: python                        |
+|              |                                               |
+|              |   (                                           |
+|              |     ('netjsonconfig.OpenWrt', 'OpenWRT'),     |
+|              |     ('netjsonconfig.OpenWisp', 'OpenWISP'),   |
+|              |   )                                           |
++--------------+-----------------------------------------------+
 
-Additional custom `netjsonconfig backends <http://netjsonconfig.openwisp.org/en/latest/general/basics.html#backend>`_.
+Available configuration backends. For more information, see `netjsonconfig backends
+<http://netjsonconfig.openwisp.org/en/latest/general/basics.html#backend>`_.
 
 ``NETJSONCONFIG_VPN_BACKENDS``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-+--------------+-------------+
-| **type**:    | ``list``    |
-+--------------+-------------+
-| **default**: | ``[]``      |
-+--------------+-------------+
++--------------+----------------------------------------------------------------+
+| **type**:    | ``tuple``                                                      |
++--------------+----------------------------------------------------------------+
+| **default**: | .. code-block:: python                                         |
+|              |                                                                |
+|              |   (                                                            |
+|              |     ('django_netjsonconfig.vpn_backends.OpenVpn', 'OpenVPN'),  |
+|              |   )                                                            |
++--------------+----------------------------------------------------------------+
 
-Additional custom VPN backends that will be available when managind VPN Server objects.
-Eg: `OpenVPN netjsonconfig backend
+Available VPN backends for VPN Server objects. For more information, see `OpenVPN netjsonconfig backend
 <http://netjsonconfig.openwisp.org/en/latest/backends/openvpn.html>`_.
 
-A custom backend must follow some basic rules in order to be compatible:
+A VPN backend must follow some basic rules in order to be compatible with *django-netjsonconfig*:
 
 * it MUST allow at minimum and at maximum one VPN instance
 * the main *NetJSON* property MUST match the lowercase version of the class name,
   eg: when using the ``OpenVpn`` backend, the system will look into
   ``config['openvpn']``
 * it SHOULD focus on the server capabilities of the VPN software being used
+
+``NETJSONCONFIG_DEFAULT_BACKEND``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+----------------------------------+
+| **type**:    | ``str``                          |
++--------------+----------------------------------+
+| **default**: | ``NETJSONCONFIG_BACKENDS[0][0]`` |
++--------------+----------------------------------+
+
+The preferred backend that will be used as initial value when adding new ``Config`` or
+``Template`` objects in the admin.
+
+This setting defaults to the raw value of the first item in the ``NETJSONCONFIG_BACKENDS`` setting,
+which is ``netjsonconfig.OpenWrt``.
+
+Setting it to ``None`` will force the user to choose explicitly.
+
+``NETJSONCONFIG_DEFAULT_VPN_BACKEND``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+--------------------------------------+
+| **type**:    | ``str``                              |
++--------------+--------------------------------------+
+| **default**: | ``NETJSONCONFIG_VPN_BACKENDS[0][0]`` |
++--------------+--------------------------------------+
+
+The preferred backend that will be used as initial value when adding new ``Vpn`` objects in the admin.
+
+This setting defaults to the raw value of the first item in the ``NETJSONCONFIG_VPN_BACKENDS`` setting,
+which is ``django_netjsonconfig.vpn_backends.OpenVpn``.
+
+Setting it to ``None`` will force the user to choose explicitly.
 
 ``NETJSONCONFIG_REGISTRATION_ENABLED``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -288,33 +330,6 @@ Each ``Config`` object gets the following attributes passed as configuration var
 
 For more information, see `netjsonconfig context: configuration variables
 <http://netjsonconfig.openwisp.org/en/latest/general/basics.html#context-configuration-variables>`_.
-
-``NETJSONCONFIG_DEFAULT_BACKEND``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-+--------------+---------------------------+
-| **type**:    | ``str``                   |
-+--------------+---------------------------+
-| **default**: | ``netjsonconfig.OpenWrt`` |
-+--------------+---------------------------+
-
-The preferred backend that will be used as initial value when adding new ``Config`` or
-``Template`` objects in the admin.
-
-Set it to ``None`` in order to force the user to choose explicitly.
-
-``NETJSONCONFIG_DEFAULT_VPN_BACKEND``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-+--------------+-----------------------------------------------+
-| **type**:    | ``str``                                       |
-+--------------+-----------------------------------------------+
-| **default**: | ``django_netjsonconfig.vpn_backends.OpenVpn`` |
-+--------------+-----------------------------------------------+
-
-The preferred backend that will be used as initial value when adding new ``Vpn`` objects in the admin.
-
-Set it to ``None`` in order to force the user to choose explicitly.
 
 ``NETJSONCONFIG_DEFAULT_AUTO_CERT``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -22,7 +22,7 @@ class BaseVpn(AbstractConfig):
                              blank=True,
                              null=True)
     backend = models.CharField(_('VPN backend'),
-                               choices=app_settings.DEFAULT_VPN_BACKENDS,
+                               choices=app_settings.VPN_BACKENDS,
                                max_length=128,
                                help_text=_('Select VPN configuration backend'))
     notes = models.TextField(blank=True)
