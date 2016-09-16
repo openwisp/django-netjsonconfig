@@ -96,13 +96,16 @@ If you want to contribute, install your cloned fork:
 Setup (integrate in an existing django project)
 -----------------------------------------------
 
-Add ``django_netjsonconfig``, ``sortedm2m`` and ``reversion`` to ``INSTALLED_APPS``:
+Add ``django_netjsonconfig``, ``django.contrib.admin``, ``sortedm2m`` and ``reversion`` to
+``INSTALLED_APPS`` in the following order:
 
 .. code-block:: python
 
     INSTALLED_APPS = [
         # other apps
         'django_netjsonconfig',
+        # ensure the django admin comes after django-netjsonconfig
+        'django.contrib.admin',
         'sortedm2m',
         'reversion'  # optional, can be removed if not needed
         # ...

@@ -1,5 +1,5 @@
 {% extends "admin/change_form.html" %}
-{% load i18n admin_netjsonconfig %}
+{% load i18n admin_modify %}
 
 {% block object-tools-items %}
 <li>
@@ -8,8 +8,8 @@
 {{ block.super }}
 {% endblock %}
 
-{% block submit_buttons_top %}{% custom_submit_row %}{% endblock %}
-{% block submit_buttons_bottom %}{% custom_submit_row %}{% endblock %}
+{% block submit_buttons_top %}{% submit_row %}{% endblock %}
+{% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
 
 {% block content %}
 {{ block.super }}
