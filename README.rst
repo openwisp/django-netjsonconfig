@@ -48,6 +48,7 @@ Current features
 * **configuration templates**: reduce repetition to the minimum
 * **configuration context**: reference ansible-like variables in the configuration
 * **simple HTTP resources**: allow devices to automatically download configuration updates
+* **VPN management**: easily create VPN servers and clients
 
 Project goals
 -------------
@@ -60,6 +61,12 @@ Project goals
 * keep the core as simple as possible
 * provide ways to extend the default behaviour
 * encourage new features to be published as extensions
+
+Dependencies
+------------
+
+* Python 2.7 or Python >= 3.4
+* OpenSSL
 
 Install stable version from pypi
 --------------------------------
@@ -147,7 +154,7 @@ Install sqlite:
 
 .. code-block:: shell
 
-    sudo apt-get install sqlite3 libsqlite3-dev
+    sudo apt-get install sqlite3 libsqlite3-dev openssl
 
 Install your forked repo:
 
