@@ -44,4 +44,11 @@ limited_schema['properties']['files']['default'] = [
 
 
 class OpenVpn(BaseOpenVpn):
+    """
+    modified OpenVpn backend
+    its schema is adapted to be used as a VPN Server backend:
+        * shows server only
+        * allows only 1 vpn
+        * adds default values for ca, cert, key and dh
+    """
     schema = limited_schema

@@ -5,7 +5,7 @@ from ..models import Template, Vpn
 class CreateTemplateMixin(object):
     def _create_template(self, **kwargs):
         model_kwargs = {
-            "name": "dhcp",
+            "name": "test-template",
             "backend": "netjsonconfig.OpenWrt",
             "config": {
                 "interfaces": [

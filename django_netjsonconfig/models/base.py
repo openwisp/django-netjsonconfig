@@ -110,10 +110,16 @@ class AbstractConfig(models.Model):
 
     @cached_property
     def backend_class(self):
+        """
+        returns netjsonconfig backend class
+        """
         return import_string(self.backend)
 
     @cached_property
     def backend_instance(self):
+        """
+        returns netjsonconfig backend instance
+        """
         return self.get_backend_instance()
 
     def get_backend_instance(self, template_instances=None):
@@ -135,16 +141,23 @@ class AbstractConfig(models.Model):
         return backend(**kwargs)
 
     def generate(self):
-        """ shortcut for self.backend_instance.generate() """
+        """
+        shortcut for self.backend_instance.generate()
+        """
         return self.backend_instance.generate()
 
     @property
     def checksum(self):
-        """ returns checksum of configuration """
+        """
+        returns checksum of configuration
+        """
         config = self.generate().getvalue()
         return hashlib.md5(config).hexdigest()
 
     def json(self, dict=False, **kwargs):
+        """
+        returns JSON representation of object
+        """
         config = self.backend_instance.config
         if dict:
             return config

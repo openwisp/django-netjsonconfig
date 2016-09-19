@@ -28,6 +28,8 @@ class BaseVpn(AbstractConfig):
                                max_length=128,
                                help_text=_('Select VPN configuration backend'))
     notes = models.TextField(blank=True)
+    # diffie hellman parameters are required
+    # in some VPN solutions (eg: OpenVPN)
     dh = models.TextField(blank=True)
 
     __vpn__ = True
@@ -36,7 +38,11 @@ class BaseVpn(AbstractConfig):
         abstract = True
 
     def clean(self, *args, **kwargs):
+        """
+        * ensure certificate matches CA
+        """
         super(BaseVpn, self).clean(*args, **kwargs)
+        # certificate must be related to CA
         if self.cert and self.cert.ca.pk is not self.ca.pk:
             msg = _('The selected certificate must match the selected CA.')
             raise ValidationError({'cert': msg})
@@ -53,6 +59,9 @@ class BaseVpn(AbstractConfig):
 
     @classmethod
     def dhparam(cls, length):
+        """
+        Returns an automatically generated set of DH parameters in PEM
+        """
         return subprocess.check_output('openssl dhparam {0} 2> /dev/null'.format(length),
                                        shell=True)
 
@@ -83,11 +92,13 @@ class BaseVpn(AbstractConfig):
         return cert
 
     def get_context(self):
-        c = {}
+        """
+        prepares context for netjsonconfig VPN backend
+        """
         try:
-            c.update({'ca': self.ca.certificate})
+            c = {'ca': self.ca.certificate}
         except ObjectDoesNotExist:
-            pass
+            c = {}
         if self.cert:
             c.update({
                 'cert': self.cert.certificate,
@@ -164,6 +175,9 @@ class VpnClient(models.Model):
         unique_together = ('config', 'vpn')
 
     def save(self, *args, **kwargs):
+        """
+        automatically creates an x509 certificate when ``auto_cert`` is True
+        """
         if self.auto_cert:
             cn = app_settings.COMMON_NAME_FORMAT.format(**self.config.__dict__)
             self._auto_create_cert(name=self.config.name,
@@ -172,13 +186,17 @@ class VpnClient(models.Model):
 
     @classmethod
     def post_delete(cls, **kwargs):
+        """
+        class method for ``post_delete`` signal
+        automatically deletes certificates when ``auto_cert`` is ``True``
+        """
         instance = kwargs['instance']
         if instance.auto_cert:
             instance.cert.delete()
 
     def _auto_create_cert(self, name, common_name):
         """
-        Automatically creates and assigns a x509 certificate
+        Automatically creates and assigns an x509 certificate
         """
         server_extensions = [
             {
