@@ -18,6 +18,7 @@ limited_schema['properties']['openvpn']['items'].update({
 limited_schema['definitions']['tunnel']['properties']['ca']['default'] = 'ca.pem'
 limited_schema['definitions']['tunnel']['properties']['cert']['default'] = 'cert.pem'
 limited_schema['definitions']['tunnel']['properties']['key']['default'] = 'key.pem'
+limited_schema['definitions']['server']['allOf'][1]['properties']['dh']['default'] = 'dh.pem'
 limited_schema['properties']['files']['default'] = [
     {
         "path": "ca.pem",
@@ -33,6 +34,11 @@ limited_schema['properties']['files']['default'] = [
         "path": "key.pem",
         "mode": "0644",
         "contents": "{{ key }}"
+    },
+    {
+        "path": "dh.pem",
+        "mode": "0644",
+        "contents": "{{ dh }}"
     }
 ]
 
