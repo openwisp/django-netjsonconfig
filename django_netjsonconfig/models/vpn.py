@@ -2,7 +2,6 @@ import subprocess
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
@@ -12,7 +11,6 @@ from .. import settings as app_settings
 from .base import AbstractConfig
 
 
-@python_2_unicode_compatible
 class BaseVpn(AbstractConfig):
     """
     Abstract VPN model
@@ -210,7 +208,7 @@ class VpnClient(models.Model):
         cert = cert_model(name=name,
                           ca=ca,
                           key_length=ca.key_length,
-                          digest=ca.digest,
+                          digest=str(ca.digest),
                           country_code=ca.country_code,
                           state=ca.state,
                           city=ca.city,
