@@ -226,6 +226,8 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
 
     def test_dh(self):
         v = self._create_vpn()
+        v.dh = None
+        v.save()
         self.assertIsNotNone(v.dh)
         self.assertNotEqual(v.dh, '')
         self.assertIn('-----BEGIN DH PARAMETERS-----', v.dh)
