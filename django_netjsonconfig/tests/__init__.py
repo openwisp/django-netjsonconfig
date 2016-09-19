@@ -24,6 +24,11 @@ class CreateTemplateMixin(object):
 
 
 class CreateVpnMixin(object):
+    _dh = """-----BEGIN DH PARAMETERS-----
+MIGHAoGBAMkiqC2kAkjhysnuBORxJgDMdq3JrvaNh1kZW0IkFiyLRyhtYf92atP4
+ycYELVoRZoRZ8zp2Y2L71vHRNx5okiXZ1xRWDfEVp7TFVc+oCTTRwJqyq21/DJpe
+Qt01H2yL7CvdEUi/gCUJNS9Jm40248nwKgyrwyoS3SjY49CAcEYLAgEC
+-----END DH PARAMETERS-----"""
     _vpn_config = {
         "openvpn": [
             {
@@ -57,7 +62,8 @@ class CreateVpnMixin(object):
                   host='vpn1.test.com',
                   ca=ca,
                   backend='django_netjsonconfig.vpn_backends.OpenVpn',
-                  config=self._vpn_config)
+                  config=self._vpn_config,
+                  dh=self._dh)
         vpn.full_clean()
         vpn.save()
         return vpn

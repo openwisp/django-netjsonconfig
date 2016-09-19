@@ -1,3 +1,5 @@
+import subprocess
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -26,6 +28,7 @@ class BaseVpn(AbstractConfig):
                                max_length=128,
                                help_text=_('Select VPN configuration backend'))
     notes = models.TextField(blank=True)
+    dh = models.TextField(blank=True)
 
     __vpn__ = True
 
@@ -44,7 +47,14 @@ class BaseVpn(AbstractConfig):
         """
         if not self.cert:
             self.cert = self._auto_create_cert()
+        if not self.dh:
+            self.dh = self.dhparam(1024)
         super(BaseVpn, self).save(*args, **kwargs)
+
+    @classmethod
+    def dhparam(cls, length):
+        return subprocess.check_output('openssl dhparam {0} 2> /dev/null'.format(length),
+                                       shell=True)
 
     def _auto_create_cert(self):
         """

@@ -33,7 +33,8 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
                 host='vpn1.test.com',
                 ca=self._create_ca(),
                 backend='django_netjsonconfig.vpn_backends.OpenVpn',
-                config=None)
+                config=None,
+                dh=self._dh)
         try:
             v.full_clean()
         except ValidationError:
@@ -221,3 +222,11 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
             'key': v.cert.private_key
         }
         self.assertEqual(v.get_context(), expected)
+
+    def test_dh(self):
+        v = self._create_vpn()
+        self.assertIsNotNone(v.dh)
+        self.assertNotEqual(v.dh, '')
+        self.assertIn('-----BEGIN DH PARAMETERS-----', v.dh)
+        self.assertIn('-----END DH PARAMETERS-----', v.dh)
+
