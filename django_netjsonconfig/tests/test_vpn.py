@@ -231,3 +231,6 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
         self.assertIn('-----BEGIN DH PARAMETERS-----', v.dh)
         self.assertIn('-----END DH PARAMETERS-----', v.dh)
 
+    def test_context_empty(self):
+        v = Vpn()
+        self.assertEqual(v.get_context(), {})

@@ -1,6 +1,6 @@
 import subprocess
 
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import slugify
@@ -83,7 +83,11 @@ class BaseVpn(AbstractConfig):
         return cert
 
     def get_context(self):
-        c = {'ca': self.ca.certificate}
+        c = {}
+        try:
+            c.update({'ca': self.ca.certificate})
+        except ObjectDoesNotExist:
+            pass
         if self.cert:
             c.update({
                 'cert': self.cert.certificate,
