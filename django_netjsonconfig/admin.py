@@ -81,7 +81,7 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
                            backend=request.POST.get('backend'),
                            config=request.POST.get('config'))
         # fill attributes that are not shared between all models conditionally
-        for attr in ['host', 'ca', 'cert']:
+        for attr in ['host', 'ca', 'cert', 'dh']:
             attr_name = attr
             # relations are a special case
             if attr in ['ca', 'cert']:
@@ -257,7 +257,10 @@ class VpnForm(forms.ModelForm):
 
     class Meta:
         model = Vpn
-        widgets = {'config': JsonSchemaWidget}
+        widgets = {
+            'config': JsonSchemaWidget,
+            'dh': forms.widgets.HiddenInput
+        }
         exclude = []
         fields = ['name',
                   'host',
@@ -265,6 +268,7 @@ class VpnForm(forms.ModelForm):
                   'cert',
                   'backend',
                   'notes',
+                  'dh',
                   'config',
                   'created',
                   'modified']

@@ -14,7 +14,8 @@ django.jQuery(function($) {
             'templates': $('#id_templates').val(),
             'host': $('#id_host').val(),
             'ca': $('#id_ca').val(),
-            'cert': $('#id_cert').val()
+            'cert': $('#id_cert').val(),
+            'dh': $('#id_dh').val(),
         },
             $id = $('#id_id'),
             $key = $('#id_key');

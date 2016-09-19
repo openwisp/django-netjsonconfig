@@ -219,7 +219,8 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
         expected = {
             'ca': v.ca.certificate,
             'cert': v.cert.certificate,
-            'key': v.cert.private_key
+            'key': v.cert.private_key,
+            'dh': v.dh
         }
         self.assertEqual(v.get_context(), expected)
 
