@@ -19,6 +19,7 @@ class BaseVpn(AbstractConfig):
     ca = models.ForeignKey('django_x509.Ca', verbose_name=_('CA'))
     cert = models.ForeignKey('django_x509.Cert',
                              verbose_name=_('x509 Certificate'),
+                             help_text=_('leave blank to create automatically'),
                              blank=True,
                              null=True)
     backend = models.CharField(_('VPN backend'),
