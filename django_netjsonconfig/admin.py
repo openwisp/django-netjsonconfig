@@ -101,16 +101,21 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
                 setattr(model, attr, request.POST[attr])
         return model
 
+    preview_error_msg = 'Preview for {0} with name {1} failed'
+
     def preview_view(self, request):
         if request.method != 'POST':
-            logger.warning('Preview not allowed', extra={'request': request, 'stack': True})
+            msg = 'Preview: request method {0} is not allowed'.format(request.method)
+            logger.warning(msg, extra={'request': request, 'stack': True})
             return HttpResponse(status=405)
         error = None
         output = None
+        # error message for eventual exceptions
+        error_msg = self.preview_error_msg.format(self.model.__name__, request.POST.get('name'))
         try:
             model = self._prepare_preview_model(request)
         except ValidationError as e:
-            logger.error('Preview failed', extra={'request': request, 'stack': True})
+            logger.exception(error_msg, extra={'request': request})
             return HttpResponse(str(e), status=400)
         template_ids = request.POST.get('templates')
         if template_ids:
@@ -118,7 +123,7 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
             try:
                 templates = list(templates)  # evaluating queryset performs query
             except ValueError as e:
-                logger.error('Preview failed', extra={'request': request, 'stack': True})
+                logger.exception(error_msg, extra={'request': request})
                 return HttpResponse(str(e), status=400)
         else:
             templates = None
