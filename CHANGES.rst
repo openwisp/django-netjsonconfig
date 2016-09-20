@@ -1,10 +1,25 @@
 Changelog
 =========
 
-Version 0.4.0 [unreleased]
+Version 0.4.0 [2016-09-20]
 --------------------------
 
-WIP
+- [general] upgraded minimum django version to 1.10
+- [general] upgraded minimum netjsonconfig version to 0.5.0
+- [general] added VPN Server management (depends on django-x509)
+- [general] added ``auto_cert`` feature for automatic management of VPN client certificates
+- [template] added ``type`` attribute to ``Template`` model, which can be ``generic`` or ``vpn``
+- [config] added required unique ``mac_address`` field to ``Config`` model
+- [settings] added ``NETJSONCONFIG_VPN_BACKENDS`` setting
+- [settings] added ``NETJSONCONFIG_DEFAULT_VPN_BACKEND`` setting
+- [settings] added ``NETJSONCONFIG_DEFAULT_AUTO_CERT`` setting
+- [settings] added ``NETJSONCONFIG_CERT_PATH`` setting
+- [settings] added ``NETJSONCONFIG_COMMON_NAME_FORMAT`` setting
+- [settings] backends are now completely overridable
+- [admin] configuration editor is now initialized empty
+- [admin] configuration editor buttons order swapped: advanced mode is now on the right side
+  while "object properties" has been renamed to "configuration menu" and moved to the left side
+- [admin] log failed previews for debugging purposes
 
 Version 0.3.3 [2016-08-24]
 --------------------------
