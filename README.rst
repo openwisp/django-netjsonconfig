@@ -154,7 +154,7 @@ Install sqlite:
 
 .. code-block:: shell
 
-    sudo apt-get install sqlite3 libsqlite3-dev openssl
+    sudo apt-get install sqlite3 libsqlite3-dev openssl libssl-dev
 
 Install your forked repo:
 
