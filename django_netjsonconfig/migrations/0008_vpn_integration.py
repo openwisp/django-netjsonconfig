@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 ('backend', models.CharField(choices=[('django_netjsonconfig.vpn_backends.OpenVpn', 'OpenVPN')], help_text='Select VPN configuration backend', max_length=128, verbose_name='VPN backend')),
                 ('config', jsonfield.fields.JSONField(blank=True, default=dict, help_text='configuration in NetJSON DeviceConfiguration format', verbose_name='server configuration')),
                 ('ca', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='django_x509.Ca', verbose_name='CA')),
-                ('cert', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_x509.Cert', verbose_name='x509 Certificate')),
+                ('cert', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_x509.Cert', verbose_name='x509 Certificate', help_text='leave blank to create automatically')),
             ],
             options={
                 'verbose_name_plural': 'VPN Servers',
