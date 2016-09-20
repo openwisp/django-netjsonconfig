@@ -1,3 +1,5 @@
+import logging
+
 from django import forms
 from django.conf import settings
 from django.conf.urls import url
@@ -15,6 +17,7 @@ from .models.config import get_random_mac
 from .utils import send_file
 from .widgets import JsonSchemaWidget
 
+logger = logging.getLogger(__name__)
 prefix = 'django-netjsonconfig/'
 
 if 'reversion' in settings.INSTALLED_APPS:
@@ -100,12 +103,14 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
 
     def preview_view(self, request):
         if request.method != 'POST':
+            logger.warning('Preview not allowed', extra={'request': request, 'stack': True})
             return HttpResponse(status=405)
         error = None
         output = None
         try:
             model = self._prepare_preview_model(request)
         except ValidationError as e:
+            logger.error('Preview failed', extra={'request': request, 'stack': True})
             return HttpResponse(str(e), status=400)
         template_ids = request.POST.get('templates')
         if template_ids:
@@ -113,6 +118,7 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
             try:
                 templates = list(templates)  # evaluating queryset performs query
             except ValueError as e:
+                logger.error('Preview failed', extra={'request': request, 'stack': True})
                 return HttpResponse(str(e), status=400)
         else:
             templates = None
