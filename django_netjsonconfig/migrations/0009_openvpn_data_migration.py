@@ -27,7 +27,7 @@ def forward(apps, schema_editor):
                     v['remote'] = [{'host': parts[0], 'port': int(parts[1])}]
                 if 'mode' not in v:
                     if 'client' in v or 'tls_client' in v:
-                        v['mode'] = 'client'
+                        v['mode'] = 'p2p'
                     else:
                         v['mode'] = 'server'
                 if 'proto' not in v:
