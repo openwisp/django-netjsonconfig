@@ -11,14 +11,18 @@ limited_schema['properties']['openvpn'].update({
 })
 # server mode only
 limited_schema['properties']['openvpn']['items'].update({
-    "oneOf": [{"$ref": "#/definitions/server"}]
+    "oneOf": [
+        {"$ref": "#/definitions/server_bridged"},
+        {"$ref": "#/definitions/server_routed"},
+        {"$ref": "#/definitions/server_manual"}
+    ]
 })
 
 # default values for ca, cert and key
 limited_schema['definitions']['tunnel']['properties']['ca']['default'] = 'ca.pem'
 limited_schema['definitions']['tunnel']['properties']['cert']['default'] = 'cert.pem'
 limited_schema['definitions']['tunnel']['properties']['key']['default'] = 'key.pem'
-limited_schema['definitions']['server']['allOf'][1]['properties']['dh']['default'] = 'dh.pem'
+limited_schema['definitions']['server']['properties']['dh']['default'] = 'dh.pem'
 limited_schema['properties']['files']['default'] = [
     {
         "path": "ca.pem",
