@@ -42,7 +42,7 @@ class BaseVpn(AbstractConfig):
         """
         super(BaseVpn, self).clean(*args, **kwargs)
         # certificate must be related to CA
-        if self.cert and self.cert.ca.pk is not self.ca.pk:
+        if self.cert and self.cert.ca.pk != self.ca.pk:
             msg = _('The selected certificate must match the selected CA.')
             raise ValidationError({'cert': msg})
 
