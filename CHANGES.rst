@@ -1,10 +1,13 @@
 Changelog
 =========
 
-Version 0.4.1 [unreleased]
+Version 0.4.1 [2016-09-22]
 --------------------------
 
-WIP
+- [vpn] Use "not equal" operator instead of "is not" in CA validation
+- [openvpn] Corrected wrong "client" mode value to "p2p"
+- [vpn] Updated custom OpenVpn schema (netjsonconfig 0.5.1)
+- [general] require at least netjsonconfig 0.5.1
 
 Version 0.4.0 [2016-09-20]
 --------------------------
