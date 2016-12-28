@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
@@ -107,3 +108,23 @@ class TestTemplate(CreateTemplateMixin, CreateVpnMixin, TestCase):
         self.assertEqual(vpn['key'], 'key.pem')
         self.assertEqual(len(t.config['files']), 1)
         self.assertIn('ca_path', t.config['files'][0]['path'])
+
+    def test_template_context_var(self):
+        t = self._create_template(config={'files': [
+            {
+                'path': '/etc/vpnserver1',
+                'mode': '0644',
+                'contents': '{{ name }}\n{{ vpnserver1 }}\n'
+            }
+        ]})
+        c = Config(name='test-var',
+                   backend='netjsonconfig.OpenWrt',
+                   mac_address=self.TEST_MAC_ADDRESS)
+        c.full_clean()
+        c.save()
+        c.templates.add(t)
+        # clear cache
+        del c.backend_instance
+        output = c.backend_instance.render()
+        vpnserver1 = settings.NETJSONCONFIG_CONTEXT['vpnserver1']
+        self.assertIn(vpnserver1, output)
