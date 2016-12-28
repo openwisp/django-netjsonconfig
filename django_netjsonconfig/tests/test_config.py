@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
 from django.test import TestCase
@@ -266,7 +267,8 @@ class TestConfig(CreateTemplateMixin, CreateVpnMixin, TestCase):
                    mac_address=self.TEST_MAC_ADDRESS,
                    config=config)
         output = c.backend_instance.render()
-        self.assertIn('vpn.testdomain.com', output)
+        vpnserver1 = settings.NETJSONCONFIG_CONTEXT['vpnserver1']
+        self.assertIn(vpnserver1, output)
 
     def test_mac_address_as_hostname(self):
         c = Config(name='00:11:22:33:44:55',
