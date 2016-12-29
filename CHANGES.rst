@@ -1,10 +1,10 @@
 Changelog
 =========
 
-Version 0.4.2 [unreleased]
+Version 0.4.2 [2016-12-29]
 --------------------------
 
-WIP
+- `#22 <https://github.com/openwisp/django-netjsonconfig/issues/22>`_: Fixed evaluation of multiple vars
 
 Version 0.4.1 [2016-09-22]
 --------------------------
