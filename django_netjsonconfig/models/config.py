@@ -83,6 +83,7 @@ class BaseConfig(AbstractConfig):
         c.update(app_settings.CONTEXT)
         return c
 
+
 BaseConfig._meta.get_field('config').blank = True
 
 

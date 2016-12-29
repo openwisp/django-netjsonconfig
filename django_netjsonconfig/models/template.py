@@ -94,6 +94,7 @@ class BaseTemplate(AbstractConfig):
         if self.type == 'vpn' and not self.config:
             self.config = self.vpn.auto_client(auto_cert=self.auto_cert)
 
+
 BaseTemplate._meta.get_field('config').blank = True
 
 
