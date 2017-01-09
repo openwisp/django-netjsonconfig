@@ -19,9 +19,9 @@ from .. import settings as app_settings
 
 
 @python_2_unicode_compatible
-class AbstractConfig(models.Model):
+class BaseConfig(models.Model):
     """
-    Base logic shared between BaseConfig and BaseVpn
+    Base configuration management model logic shared between models
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=64, unique=True)

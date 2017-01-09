@@ -10,7 +10,7 @@ from sortedm2m.fields import SortedManyToManyField
 
 from .. import settings as app_settings
 from ..validators import key_validator, mac_address_validator
-from .base import AbstractConfig
+from .base import BaseConfig
 
 
 def get_random_key():
@@ -26,7 +26,7 @@ def get_random_mac():
                                         random.randint(0, 255))
 
 
-class BaseConfig(AbstractConfig):
+class AbstractConfig(BaseConfig):
     """
     Abstract model implementing the
     NetJSON DeviceConfiguration object
@@ -55,13 +55,15 @@ class BaseConfig(AbstractConfig):
 
     class Meta:
         abstract = True
+        verbose_name = _('configuration')
+        verbose_name_plural = _('configurations')
 
     def clean(self):
         """
         modifies status if key attributes of the configuration
         have changed (queries the database)
         """
-        super(BaseConfig, self).clean()
+        super(AbstractConfig, self).clean()
         if self._state.adding:
             return
         current = self.__class__.objects.get(pk=self.pk)
@@ -84,7 +86,7 @@ class BaseConfig(AbstractConfig):
         return c
 
 
-BaseConfig._meta.get_field('config').blank = True
+AbstractConfig._meta.get_field('config').blank = True
 
 
 class TemplatesVpnMixin(models.Model):
@@ -102,9 +104,7 @@ class TemplatesVpnMixin(models.Model):
     vpn = models.ManyToManyField('django_netjsonconfig.Vpn',
                                  through='django_netjsonconfig.VpnClient',
                                  related_name='vpn_relations',
-                                 verbose_name=_('VPN'),
-                                 blank=True,
-                                 help_text=_('Automated VPN configurations'))
+                                 blank=True)
 
     def save(self, *args, **kwargs):
         created = self._state.adding
@@ -227,12 +227,3 @@ class TemplatesVpnMixin(models.Model):
 
     class Meta:
         abstract = True
-
-
-class Config(TemplatesVpnMixin, BaseConfig):
-    """
-    Concrete Config model
-    """
-    class Meta:
-        verbose_name = _('configuration')
-        verbose_name_plural = _('configurations')

@@ -3,8 +3,6 @@ import logging
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 
-from django_netjsonconfig.models import Config
-
 logger = logging.getLogger(__name__)
 
 
@@ -13,6 +11,8 @@ def get_config_or_404(pk, **kwargs):
     like ``get_object_or_404``, but handles eventual exceptions
     for malformed UUIDs and by raising an ``Http404`` exception
     """
+    # TODO: move this elsewhere
+    from django_netjsonconfig.models import Config
     kwargs.update({'pk': pk})
     try:
         return get_object_or_404(Config, **kwargs)

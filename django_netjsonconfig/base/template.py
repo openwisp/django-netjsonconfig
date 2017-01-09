@@ -4,7 +4,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from ..settings import DEFAULT_AUTO_CERT
-from .base import AbstractConfig
+from .base import BaseConfig
 
 TYPE_CHOICES = (
     ('generic', _('Generic')),
@@ -21,7 +21,7 @@ def default_auto_cert():
 
 
 @python_2_unicode_compatible
-class BaseTemplate(AbstractConfig):
+class AbstractTemplate(BaseConfig):
     """
     Abstract model implementing a
     netjsonconfig template
@@ -53,6 +53,8 @@ class BaseTemplate(AbstractConfig):
 
     class Meta:
         abstract = True
+        verbose_name = _('template')
+        verbose_name_plural = _('templates')
 
     def __str__(self):
         return '[{0}-{1}] {2}'.format(self.get_type_display(),
@@ -72,7 +74,7 @@ class BaseTemplate(AbstractConfig):
                     update_related_config_status = True
                     break
         # save current changes
-        super(BaseTemplate, self).save(*args, **kwargs)
+        super(AbstractTemplate, self).save(*args, **kwargs)
         # update relations
         if update_related_config_status:
             self.config_relations.update(status='modified')
@@ -83,7 +85,7 @@ class BaseTemplate(AbstractConfig):
         * clears VPN specific fields if type is not VPN
         * automatically determines configuration if necessary
         """
-        super(BaseTemplate, self).clean(*args, **kwargs)
+        super(AbstractTemplate, self).clean(*args, **kwargs)
         if self.type == 'vpn' and not self.vpn:
             raise ValidationError({
                 'vpn': _('A VPN must be selected when template type is "VPN"')
@@ -95,11 +97,4 @@ class BaseTemplate(AbstractConfig):
             self.config = self.vpn.auto_client(auto_cert=self.auto_cert)
 
 
-BaseTemplate._meta.get_field('config').blank = True
-
-
-class Template(BaseTemplate):
-    """
-    Concrete Template model
-    """
-    pass
+AbstractTemplate._meta.get_field('config').blank = True

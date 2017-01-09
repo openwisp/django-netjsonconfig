@@ -99,8 +99,8 @@ class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
         try:
             client.full_clean()
         except ValidationError as e:
-            self.assertIn('Vpn client with this Config and Vpn already exists.',
-                          e.message_dict['__all__'])
+            self.assertIn('with this Config and Vpn already exists',
+                          e.message_dict['__all__'][0])
         else:
             self.fail('unique_together clause not triggered')
 

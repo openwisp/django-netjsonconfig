@@ -5,13 +5,11 @@ from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
-from django_x509.models import Cert
-
 from .. import settings as app_settings
-from .base import AbstractConfig
+from .base import BaseConfig
 
 
-class BaseVpn(AbstractConfig):
+class AbstractVpn(BaseConfig):
     """
     Abstract VPN model
     """
@@ -34,13 +32,15 @@ class BaseVpn(AbstractConfig):
     __vpn__ = True
 
     class Meta:
+        verbose_name = _('VPN server')
+        verbose_name_plural = _('VPN servers')
         abstract = True
 
     def clean(self, *args, **kwargs):
         """
         * ensure certificate matches CA
         """
-        super(BaseVpn, self).clean(*args, **kwargs)
+        super(AbstractVpn, self).clean(*args, **kwargs)
         # certificate must be related to CA
         if self.cert and self.cert.ca.pk != self.ca.pk:
             msg = _('The selected certificate must match the selected CA.')
@@ -54,7 +54,7 @@ class BaseVpn(AbstractConfig):
             self.cert = self._auto_create_cert()
         if not self.dh:
             self.dh = self.dhparam(1024)
-        super(BaseVpn, self).save(*args, **kwargs)
+        super(AbstractVpn, self).save(*args, **kwargs)
 
     @classmethod
     def dhparam(cls, length):
@@ -76,17 +76,18 @@ class BaseVpn(AbstractConfig):
                 "critical": False
             }
         ]
-        cert = Cert(name=self.name,
-                    ca=self.ca,
-                    key_length=self.ca.key_length,
-                    digest=self.ca.digest,
-                    country_code=self.ca.country_code,
-                    state=self.ca.state,
-                    city=self.ca.city,
-                    organization=self.ca.organization,
-                    email=self.ca.email,
-                    common_name=common_name,
-                    extensions=server_extensions)
+        cert_model = self.__class__.cert.field.related_model
+        cert = cert_model(name=self.name,
+                          ca=self.ca,
+                          key_length=self.ca.key_length,
+                          digest=self.ca.digest,
+                          country_code=self.ca.country_code,
+                          state=self.ca.state,
+                          city=self.ca.city,
+                          organization=self.ca.organization,
+                          email=self.ca.email,
+                          common_name=common_name,
+                          extensions=server_extensions)
         cert.save()
         return cert
 
@@ -154,7 +155,7 @@ class BaseVpn(AbstractConfig):
         return config
 
 
-class VpnClient(models.Model):
+class AbstractVpnClient(models.Model):
     """
     m2m through model
     """
@@ -171,7 +172,10 @@ class VpnClient(models.Model):
     auto_cert = models.BooleanField(default=False)
 
     class Meta:
+        abstract = True
         unique_together = ('config', 'vpn')
+        verbose_name = _('VPN client')
+        verbose_name_plural = _('VPN clients')
 
     def save(self, *args, **kwargs):
         """
@@ -181,7 +185,7 @@ class VpnClient(models.Model):
             cn = app_settings.COMMON_NAME_FORMAT.format(**self.config.__dict__)
             self._auto_create_cert(name=self.config.name,
                                    common_name=cn)
-        super(VpnClient, self).save(*args, **kwargs)
+        super(AbstractVpnClient, self).save(*args, **kwargs)
 
     @classmethod
     def post_delete(cls, **kwargs):
@@ -205,7 +209,7 @@ class VpnClient(models.Model):
             }
         ]
         ca = self.vpn.ca
-        cert_model = VpnClient.cert.field.related_model
+        cert_model = self.__class__.cert.field.related_model
         cert = cert_model(name=name,
                           ca=ca,
                           key_length=ca.key_length,
@@ -221,12 +225,3 @@ class VpnClient(models.Model):
         cert.save()
         self.cert = cert
         return cert
-
-
-class Vpn(BaseVpn):
-    """
-    Concrete VPN model
-    """
-    class Meta:
-        verbose_name = _('VPN Server')
-        verbose_name_plural = _('VPN Servers')

@@ -10,7 +10,7 @@ import jsonfield.fields
 import model_utils.fields
 from django.db import migrations, models
 
-import django_netjsonconfig.models.template
+import django_netjsonconfig.base.template
 
 
 class Migration(migrations.Migration):
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='template',
             name='auto_cert',
-            field=models.BooleanField(db_index=True, default=django_netjsonconfig.models.template.default_auto_cert, help_text='whether x509 client certificates should be automatically managed behind the scenes for each configuration using this template, valid only for the VPN type', verbose_name='auto certificate'),
+            field=models.BooleanField(db_index=True, default=django_netjsonconfig.base.template.default_auto_cert, help_text='whether x509 client certificates should be automatically managed behind the scenes for each configuration using this template, valid only for the VPN type', verbose_name='auto certificate'),
         ),
         migrations.AddField(
             model_name='template',
