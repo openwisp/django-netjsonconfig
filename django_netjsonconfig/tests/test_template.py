@@ -1,17 +1,21 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django_x509.models import Ca
 
 from netjsonconfig import OpenWrt
 
-from . import CreateTemplateMixin, CreateVpnMixin
-from ..models import Config, Template
+from . import CreateTemplateMixin, TestVpnX509Mixin
+from ..models import Config, Template, Vpn
 
 
-class TestTemplate(CreateTemplateMixin, CreateVpnMixin, TestCase):
+class TestTemplate(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
     """
     tests for Template model
     """
+    template_model = Template
+    ca_model = Ca
+    vpn_model = Vpn
     TEST_MAC_ADDRESS = '00:11:22:33:44:55'
 
     def test_str(self):

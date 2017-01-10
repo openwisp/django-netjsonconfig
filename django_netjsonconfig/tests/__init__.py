@@ -1,5 +1,9 @@
-from django_x509.models import Ca
-from ..models import Template, Vpn
+"""
+test utilities shared among test classes
+these mixins are reused also in openwisp2
+change with care.
+"""
+from django_x509.tests import TestX509Mixin
 
 
 class CreateTemplateMixin(object):
@@ -17,7 +21,7 @@ class CreateTemplateMixin(object):
             }
         }
         model_kwargs.update(kwargs)
-        t = Template(**model_kwargs)
+        t = self.template_model(**model_kwargs)
         t.full_clean()
         t.save()
         return t
@@ -46,24 +50,21 @@ Qt01H2yL7CvdEUi/gCUJNS9Jm40248nwKgyrwyoS3SjY49CAcEYLAgEC
         ]
     }
 
-    def _create_vpn(self):
-        ca = Ca(name='test-ca',
-                key_length='2048',
-                digest='sha256',
-                country_code='IT',
-                state='RM',
-                city='Rome',
-                organization='OpenWISP',
-                email='test@test.com',
-                common_name='openwisp.org')
-        ca.full_clean()
-        ca.save()
-        vpn = Vpn(name='test',
-                  host='vpn1.test.com',
-                  ca=ca,
-                  backend='django_netjsonconfig.vpn_backends.OpenVpn',
-                  config=self._vpn_config,
-                  dh=self._dh)
+    def _create_vpn(self, ca_options={}, **kwargs):
+        options = dict(name='test',
+                       host='vpn1.test.com',
+                       ca=None,
+                       backend='django_netjsonconfig.vpn_backends.OpenVpn',
+                       config=self._vpn_config,
+                       dh=self._dh)
+        options.update(**kwargs)
+        if not options['ca']:
+            options['ca'] = self._create_ca(**ca_options)
+        vpn = self.vpn_model(**options)
         vpn.full_clean()
         vpn.save()
         return vpn
+
+
+class TestVpnX509Mixin(CreateVpnMixin, TestX509Mixin):
+    pass

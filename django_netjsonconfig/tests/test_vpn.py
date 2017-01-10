@@ -3,30 +3,19 @@ from django.test import TestCase
 
 from django_x509.models import Ca, Cert
 
-from . import CreateTemplateMixin, CreateVpnMixin
-from ..models import Config, Vpn, VpnClient
+from . import CreateTemplateMixin, TestVpnX509Mixin
+from ..models import Config, Template, Vpn, VpnClient
 from ..vpn_backends import OpenVpn
 
 
-class TestVpn(CreateVpnMixin, CreateTemplateMixin, TestCase):
+class TestVpn(TestVpnX509Mixin, CreateTemplateMixin, TestCase):
     """
     tests for Vpn model
     """
     maxDiff = None
-
-    def _create_ca(self):
-        ca = Ca(name='test-ca',
-                key_length='2048',
-                digest='sha256',
-                country_code='IT',
-                state='RM',
-                city='Rome',
-                organization='OpenWISP',
-                email='test@test.com',
-                common_name='openwisp.org')
-        ca.full_clean()
-        ca.save()
-        return ca
+    template_model = Template
+    ca_model = Ca
+    vpn_model = Vpn
 
     def test_config_not_none(self):
         v = Vpn(name='test',

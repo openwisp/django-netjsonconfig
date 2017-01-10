@@ -3,17 +3,20 @@ import json
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django_x509.models import Ca
 
-from . import CreateVpnMixin
-from ..models import Config, Template
+from . import TestVpnX509Mixin
+from ..models import Config, Template, Vpn
 
 
-class TestAdmin(CreateVpnMixin, TestCase):
+class TestAdmin(TestVpnX509Mixin, TestCase):
     """
     tests for Config model
     """
     fixtures = ['test_templates']
     maxDiff = None
+    ca_model = Ca
+    vpn_model = Vpn
     TEST_KEY = 'w1gwJxKaHcamUw62TQIPgYchwLKn3AA0'
     TEST_MAC_ADDRESS = '00:11:22:33:44:55'
 
