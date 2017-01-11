@@ -3,22 +3,22 @@ import json
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+
 from django_x509.models import Ca
 
-from . import TestVpnX509Mixin
+from . import CreateConfigMixin, TestVpnX509Mixin
 from ..models import Config, Template, Vpn
 
 
-class TestAdmin(TestVpnX509Mixin, TestCase):
+class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
     """
     tests for Config model
     """
     fixtures = ['test_templates']
     maxDiff = None
     ca_model = Ca
+    config_model = Config
     vpn_model = Vpn
-    TEST_KEY = 'w1gwJxKaHcamUw62TQIPgYchwLKn3AA0'
-    TEST_MAC_ADDRESS = '00:11:22:33:44:55'
 
     def setUp(self):
         User.objects.create_superuser(username='admin',
@@ -28,14 +28,8 @@ class TestAdmin(TestVpnX509Mixin, TestCase):
 
     def test_change_config_clean_templates(self):
         t = Template.objects.first()
-        d = Config(name='test',
-                   backend=t.backend,
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   config=t.config,
-                   key=self.TEST_KEY)
-        d.full_clean()
-        d.save()
-        path = reverse('admin:django_netjsonconfig_config_change', args=[d.pk])
+        c = self._create_config(name='test', backend=t.backend, config=t.config)
+        path = reverse('admin:django_netjsonconfig_config_change', args=[c.pk])
         # ensure it fails with error
         response = self.client.post(path, {'templates': str(t.pk), 'key': self.TEST_KEY})
         self.assertIn('errors field-templates', str(response.content))
@@ -60,14 +54,8 @@ class TestAdmin(TestVpnX509Mixin, TestCase):
         self.assertEqual(d.name, 'add-config-test')
 
     def test_download_config(self):
-        d = Config(name='download',
-                   backend='netjsonconfig.OpenWrt',
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   config={'general': {'hostname': 'config'}},
-                   key=self.TEST_KEY)
-        d.full_clean()
-        d.save()
-        path = reverse('admin:django_netjsonconfig_config_download', args=[d.pk])
+        c = self._create_config(name='download')
+        path = reverse('admin:django_netjsonconfig_config_download', args=[c.pk])
         response = self.client.get(path)
         self.assertEqual(response.get('content-type'), 'application/octet-stream')
 
@@ -244,14 +232,10 @@ class TestAdmin(TestVpnX509Mixin, TestCase):
 
     def test_preview_variables(self):
         path = reverse('admin:django_netjsonconfig_config_preview')
-        c = Config(name='variables',
-                   backend='netjsonconfig.OpenWrt',
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   config={'general': {'cid': '{{ id }}',
-                                       'ckey': '{{ key }}',
-                                       'cname': '{{ name }}'}})
-        c.full_clean()
-        c.save()
+        c = self._create_config(name='variables',
+                                config={'general': {'cid': '{{ id }}',
+                                                    'ckey': '{{ key }}',
+                                                    'cname': '{{ name }}'}})
         templates = Template.objects.all()
         c.templates.add(*templates)
         data = {

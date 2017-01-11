@@ -4,26 +4,26 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
 from django.test import TestCase
-from django_x509.models import Ca
 
+from django_x509.models import Ca
 from netjsonconfig import OpenWrt
 
-from . import CreateTemplateMixin, TestVpnX509Mixin
+from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 from .. import settings as app_settings
 from ..models import Config, Template, Vpn
 
 
-class TestConfig(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
+class TestConfig(CreateConfigMixin, CreateTemplateMixin,
+                 TestVpnX509Mixin, TestCase):
     """
     tests for Config model
     """
     fixtures = ['test_templates']
     maxDiff = None
-    template_model = Template
     ca_model = Ca
+    config_model = Config
+    template_model = Template
     vpn_model = Vpn
-    TEST_KEY = 'w1gwJxKaHcamUw62TQIPgYchwLKn3AA0'
-    TEST_MAC_ADDRESS = '00:11:22:33:44:55'
 
     def test_str(self):
         d = Config(name='test')
@@ -65,13 +65,7 @@ class TestConfig(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
     def test_json(self):
         dhcp = Template.objects.get(name='dhcp')
         radio = Template.objects.get(name='radio0')
-        d = Config(name='test',
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   backend='netjsonconfig.OpenWrt',
-                   config={'general': {'hostname': 'json-test'}},
-                   key=self.TEST_KEY)
-        d.full_clean()
-        d.save()
+        d = self._create_config(config={'general': {'hostname': 'json-test'}})
         d.templates.add(dhcp)
         d.templates.add(radio)
         full_config = {
@@ -129,13 +123,7 @@ class TestConfig(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
                      config=config)
         t.full_clean()
         t.save()
-        d = Config(name='test',
-                   key=self.TEST_KEY,
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   backend='netjsonconfig.OpenWrt',
-                   config=config_copy)
-        d.full_clean()
-        d.save()
+        d = self._create_config(config=config_copy)
         with atomic():
             try:
                 d.templates.add(t)
@@ -166,14 +154,8 @@ class TestConfig(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
         d.full_clean()
 
     def test_checksum(self):
-        d = Config(name='test',
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   backend='netjsonconfig.OpenWrt',
-                   config={'general': {'hostname': 'json-test'}},
-                   key=self.TEST_KEY)
-        d.full_clean()
-        d.save()
-        self.assertEqual(len(d.checksum), 32)
+        c = self._create_config()
+        self.assertEqual(len(c.checksum), 32)
 
     def test_backend_import_error(self):
         """
@@ -192,13 +174,7 @@ class TestConfig(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
         self.assertEqual(c.status, 'modified')
 
     def test_status_modified_after_change(self):
-        c = Config(name='test-status',
-                   status='running',
-                   backend='netjsonconfig.OpenWrt',
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   config={'general': {}})
-        c.full_clean()
-        c.save()
+        c = self._create_config(status='running')
         self.assertEqual(c.status, 'running')
         c.refresh_from_db()
         c.name = 'test-status-modified'
@@ -207,13 +183,7 @@ class TestConfig(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
         self.assertEqual(c.status, 'modified')
 
     def test_status_modified_after_templates_changed(self):
-        c = Config(name='test-status',
-                   status='running',
-                   backend='netjsonconfig.OpenWrt',
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   config={'general': {}})
-        c.full_clean()
-        c.save()
+        c = self._create_config(status='running')
         self.assertEqual(c.status, 'running')
         t = Template.objects.first()
         c.templates.add(t)
@@ -228,15 +198,8 @@ class TestConfig(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
         self.assertEqual(c.status, 'modified')
 
     def test_auto_hostname(self):
-        c = Config(name='automate-me',
-                   backend='netjsonconfig.OpenWrt',
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   config={'general': {}})
-        c.full_clean()
-        c.save()
-        expected = {
-            'general': {'hostname': 'automate-me'}
-        }
+        c = self._create_config(name='automate-me')
+        expected = {'general': {'hostname': 'automate-me'}}
         self.assertDictEqual(c.backend_instance.config, expected)
         c.refresh_from_db()
         self.assertDictEqual(c.config, {'general': {}})
@@ -275,11 +238,7 @@ class TestConfig(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
         self.assertIn(vpnserver1, output)
 
     def test_mac_address_as_hostname(self):
-        c = Config(name='00:11:22:33:44:55',
-                   backend='netjsonconfig.OpenWrt',
-                   mac_address=self.TEST_MAC_ADDRESS)
-        c.full_clean()
-        c.save()
+        c = self._create_config(name='00:11:22:33:44:55')
         self.assertIn('00-11-22-33-44-55', c.backend_instance.render())
 
     def test_create_vpnclient(self):
@@ -287,12 +246,7 @@ class TestConfig(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
         t = self._create_template(name='test-network',
                                   type='vpn',
                                   vpn=vpn)
-        c = Config(name='test-create-cert',
-                   backend='netjsonconfig.OpenWrt',
-                   config={'general': {}},
-                   mac_address=self.TEST_MAC_ADDRESS)
-        c.full_clean()
-        c.save()
+        c = self._create_config(name='test-create-cert')
         c.templates.add(t)
         c.save()
         vpnclient = c.vpnclient_set.first()
@@ -339,14 +293,8 @@ class TestConfig(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
                                   type='vpn',
                                   vpn=vpn,
                                   auto_cert=True)
-        c = Config(name='test-create-cert',
-                   backend='netjsonconfig.OpenWrt',
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   config={'general': {}})
-        c.full_clean()
-        c.save()
+        c = self._create_config(name='test-create-cert')
         c.templates.add(t)
-        c.save()
         vpnclient = c.vpnclient_set.first()
         self.assertIsNotNone(vpnclient)
         self.assertTrue(vpnclient.auto_cert)
@@ -384,12 +332,7 @@ class TestConfig(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
     def test_create_cert_false(self):
         vpn = self._create_vpn()
         t = self._create_template(type='vpn', auto_cert=False, vpn=vpn)
-        c = Config(name='test-create-cert-false',
-                   backend='netjsonconfig.OpenWrt',
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   config={'general': {}})
-        c.full_clean()
-        c.save()
+        c = self._create_config(name='test-create-cert')
         c.templates.add(t)
         c.save()
         vpnclient = c.vpnclient_set.first()
@@ -458,12 +401,7 @@ class TestConfig(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
     def test_vpn_context_no_cert(self):
         vpn = self._create_vpn()
         t = self._create_template(type='vpn', auto_cert=False, vpn=vpn)
-        c = Config(name='test-create-cert-false',
-                   backend='netjsonconfig.OpenWrt',
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   config={'general': {}})
-        c.full_clean()
-        c.save()
+        c = self._create_config(name='test-create-cert')
         c.templates.add(t)
         c.save()
         context = c.get_context()

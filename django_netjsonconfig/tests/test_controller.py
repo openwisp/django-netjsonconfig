@@ -4,8 +4,9 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from django_netjsonconfig import settings as app_settings
-from django_netjsonconfig.models import Config
+from . import CreateConfigMixin
+from .. import settings as app_settings
+from ..models import Config
 
 TEST_MACADDR = '00:11:22:33:44:55'
 mac_plus_secret = '%s+%s' % (TEST_MACADDR, settings.NETJSONCONFIG_SHARED_SECRET)
@@ -13,19 +14,11 @@ TEST_CONSISTENT_KEY = md5(mac_plus_secret.encode()).hexdigest()
 REGISTER_URL = reverse('controller:register')
 
 
-class TestController(TestCase):
+class TestController(CreateConfigMixin, TestCase):
     """
     tests for django_netjsonconfig.controller
     """
-    def _create_config(self):
-        d = Config(name='test',
-                   backend='netjsonconfig.OpenWrt',
-                   mac_address=TEST_MACADDR,
-                   config={'general': {'hostname': 'test'}},
-                   key='iaASGWE3fpRX0q44WiaY0rjF8ddQ2f7l')
-        d.full_clean()
-        d.save()
-        return d
+    config_model = Config
 
     def _check_header(self, response):
         self.assertEqual(response['X-Openwisp-Controller'], 'true')

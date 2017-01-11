@@ -1,22 +1,23 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from django_x509.models import Ca
 
+from django_x509.models import Ca
 from netjsonconfig import OpenWrt
 
-from . import CreateTemplateMixin, TestVpnX509Mixin
+from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 from ..models import Config, Template, Vpn
 
 
-class TestTemplate(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
+class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
+                   TestVpnX509Mixin, TestCase):
     """
     tests for Template model
     """
-    template_model = Template
     ca_model = Ca
+    config_model = Config
+    template_model = Template
     vpn_model = Vpn
-    TEST_MAC_ADDRESS = '00:11:22:33:44:55'
 
     def test_str(self):
         t = Template(name='test', backend='netjsonconfig.OpenWrt')
@@ -40,12 +41,7 @@ class TestTemplate(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
 
     def test_config_status_modified_after_change(self):
         t = self._create_template()
-        c = Config(name='test-status',
-                   backend='netjsonconfig.OpenWrt',
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   config={'general': {}})
-        c.full_clean()
-        c.save()
+        c = self._create_config(name='test-status')
         c.templates.add(t)
         c.status = 'running'
         c.save()
@@ -65,11 +61,7 @@ class TestTemplate(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
 
     def test_default_template(self):
         t = self._create_template(default=True)
-        c = Config(name='test-default',
-                   backend='netjsonconfig.OpenWrt',
-                   mac_address=self.TEST_MAC_ADDRESS)
-        c.full_clean()
-        c.save()
+        c = self._create_config(name='test-default')
         self.assertEqual(c.templates.count(), 1)
         self.assertEqual(c.templates.first().id, t.id)
 
@@ -121,11 +113,7 @@ class TestTemplate(CreateTemplateMixin, TestVpnX509Mixin, TestCase):
                 'contents': '{{ name }}\n{{ vpnserver1 }}\n'
             }
         ]})
-        c = Config(name='test-var',
-                   backend='netjsonconfig.OpenWrt',
-                   mac_address=self.TEST_MAC_ADDRESS)
-        c.full_clean()
-        c.save()
+        c = self._create_config(name='test-var')
         c.templates.add(t)
         # clear cache
         del c.backend_instance

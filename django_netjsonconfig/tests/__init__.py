@@ -6,6 +6,23 @@ change with care.
 from django_x509.tests import TestX509Mixin
 
 
+class CreateConfigMixin(object):
+    TEST_KEY = 'w1gwJxKaHcamUw62TQIPgYchwLKn3AA0'
+    TEST_MAC_ADDRESS = '00:11:22:33:44:55'
+
+    def _create_config(self, **kwargs):
+        options = dict(name='test',
+                       mac_address=self.TEST_MAC_ADDRESS,
+                       backend='netjsonconfig.OpenWrt',
+                       config={'general': {}},
+                       key=self.TEST_KEY)
+        options.update(kwargs)
+        c = self.config_model(**options)
+        c.full_clean()
+        c.save()
+        return c
+
+
 class CreateTemplateMixin(object):
     def _create_template(self, **kwargs):
         model_kwargs = {

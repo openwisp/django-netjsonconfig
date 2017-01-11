@@ -3,18 +3,20 @@ from django.test import TestCase
 
 from django_x509.models import Ca, Cert
 
-from . import CreateTemplateMixin, TestVpnX509Mixin
+from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 from ..models import Config, Template, Vpn, VpnClient
 from ..vpn_backends import OpenVpn
 
 
-class TestVpn(TestVpnX509Mixin, CreateTemplateMixin, TestCase):
+class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
+              CreateTemplateMixin, TestCase):
     """
     tests for Vpn model
     """
     maxDiff = None
-    template_model = Template
     ca_model = Ca
+    config_model = Config
+    template_model = Template
     vpn_model = Vpn
 
     def test_config_not_none(self):
@@ -75,12 +77,7 @@ class TestVpn(TestVpnX509Mixin, CreateTemplateMixin, TestCase):
     def test_vpn_client_unique_together(self):
         vpn = self._create_vpn()
         t = self._create_template(name='vpn-test', type='vpn', vpn=vpn)
-        c = Config(name='test-create-cert',
-                   mac_address='00:11:22:33:44:55',
-                   backend='netjsonconfig.OpenWrt',
-                   config={'general': {}})
-        c.full_clean()
-        c.save()
+        c = self._create_config(name='test-create-cert')
         c.templates.add(t)
         # one VpnClient instance has been automatically created
         # now try to create a duplicate
@@ -99,12 +96,7 @@ class TestVpn(TestVpnX509Mixin, CreateTemplateMixin, TestCase):
                                   type='vpn',
                                   vpn=vpn,
                                   auto_cert=True)
-        c = Config(name='test-create-cert',
-                   mac_address='00:11:22:33:44:55',
-                   backend='netjsonconfig.OpenWrt',
-                   config={'general': {}})
-        c.full_clean()
-        c.save()
+        c = self._create_config(name='test-create-cert')
         c.templates.add(t)
         vpnclient = c.vpnclient_set.first()
         cert_pk = vpnclient.cert.pk
