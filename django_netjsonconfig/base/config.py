@@ -115,6 +115,23 @@ class TemplatesVpnMixin(models.Model):
                 self.templates.add(*default)
 
     @classmethod
+    def get_templates_from_pk_set(cls, action, pk_set):
+        """
+        Retrieves templates from pk_set
+        Called in ``clean_templates``, may be reused in third party apps
+        """
+        if action != 'pre_add':
+            return False
+        # coming from signal
+        if isinstance(pk_set, set):
+            template_model = cls.templates.rel.model
+            templates = template_model.objects.filter(pk__in=list(pk_set))
+        # coming from admin ModelForm
+        else:
+            templates = pk_set
+        return templates
+
+    @classmethod
     def clean_templates(cls, action, instance, pk_set, **kwargs):
         """
         validates resulting configuration of config + templates
@@ -123,15 +140,9 @@ class TemplatesVpnMixin(models.Model):
         this method is called from a django signal (m2m_changed)
         see django_netjsonconfig.apps.DjangoNetjsonconfigApp.connect_signals
         """
-        if action != 'pre_add':
+        templates = cls.get_templates_from_pk_set(action, pk_set)
+        if not templates:
             return
-        # coming from signal
-        if isinstance(pk_set, set):
-            template_model = cls.templates.rel.model
-            templates = template_model.objects.filter(pk__in=list(pk_set))
-        # coming from admin ModelForm
-        else:
-            templates = pk_set
         backend = instance.get_backend_instance(template_instances=templates)
         try:
             cls.clean_netjsonconfig_backend(backend)
