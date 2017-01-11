@@ -5,4 +5,4 @@ six
 netjsonconfig>=0.5.2,<0.6.0
 django-sortedm2m>=1.3.2,<1.4
 django-reversion>=2.0.6,<2.1
-django-x509>=0.1.0,<0.3.0
+django-x509>=0.2.0,<0.3.0
