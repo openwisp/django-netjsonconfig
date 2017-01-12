@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
 
 from .. import settings as app_settings
 from ..utils import send_file
@@ -100,11 +101,11 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
                 setattr(model, attr, request.POST[attr])
         return model
 
-    preview_error_msg = 'Preview for {0} with name {1} failed'
+    preview_error_msg = _('Preview for {0} with name {1} failed')
 
     def preview_view(self, request):
         if request.method != 'POST':
-            msg = 'Preview: request method {0} is not allowed'.format(request.method)
+            msg = _('Preview: request method {0} is not allowed').format(request.method)
             logger.warning(msg, extra={'request': request, 'stack': True})
             return HttpResponse(status=405)
         error = None
