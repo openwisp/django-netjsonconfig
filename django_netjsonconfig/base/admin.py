@@ -4,7 +4,7 @@ from django import forms
 from django.conf import settings
 from django.conf.urls import url
 from django.contrib.admin.templatetags.admin_static import static
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -78,27 +78,41 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
         ] + super(BaseConfigAdmin, self).get_urls()
 
     def _prepare_preview_model(self, request):
+        kwargs = {}
+        unique = {}
+        for key, value in request.POST.items():
+            # skip keys that are not model fields
+            try:
+                field = self.model._meta.get_field(key)
+            except FieldDoesNotExist:
+                continue
+            # skip m2m
+            if field.many_to_many:
+                continue
+            # set aside unique field values
+            if field.unique:
+                unique[key] = value
+            # adapt attribute names to the fact that we only
+            # have pk of relations, therefore use {relation}_id
+            elif field.is_relation:
+                key = '{relation}_id'.format(relation=key)
+                kwargs[key] = value
+            # put regular field values in kwargs dict
+            else:
+                kwargs[key] = value
+        # randomize name
+        kwargs['name'] = self.model().pk.hex
+        # include a random mac address to pass validation
+        if 'mac_address' in request.POST:
+            kwargs['mac_address'] = get_random_mac()
         # this object is instanciated only to generate the preview
         # it won't be saved to the database
-        model = self.model(name=self.model().pk.hex,  # randomize
-                           backend=request.POST.get('backend'),
-                           config=request.POST.get('config'))
-        # fill attributes that are not shared between all models conditionally
-        for attr in ['host', 'ca', 'cert', 'dh']:
-            attr_name = attr
-            # relations are a special case
-            if attr in ['ca', 'cert']:
-                attr_name = '{0}_id'.format(attr)
-            if request.POST.get(attr) is not None:
-                setattr(model, attr_name, request.POST[attr])
-        if request.POST.get('mac_address') is not None:
-            model.mac_address = get_random_mac()
+        model = self.model(**kwargs)
         model.full_clean()
-        # some attributes must be added in after validation to avoid unique checks
-        check_after = ['id', 'key', 'name', 'mac_address']
-        for attr in check_after:
-            if request.POST.get(attr) is not None:
-                setattr(model, attr, request.POST[attr])
+        # some field values must be filled-in after
+        # validation in order to avoid unique checks
+        for key, value in unique.items():
+            setattr(model, key, value)
         return model
 
     preview_error_msg = _('Preview for {0} with name {1} failed')
