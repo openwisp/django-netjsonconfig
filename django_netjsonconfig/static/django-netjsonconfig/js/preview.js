@@ -4,25 +4,19 @@ django.jQuery(function($) {
         inner = overlay.find('.inner'),
         preview_url = $('.previewlink').attr('data-url');
     var openPreview = function() {
+        var selectors = 'input[type=text], input[type=hidden], select, textarea',
+            fields = $(selectors, '#content-main form').not('#id_config_jsoneditor *'),
+            $id = $('#id_id')
+            data = {};
         // gather data to send in POST
-        var data = {
-            'name': $('#id_name').val(),
-            'mac_address': $('#id_mac_address').val(),
-            'backend': $('#id_backend').val(),
-            'config': $('#id_config').val(),
-            'csrfmiddlewaretoken': $('form input[name=csrfmiddlewaretoken]').val(),
-            'templates': $('#id_templates').val(),
-            'host': $('#id_host').val(),
-            'ca': $('#id_ca').val(),
-            'cert': $('#id_cert').val(),
-            'dh': $('#id_dh').val(),
-        },
-            $id = $('#id_id'),
-            $key = $('#id_key');
-        if ($id.length && $key.length) {
-            data['id'] = $id.val();
-            data['key'] = $key.val();
-        }
+        fields.each(function(i, field){
+            var $field = $(field),
+                name = $field.attr('name');
+            if(!name || name.substr(0, 8) == 'initial-'){ return }
+            data[name] = $field.val();
+        });
+        // add id to POST data
+        if ($id.length) { data['id'] = $id.val() }
         // show preview
         $.post(preview_url, data, function(html){
             inner.html($('#content-main div', html).html());
