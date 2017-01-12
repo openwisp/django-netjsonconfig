@@ -1,21 +1,19 @@
 import logging
 
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404 as base_get_object_or_404
 
 logger = logging.getLogger(__name__)
 
 
-def get_config_or_404(pk, **kwargs):
+def get_object_or_404(model, **kwargs):
     """
-    like ``get_object_or_404``, but handles eventual exceptions
-    for malformed UUIDs and by raising an ``Http404`` exception
+    like ``django.shortcuts.get_object_or_404``
+    but handles eventual exceptions caused by
+    malformed UUIDs (raising an ``Http404`` exception)
     """
-    # TODO: move this elsewhere
-    from django_netjsonconfig.models import Config
-    kwargs.update({'pk': pk})
     try:
-        return get_object_or_404(Config, **kwargs)
+        return base_get_object_or_404(model, **kwargs)
     except ValueError:
         raise Http404()
 

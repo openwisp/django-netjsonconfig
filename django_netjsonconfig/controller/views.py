@@ -6,7 +6,7 @@ from django.views.decorators.http import require_http_methods
 
 from .. import settings
 from ..models import Config
-from ..utils import (ControllerResponse, forbid_unallowed, get_config_or_404,
+from ..utils import (ControllerResponse, forbid_unallowed, get_object_or_404,
                      send_config, update_last_ip)
 
 
@@ -15,7 +15,7 @@ def checksum(request, pk):
     """
     returns configuration checksum
     """
-    config = get_config_or_404(pk)
+    config = get_object_or_404(Config, pk=pk)
     bad_request = forbid_unallowed(request, 'GET', 'key', config.key)
     if bad_request:
         return bad_request
@@ -28,7 +28,7 @@ def download_config(request, pk):
     """
     returns configuration archive as attachment
     """
-    config = get_config_or_404(pk)
+    config = get_object_or_404(Config, pk=pk)
     return (forbid_unallowed(request, 'GET', 'key', config.key) or
             send_config(config, request))
 
@@ -39,7 +39,7 @@ def report_status(request, pk):
     """
     updates status of config objects
     """
-    config = get_config_or_404(pk)
+    config = get_object_or_404(Config, pk=pk)
     # ensure request is well formed and authorized
     allowed_status = [choices[0] for choices in Config.STATUS]
     required_params = [('key', config.key),
