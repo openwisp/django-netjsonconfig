@@ -440,3 +440,8 @@ License
 -------
 
 See `LICENSE <https://github.com/openwisp/django-netjsonconfig/blob/master/LICENSE>`_.
+
+Support
+-------
+
+Send questions to the `OpenWISP Mailing List <https://groups.google.com/d/forum/openwisp>`_.
