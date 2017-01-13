@@ -1,10 +1,12 @@
 Changelog
 =========
 
-Version 0.5.0 [unreleased]
+Version 0.5.0 [2017-01-13]
 --------------------------
 
-
+- [general] Improved abstraction and reusability
+  (**potentially backward incompatible**: many internal functions and classes were changed)
+- [docs] Documented how to extend the base models, admin classes, controller views and app config
 
 Version 0.4.2 [2016-12-29]
 --------------------------
