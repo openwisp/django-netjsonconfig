@@ -553,6 +553,25 @@ to try to reuse the controller views:
     report_status = ReportStatusView.as_view()
     register = RegisterView.as_view()
 
+Extending AppConfig
+~~~~~~~~~~~~~~~~~~~
+
+You may want to reuse the ``AppConfig`` class of *django-netjsonconfig* too:
+
+.. code-block:: python
+
+    from django_netjsonconfig.apps import DjangoNetjsonconfigApp
+
+
+    class MyOwnConfig(DjangoNetjsonconfigApp):
+        name = 'yourapp.config'
+        label = 'config'
+
+        def __setmodels__(self):
+            from .models import Config, VpnClient  # these are your custom models
+            self.config_model = Config
+            self.vpnclient_model = VpnClient
+
 Screenshots
 -----------
 
