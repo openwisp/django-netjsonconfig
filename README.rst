@@ -383,6 +383,178 @@ downloaded on routers when ``auto_cert`` is being used (enabled by default).
 Defines the format of the ``common_name`` attribute of VPN client certificates that are automatically
 created when using VPN templates which have ``auto_cert`` set to ``True``.
 
+Extending django-netjsonconfig
+------------------------------
+
+*django-netjsonconfig* provides a set of models, admin classes and generic views which can be imported,
+extended and reused by third party apps.
+
+To extend *django-netjsonconfig*, **you MUST NOT** add it to ``settings.INSTALLED_APPS``,
+but you must create your own app (which goes into ``settings.INSTALLED_APPS``), import the
+base classes from django-netjsonconfig and add your customizations.
+
+Extending models
+~~~~~~~~~~~~~~~~
+
+This example provides an example of how to extend the base models of
+*django-netjsonconfig* by adding a relation to another django model named `Organization`.
+
+.. code-block:: python
+
+    # models.py of your app
+    from django.db import models
+    from sortedm2m.fields import SortedManyToManyField
+
+    from django_netjsonconfig.base.config import TemplatesVpnMixin
+    from django_netjsonconfig.base.config import AbstractConfig
+    from django_netjsonconfig.base.template import AbstractTemplate
+    from django_netjsonconfig.base.vpn import AbstractVpn, AbstractVpnClient
+
+    # the model ``organizations.Organization`` is omitted for brevity
+    # if you are curious to see a real implementation, check out django-organizations
+
+    class OrganizationMixin(models.Model):
+        organization = models.ForeignKey('organizations.Organization')
+
+        class Meta:
+            abstract = True
+
+
+    class Config(OrganizationMixin, TemplatesVpnMixin, AbstractConfig):
+        templates = SortedManyToManyField('config.Template',
+                                          related_name='config_relations',
+                                          blank=True)
+        vpn = models.ManyToManyField('config.Vpn',
+                                     through='config.VpnClient',
+                                     related_name='vpn_relations',
+                                     blank=True)
+
+        def clean(self):
+            # your own validation logic here...
+            pass
+
+        class Meta(AbstractConfig.Meta):
+            abstract = False
+
+
+    class Template(OrganizationMixin, AbstractTemplate):
+        vpn = models.ForeignKey('config.Vpn', blank=True, null=True)
+
+        def clean(self):
+            # your own validation logic here...
+            pass
+
+        class Meta(AbstractTemplate.Meta):
+            abstract = False
+
+
+    class Vpn(OrganizationMixin, AbstractVpn):
+        class Meta(AbstractVpn.Meta):
+            abstract = False
+
+
+    class VpnClient(AbstractVpnClient):
+        config = models.ForeignKey('config.Config', on_delete=models.CASCADE)
+        vpn = models.ForeignKey('config.Vpn', on_delete=models.CASCADE)
+        cert = models.OneToOneField('django_x509.Cert',
+                                    on_delete=models.CASCADE,
+                                    blank=True,
+                                    null=True)
+
+        class Meta(AbstractVpnClient.Meta):
+            abstract = False
+
+Extending the admin
+~~~~~~~~~~~~~~~~~~~
+
+Following the previous `Organization` example, you can avoid duplicating the admin
+code by importing the base admin classes and registering your models with.
+
+.. code-block:: python
+
+    # admin.py of your app
+    from django.contrib import admin
+    from django_netjsonconfig.base.admin import (AbstractConfigAdmin,
+                                                 AbstractConfigForm,
+                                                 AbstractTemplateAdmin,
+                                                 AbstractVpnAdmin,
+                                                 AbstractVpnForm,
+                                                 BaseForm)
+
+    # these are your custom models
+    from .models import Config, Template, Vpn
+
+
+    class ConfigForm(AbstractConfigForm):
+        class Meta(AbstractConfigForm.Meta):
+            model = Config
+
+
+    class ConfigAdmin(AbstractConfigAdmin):
+        form = ConfigForm
+
+
+    class TemplateForm(BaseForm):
+        class Meta(BaseForm.Meta):
+            model = Template
+
+
+    class TemplateAdmin(AbstractTemplateAdmin):
+        form = TemplateForm
+
+
+    class VpnForm(AbstractVpnForm):
+        class Meta(AbstractVpnForm.Meta):
+            model = Vpn
+
+
+    class VpnAdmin(AbstractVpnAdmin):
+        form = VpnForm
+
+
+    admin.site.register(Config, ConfigAdmin)
+    admin.site.register(Template, TemplateAdmin)
+    admin.site.register(Vpn, VpnAdmin)
+
+Extending controller views
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If your use case doesn't vary a lot from the base one, you may also want
+to try to reuse the controller views:
+
+.. code-block:: python
+
+    # views.py of your app
+    from ..models import Config  # this is your custom model
+    from django_netjsonconfig.controller.generics import (
+        BaseChecksumView,
+        BaseDownloadConfigView,
+        BaseRegisterView,
+        BaseReportStatusView
+    )
+
+
+    class ChecksumView(BaseChecksumView):
+        model = Config
+
+
+    class DownloadConfigView(BaseDownloadConfigView):
+        model = Config
+
+
+    class ReportStatusView(BaseReportStatusView):
+        model = Config
+
+
+    class RegisterView(BaseRegisterView):
+        model = Config
+
+
+    checksum = ChecksumView.as_view()
+    download_config = DownloadConfigView.as_view()
+    report_status = ReportStatusView.as_view()
+    register = RegisterView.as_view()
+
 Screenshots
 -----------
 
