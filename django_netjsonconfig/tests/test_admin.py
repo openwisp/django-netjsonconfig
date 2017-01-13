@@ -274,3 +274,8 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         response = self.client.post(path, data)
         self.assertContains(response, '<pre class="djnjc-preformatted')
         self.assertContains(response, '# openvpn config:')
+
+    def test_add_vpn(self):
+        path = reverse('admin:django_netjsonconfig_vpn_add')
+        response = self.client.get(path)
+        self.assertContains(response, 'value="django_netjsonconfig.vpn_backends.OpenVpn" selected="selected"')
