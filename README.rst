@@ -55,12 +55,10 @@ Project goals
 
 * automate configuration management for embedded devices
 * allow to minimize repetition by using templates
-* make it easy to integrate in larger django projects to improve reusability
-* make it easy to extend its models by providing abstract models
+* provide base logic that can be extended by third-party apps (see
+  `Extending django-netjsonconfig <#extending-django-netjsonconfig>`_)
 * provide ways to support more firmwares by adding custom backends
 * keep the core as simple as possible
-* provide ways to extend the default behaviour
-* encourage new features to be published as extensions
 
 Dependencies
 ------------
