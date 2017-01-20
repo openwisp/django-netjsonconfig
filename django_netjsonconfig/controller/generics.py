@@ -145,6 +145,8 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
             'key: {key}\n' \
             'hostname: {name}\n'
         s += 'is-new: %s\n' % (int(new))
-        return ControllerResponse(s.format(**config.__dict__),
+        attributes = config.__dict__
+        attributes['id'] = config.pk.hex
+        return ControllerResponse(s.format(**attributes),
                                   content_type='text/plain',
                                   status=201)
