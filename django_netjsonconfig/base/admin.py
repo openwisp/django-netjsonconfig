@@ -212,10 +212,10 @@ class AbstractConfigAdmin(BaseConfigAdmin):
     list_display = ['name', 'backend', 'status', 'last_ip', 'created', 'modified']
     list_filter = ['backend', 'status', 'created']
     search_fields = ['id', 'name', 'key', 'mac_address', 'last_ip']
-    readonly_fields = ['id', 'status', 'last_ip']
+    readonly_fields = ['id_hex', 'status', 'last_ip']
     fields = ['name',
               'backend',
-              'id',
+              'id_hex',
               'key',
               'mac_address',
               'status',
@@ -227,6 +227,11 @@ class AbstractConfigAdmin(BaseConfigAdmin):
     actions_on_bottom = True
     save_on_top = True
 
+    def id_hex(self, obj):
+        return obj.pk.hex
+
+    id_hex.short_description = "UUID"
+
     def _get_fields(self, fields, request, obj=None):
         """
         removes "id" field in add view
@@ -234,8 +239,8 @@ class AbstractConfigAdmin(BaseConfigAdmin):
         if obj:
             return fields
         new_fields = fields[:]
-        if 'id' in new_fields:
-            new_fields.remove('id')
+        if 'id_hex' in new_fields:
+            new_fields.remove('id_hex')
         return new_fields
 
     def get_fields(self, request, obj=None):
