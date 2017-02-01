@@ -1,10 +1,16 @@
 Changelog
 =========
 
-Version 0.5.1 [unreleased]
+Version 0.5.1 [2017-02-01]
 --------------------------
 
-WIP
+- `c39fe97 <https://github.com/openwisp/django-netjsonconfig/commit/c39fe97>`_: [requirements]
+  `netjsonconfig <http://netjsonconfig.openwisp.org>`_ minimum version is now ``0.5.3``
+- `0b64032 <https://github.com/openwisp/django-netjsonconfig/commit/0b64032>`_:
+  [migrations] Renamed ``enabled`` attribute to ``disabled`` in openvpn configurations
+- `e0f284a <https://github.com/openwisp/django-netjsonconfig/commit/e0f284a>`_: [admin] Show config UUID hex instead of str
+- `6d75336 <https://github.com/openwisp/django-netjsonconfig/commit/6d75336>`_: [controller] Return uuid hex instead of str in ``register()``
+- `7f98358 <https://github.com/openwisp/django-netjsonconfig/commit/7f98358>`_: [admin] Added optional ``admin_theme``
 
 Version 0.5.0 [2017-01-13]
 --------------------------
