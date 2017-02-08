@@ -11,6 +11,16 @@ class Config(TemplatesVpnMixin, AbstractConfig):
         abstract = False
 
 
+def sortedm2m__str__(self):
+    """
+    Improves string representation of m2m relationship objects
+    """
+    return self.config.name
+
+
+Config.templates.through.__str__ = sortedm2m__str__
+
+
 class Template(AbstractTemplate):
     """
     Concrete Template model
