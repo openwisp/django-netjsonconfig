@@ -110,9 +110,16 @@ class TemplatesVpnMixin(models.Model):
         created = self._state.adding
         super(TemplatesVpnMixin, self).save(*args, **kwargs)
         if created:
-            default = self.templates.model.objects.filter(default=True)
-            if default:
-                self.templates.add(*default)
+            default_templates = self.get_default_templates()
+            if default_templates:
+                self.templates.add(*default_templates)
+
+    def get_default_templates(self):
+        """
+        retrieves default templates
+        may be redefined with a custom logic if needed
+        """
+        return self.templates.model.objects.filter(default=True)
 
     @classmethod
     def get_templates_from_pk_set(cls, action, pk_set):
