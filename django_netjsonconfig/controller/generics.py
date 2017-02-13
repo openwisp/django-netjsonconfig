@@ -99,20 +99,43 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
             del options['key']
         return self.model(**options)
 
-    def post(self, request, *args, **kwargs):
-        if not settings.REGISTRATION_ENABLED:
-            return ControllerResponse(status=404)
-        # ensure request is well formed and authorized
+    def invalid(self, request):
+        """
+        ensures request is well formed
+        """
         allowed_backends = [path for path, name in settings.BACKENDS]
-        required_params = [('secret', settings.SHARED_SECRET),
+        required_params = [('secret', None),
                            ('name', None),
                            ('mac_address', None),
                            ('backend', allowed_backends)]
         # valid required params or forbid
         for key, value in required_params:
-            bad_response = forbid_unallowed(request, 'POST', key, value)
-            if bad_response:
-                return bad_response
+            invalid_response = forbid_unallowed(request, 'POST', key, value)
+            if invalid_response:
+                return invalid_response
+
+    def forbidden(self, request):
+        """
+        ensures request is authorized:
+            - secret matches settings.NETJSONCONFIG_SHARED_SECRET
+        """
+        return forbid_unallowed(request, 'POST', 'secret', settings.SHARED_SECRET)
+
+    def post(self, request, *args, **kwargs):
+        """
+        POST logic
+        """
+        if not settings.REGISTRATION_ENABLED:
+            return ControllerResponse(status=404)
+        # ensure request is valid
+        bad_response = self.invalid(request)
+        if bad_response:
+            return bad_response
+        # ensure request is allowed
+        forbidden = self.forbidden(request)
+        if forbidden:
+            return forbidden
+        # prepare model attributes
         key = None
         last_ip = request.META.get('REMOTE_ADDR')
         if settings.CONSISTENT_REGISTRATION:
