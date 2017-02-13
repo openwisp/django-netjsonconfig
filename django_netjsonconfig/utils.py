@@ -60,19 +60,25 @@ def forbid_unallowed(request, param_group, param, allowed_values=None):
     """
     checks for malformed requests - eg: missing parameters (HTTP 400)
     or unauthorized requests - eg: wrong key (HTTP 403)
-    logs suspicious activity
-    returns either ``None`` if the request is legitimate
-    or a ``ControllerResponse`` with the appropiate HTTP status
+    if the request is legitimate, returns ``None``
+    otherwise calls ``invalid_response``
     """
     error = None
     value = getattr(request, param_group).get(param)
     if not value:
         error = 'error: missing required parameter "{}"\n'.format(param)
-        logger.warning(error, extra={'request': request, 'stack': True})
-        return ControllerResponse(error, content_type='text/plain', status=400)
+        return invalid_response(request, error, status=400)
     if allowed_values and not isinstance(allowed_values, list):
         allowed_values = [allowed_values]
     if allowed_values is not None and value not in allowed_values:
         error = 'error: wrong {}\n'.format(param)
-        logger.warning(error, extra={'request': request, 'stack': True})
-        return ControllerResponse(error, content_type='text/plain', status=403)
+        return invalid_response(request, error, status=403)
+
+
+def invalid_response(request, error, status, content_type='text/plain'):
+    """
+    logs an invalid request and returns a ``ControllerResponse``
+    with the specified HTTP status code, which defaults to 403
+    """
+    logger.warning(error, extra={'request': request, 'stack': True})
+    return ControllerResponse(error, content_type=content_type, status=status)
