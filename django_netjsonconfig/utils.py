@@ -1,5 +1,6 @@
 import logging
 
+from django.conf.urls import url
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404 as base_get_object_or_404
 
@@ -82,3 +83,24 @@ def invalid_response(request, error, status, content_type='text/plain'):
     """
     logger.warning(error, extra={'request': request, 'stack': True})
     return ControllerResponse(error, content_type=content_type, status=status)
+
+
+def get_controller_urls(views_module):
+    """
+    used by third party apps to reduce boilerplate
+    """
+    urls = [
+        url(r'^controller/checksum/(?P<pk>[^/]+)/$',
+            views_module.checksum,
+            name='checksum'),
+        url(r'^controller/download-config/(?P<pk>[^/]+)/$',
+            views_module.download_config,
+            name='download_config'),
+        url(r'^controller/report-status/(?P<pk>[^/]+)/$',
+            views_module.report_status,
+            name='report_status'),
+        url(r'^controller/register/$',
+            views_module.register,
+            name='register'),
+    ]
+    return urls
