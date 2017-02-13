@@ -17,6 +17,8 @@ class CreateConfigMixin(object):
                        config={'general': {}},
                        key=self.TEST_KEY)
         options.update(kwargs)
+        if 'key' in kwargs and kwargs['key'] is None:
+            del options['key']
         c = self.config_model(**options)
         c.full_clean()
         c.save()

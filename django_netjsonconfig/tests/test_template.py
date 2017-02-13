@@ -60,10 +60,30 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         self.assertNotIn('general', t.config)
 
     def test_default_template(self):
-        t = self._create_template(default=True)
-        c = self._create_config(name='test-default')
-        self.assertEqual(c.templates.count(), 1)
-        self.assertEqual(c.templates.first().id, t.id)
+        # no default templates defined yet
+        c = self._create_config()
+        self.assertEqual(c.templates.count(), 0)
+        c.delete()
+        # create default templates for different backends
+        t1 = self._create_template(name='default-openwrt',
+                                   backend='netjsonconfig.OpenWrt',
+                                   default=True)
+        t2 = self._create_template(name='default-openwisp',
+                                   backend='netjsonconfig.OpenWisp',
+                                   default=True)
+        c1 = self._create_config(name='test-openwrt',
+                                 key=None,  # generater new key
+                                 backend='netjsonconfig.OpenWrt')
+        c2 = self._create_config(name='test-openwisp',
+                                 backend='netjsonconfig.OpenWisp',
+                                 key=None,  # generater new key
+                                 mac_address=self.TEST_MAC_ADDRESS.replace('55', '56'))
+        # ensure OpenWRT device has only the default OpenWRT backend
+        self.assertEqual(c1.templates.count(), 1)
+        self.assertEqual(c1.templates.first().id, t1.id)
+        # ensure OpenWISP device has only the default OpenWISP backend
+        self.assertEqual(c2.templates.count(), 1)
+        self.assertEqual(c2.templates.first().id, t2.id)
 
     def test_vpn_missing(self):
         try:
