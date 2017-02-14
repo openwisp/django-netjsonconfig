@@ -522,7 +522,7 @@ to try to reuse the controller views:
 
 .. code-block:: python
 
-    # views.py of your app
+    # your_config_app.controller.views
     from ..models import Config  # this is your custom model
     from django_netjsonconfig.controller.generics import (
         BaseChecksumView,
@@ -552,6 +552,20 @@ to try to reuse the controller views:
     download_config = DownloadConfigView.as_view()
     report_status = ReportStatusView.as_view()
     register = RegisterView.as_view()
+
+Controller URLs
+~~~~~~~~~~~~~~~
+
+If you are not making drastic changes to the controller views, you can avoid duplicating the URL
+logic by using the ``get_controller_urls`` function. Put this in your controller ``urls.py``:
+
+.. code-block:: python
+
+    # your_config_app.controller.urls
+    from django_netjsonconfig.utils import get_controller_urls
+    from . import views
+
+    urlpatterns = get_controller_urls(views)
 
 Extending AppConfig
 ~~~~~~~~~~~~~~~~~~~
