@@ -1,10 +1,31 @@
 Changelog
 =========
 
-Version 0.5.2 [unreleased]
+Version 0.5.2 [2017-02-14]
 --------------------------
 
-WIP
+- `f16768d <https://github.com/openwisp/django-netjsonconfig/commit/f16768d>`_:
+  [data-migration] Update ``resolv-retry`` value for ``OpenVpn`` backend
+- `96f4d09 <https://github.com/openwisp/django-netjsonconfig/commit/96f4d09>`_:
+  [models] Improved ``Config.templates.through __str__`` representation
+- `066fe2a <https://github.com/openwisp/django-netjsonconfig/commit/066fe2a>`_:
+  [TemplatesVpnMixin] Added ``get_default_templates`` method
+  (allow easier extension by third party apps)
+- `59e2f9d <https://github.com/openwisp/django-netjsonconfig/commit/59e2f9d>`_:
+  [models] Differentiate backends when getting default templates
+- `13fc0a5 <https://github.com/openwisp/django-netjsonconfig/commit/13fc0a5>`_:
+  [controller] Refactored ``forbid_unallowed``, added ``invalid_response``
+  (allow easier extension by third party apps)
+- `6ea9764 <https://github.com/openwisp/django-netjsonconfig/commit/6ea9764>`_:
+  [controller] Refactored ``BaseRegisterView`` (allow easier extension by third party apps)
+- `7b783f0 <https://github.com/openwisp/django-netjsonconfig/commit/7b783f0>`_:
+  [controller] Added ``get_controller_urls`` (reduce boiler plate in third party apps)
+- `0417ce7 <https://github.com/openwisp/django-netjsonconfig/commit/0417ce7>`_:
+  [requirements] Set minimum ``netjsonconfig`` version to **0.5.4**
+- `172a92a <https://github.com/openwisp/django-netjsonconfig/commit/172a92a>`_:
+  [backends] Made ``OpenWisp`` backend label more self-explanatory (**OpenWISP Firmware 1.x**)
+- `1daa855 <https://github.com/openwisp/django-netjsonconfig/commit/1daa855>`_:
+  [docs] Added documentation for ``get_controller_urls``
 
 Version 0.5.1 [2017-02-01]
 --------------------------
