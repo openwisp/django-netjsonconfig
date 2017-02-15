@@ -1,10 +1,11 @@
 Changelog
 =========
 
-Version 0.5.3 [unreleased]
+Version 0.5.3 [2017-02-15]
 --------------------------
 
-WIP
+- `6ddc95f <https://github.com/openwisp/django-netjsonconfig/commit/6ddc95f>`_:
+  [admin] Added links to netjsonconfig docs
 
 Version 0.5.2 [2017-02-14]
 --------------------------
