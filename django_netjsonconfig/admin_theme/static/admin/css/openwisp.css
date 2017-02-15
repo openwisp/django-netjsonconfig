@@ -88,3 +88,6 @@ a:focus, a:hover {
 #changelist-filter li.selected a{
     color: #df5d43 !important
 }
+
+#netjsonconfig-hint, #netjsonconfig-hint a,
+#container .field-backend a{ color: #df5d43 }

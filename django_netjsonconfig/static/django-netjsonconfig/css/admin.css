@@ -92,3 +92,7 @@
 .field-vpn, .field-auto_cert{
     display: none;
 }
+#container .help{ margin-top: 2px; font-size: 13px }
+#container .help a,
+#netjsonconfig-hint a{ text-decoration: underline }
+#netjsonconfig-hint{ width: auto }

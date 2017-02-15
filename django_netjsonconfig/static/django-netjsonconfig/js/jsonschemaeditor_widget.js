@@ -7,7 +7,7 @@
                 id = field.attr('id') + '_jsoneditor',
                 initialField = $('#initial-' + field.attr('id')),
                 container = field.parents('.form-row').eq(0),
-                labelText = container.find('label').text(),
+                labelText = container.find('label:not(#netjsonconfig-hint)').text(),
                 startval = $.isEmptyObject(value) ? null : value,
                 editorContainer = $('#' + id),
                 html, editor, options, wrapper, header,

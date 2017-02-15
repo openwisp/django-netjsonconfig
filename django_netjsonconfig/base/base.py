@@ -28,7 +28,8 @@ class BaseConfig(models.Model):
     backend = models.CharField(_('backend'),
                                choices=app_settings.BACKENDS,
                                max_length=128,
-                               help_text=_('Select netjsonconfig backend'))
+                               help_text=_('Select <a href="http://netjsonconfig.openwisp.org/en/'
+                                           'stable/" target="_blank">netjsonconfig</a> backend'))
     config = JSONField(_('configuration'),
                        default=dict,
                        help_text=_('configuration in NetJSON DeviceConfiguration format'),
