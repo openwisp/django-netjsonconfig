@@ -189,13 +189,13 @@ class BaseForm(forms.ModelForm):
 class AbstractConfigForm(BaseForm):
     def clean_templates(self):
         config_model = self.Meta.model
-        templates = self.cleaned_data.get('templates', [])
+        # copy cleaned_data to avoid tampering with it
+        data = self.cleaned_data.copy()
+        templates = data.pop('templates', [])
         if self.instance._state.adding:
             # when adding self.instance is empty, we need to create a
             # temporary instance that we'll use just for validation
-            config = config_model(name=self.data.get('name'),
-                                  backend=self.data.get('backend'),
-                                  config=self.data.get('config'))
+            config = config_model(**data)
         else:
             config = self.instance
         if config.backend and templates:
