@@ -1,8 +1,8 @@
 from hashlib import md5
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.urls import reverse
 
 from . import CreateConfigMixin
 from .. import settings as app_settings
