@@ -21,7 +21,7 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
 
     def test_str(self):
         t = Template(name='test', backend='netjsonconfig.OpenWrt')
-        self.assertEqual(str(t), '[Generic-OpenWRT] test')
+        self.assertEqual(str(t), '[Generic-OpenWRT/LEDE] test')
 
     def test_backend_class(self):
         t = Template(name='test', backend='netjsonconfig.OpenWrt')
