@@ -97,7 +97,9 @@
 #netjsonconfig-hint a{ text-decoration: underline }
 #netjsonconfig-hint{ width: auto }
 
-.sortedm2m-container .help{
+#container ul.sortedm2m-items{ height: auto; min-height: auto }
+#container .sortedm2m-container .help{
+    margin-bottom: 20px;
     color: #333;
     font-weight: bold;
 }
