@@ -96,3 +96,8 @@
 #container .help a,
 #netjsonconfig-hint a{ text-decoration: underline }
 #netjsonconfig-hint{ width: auto }
+
+.sortedm2m-container .help{
+    color: #333;
+    font-weight: bold;
+}
