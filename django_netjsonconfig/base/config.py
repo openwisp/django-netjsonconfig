@@ -99,7 +99,7 @@ class TemplatesVpnMixin(models.Model):
                                       related_name='config_relations',
                                       verbose_name=_('templates'),
                                       blank=True,
-                                      help_text=_('configuration templates, applied from'
+                                      help_text=_('configuration templates, applied from '
                                                   'first to last'))
     vpn = models.ManyToManyField('django_netjsonconfig.Vpn',
                                  through='django_netjsonconfig.VpnClient',
