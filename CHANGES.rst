@@ -1,10 +1,19 @@
 Changelog
 =========
 
-Version 0.5.4 [unreleased]
+Version 0.5.4 [2017-03-07]
 --------------------------
 
-WIP
+- `ca975b8 <https://github.com/openwisp/django-netjsonconfig/commit/ca975b8>`_:
+  [AbstractConfigForm] Made ``clean_templates`` more generic
+- `8fa29c0 <https://github.com/openwisp/django-netjsonconfig/commit/8fa29c0>`_:
+  [settings] Added LEDE in ``OpenWrt`` backend label
+- `#32 <https://github.com/openwisp/django-netjsonconfig/pull/32>`_:
+  [admin] Made text "Choose items and order by drag & drop." more evident
+- `65a2458 <https://github.com/openwisp/django-netjsonconfig/commit/65a2458>`_:
+  [models] Fixed a grammar error in templates ``help_text``
+- [admin] Improved representation of config-template relationships
+  (eg: when deleting a configuration)
 
 Version 0.5.3 [2017-02-15]
 --------------------------
