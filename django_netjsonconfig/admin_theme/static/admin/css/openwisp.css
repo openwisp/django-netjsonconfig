@@ -91,3 +91,12 @@ a:focus, a:hover {
 
 #netjsonconfig-hint, #netjsonconfig-hint a,
 #container .field-backend a{ color: #df5d43 }
+
+/* temporary frontend fix */
+a.button.secondaryAction{
+    background: transparent;
+    border: 0 none;
+    padding: 0;
+    margin: 15px 0;
+    display: block;
+}
