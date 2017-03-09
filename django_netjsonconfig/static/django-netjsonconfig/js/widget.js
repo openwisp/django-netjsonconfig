@@ -1,6 +1,5 @@
 (function ($) {
-
-    var initEditor = function(target,data,schema){
+    var initAdvancedEditor = function(target, data, schema){
         var advanced = $("<div id='advanced_editor'></div>");
         $(advanced).insertBefore($(target));
         $(target).hide();
@@ -16,7 +15,7 @@
                 },
                 schema: schema
             }
-        var editor = new advancedJSONEditor(document.getElementById(advanced.attr('id')), options,data);
+        var editor = new advancedJSONEditor(document.getElementById(advanced.attr('id')), options, data);
         return editor;
     }
 
@@ -71,8 +70,8 @@
             }
             editor = new JSONEditor(document.getElementById(id), options);
 
-            // initialise advanced josn editor here
-            advanced_editor = initEditor(field,value,options.schema);
+            // initialise advanced json editor here
+            advanced_editor = initAdvancedEditor(field, value, options.schema);
 
             editor.editors.root.addproperty_button.value = 'Configuration Menu'
             getEditorValue = function(){
@@ -94,12 +93,11 @@
                 if(!isValidJson(field.val())){
                     e.preventDefault();
                     alertInvalidJson();
-                }else{
+                }
+                else{
                     if (container.is(':hidden')) { updateRaw() }
                 }
-
             });
-            
 
             // add advanced edit button
             header = editorContainer.find('> div > h3');
@@ -109,7 +107,7 @@
             container.find('.advanced-mode').clone().prependTo(header);
             // advanced mode & normal mode buttons
             header.find('.advanced-mode').click(function(){
-                //update autogenrated advanced json editor with new data
+                // update autogenrated advanced json editor with new data
                 advanced_editor.set(JSON.parse(field.val()));
 
                 wrapper.hide();
@@ -122,10 +120,10 @@
                     editor.setValue(JSON.parse(field.val()));
                     container.hide();
                     wrapper.show();
-                }else{
+                }
+                else{
                     alertInvalidJson();
                 }
-                
             });
         });
     };

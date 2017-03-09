@@ -13,12 +13,12 @@ class JsonSchemaWidget(AdminTextareaWidget):
     """
     @property
     def media(self):
-        prefix = 'django-netjsonconfig/'
+        prefix = 'django-netjsonconfig'
         js = [static('{0}/js/{1}'.format(prefix, f))
               for f in ('lib/advanced-mode.js',
                         'lib/jsonschema-ui.js',
                         'widget.js')]
-        css = {'all': (static('{0}css/{1}'.format(prefix, f))
+        css = {'all': (static('{0}/css/{1}'.format(prefix, f))
                        for f in ('lib/jsonschema-ui.css',
                                  'lib/advanced-mode.css'))}
         return forms.Media(js=js, css=css)
