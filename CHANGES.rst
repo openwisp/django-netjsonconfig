@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 0.5.5 [2017-03-08]
+--------------------------
+
+- `#23 <https://github.com/openwisp/django-netjsonconfig/issues/23>`_:
+  [admin] Improved advanced editing mode
+
 Version 0.5.4 [2017-03-07]
 --------------------------
 
