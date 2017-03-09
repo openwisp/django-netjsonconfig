@@ -16,6 +16,7 @@ class JsonSchemaWidget(AdminTextareaWidget):
         prefix = 'django-netjsonconfig'
         js = [static('{0}/js/{1}'.format(prefix, f))
               for f in ('lib/advanced-mode.js',
+                        'lib/tomorrow_night_bright.js',
                         'lib/jsonschema-ui.js',
                         'widget.js')]
         css = {'all': (static('{0}/css/{1}'.format(prefix, f))

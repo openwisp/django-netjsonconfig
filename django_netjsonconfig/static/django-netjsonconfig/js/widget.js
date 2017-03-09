@@ -4,18 +4,23 @@
         $(advanced).insertBefore($(target));
         $(target).hide();
         var options = {
-                // 'view','tree', 'form', 'code','text' other modes
-                modes:['code','text','view','tree', 'form'],
-                mode:'code',
-                onEditable: function(node){
-                    return true;
-                },
-                onChange:function() {
-                   $(target).val(editor.getText())
-                },
-                schema: schema
-            }
+            mode:'code',
+            theme: 'ace/theme/tomorrow_night_bright',
+            indentation: 4,
+            onEditable: function(node){
+                return true;
+            },
+            onChange:function() {
+               $(target).val(editor.getText())
+            },
+            schema: schema
+        }
+
         var editor = new advancedJSONEditor(document.getElementById(advanced.attr('id')), options, data);
+        editor.aceEditor.setOptions({
+            fontSize: 14,
+            showInvisibles: true
+        });
         return editor;
     }
 
