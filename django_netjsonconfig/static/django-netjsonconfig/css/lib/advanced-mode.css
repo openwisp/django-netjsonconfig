@@ -933,3 +933,13 @@ table.jsoneditor-search button.jsoneditor-previous:hover {
 .field-config div.jsoneditor{
   min-height: 300px !important;
 }
+
+.jsoneditor-text-errors{ width: 100% !important }
+.jsoneditor-text-errors td:first-child{ padding-left: 15px !important }
+.jsoneditor-text-errors td:last-child{ padding-right: 15px !important }
+.jsoneditor-text-errors td{ vertical-align: middle !important }
+.jsoneditor-text-errors td button {
+    vertical-align: bottom !important;
+    margin-top: 1px !important;
+}
+.jsoneditor-text-errors td pre{ margin: 0 }
