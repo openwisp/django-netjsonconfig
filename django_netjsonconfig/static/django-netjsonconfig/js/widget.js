@@ -30,8 +30,7 @@
     }
 
     function alertInvalidJson(){
-        // add logic for any fancy alert here with regards to invalid json in editor
-        alert("Please correct the errors in the editor before changing to normal mode");
+        alert("The JSON entered is not valid");
     }
 
     var loadUi = function(backend, schemas, setInitialValue){
