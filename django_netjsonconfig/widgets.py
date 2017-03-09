@@ -15,9 +15,12 @@ class JsonSchemaWidget(AdminTextareaWidget):
     def media(self):
         prefix = 'django-netjsonconfig/'
         js = [static('{0}/js/{1}'.format(prefix, f))
-              for f in ('jsonschemaeditor.js',
-                        'jsonschemaeditor_widget.js')]
-        css = {'all': (static('{0}css/jsonschemaeditor.css'.format(prefix)),)}
+              for f in ('advanced/jsoneditor.js',
+                        'jsonschemaeditor.js', 'jsonschemaeditor_widget.js')]
+
+        css = {'all': (static('{0}css/{1}'.format(prefix, f))
+                       for f in ('jsonschemaeditor.css', 'jsoneditor.css'))}
+
         return forms.Media(js=js, css=css)
 
     def render(self, name, value, attrs={}):
