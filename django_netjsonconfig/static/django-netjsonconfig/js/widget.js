@@ -1,4 +1,35 @@
 (function ($) {
+    var inFullScreenMode = false;
+    var oldHeight = 0;
+    var oldWidth = 0;
+    var toggleFullScreen = function(){
+        var advanced = $('#advanced_editor');
+        if(!inFullScreenMode){
+            // store the old height and width of the editor before going to fullscreen mode in order to be able to restore them
+            oldHeight = advanced.height();
+            oldWidth = advanced.width();
+            advanced.addClass('full-screen').height($(window).height()).width(window.outerWidth);
+            $('body').addClass('editor-full');
+            $(window).resize(function(){
+                advanced.height($(window).height()).width(window.outerWidth);
+            });
+            inFullScreenMode = true;
+            advanced.find('.jsoneditor-menu a').show()
+            advanced.find('.jsoneditor-menu label').show()
+        }
+        else{
+            advanced.removeClass('full-screen').height(oldHeight).width(oldWidth);
+            $('body').removeClass('editor-full');
+            // unbind all events listened to while going to full screen mode
+            $(window).unbind('resize');
+            inFullScreenMode = false;
+            document.getElementById('advanced_editor').scrollIntoView(true);
+            advanced.find('.jsoneditor-menu a').hide()
+            advanced.find('.jsoneditor-menu label').hide()
+        }
+    }
+
+
     var initAdvancedEditor = function(target, data, schema){
         var advanced = $("<div id='advanced_editor'></div>");
         $(advanced).insertBefore($(target));
@@ -21,6 +52,17 @@
             fontSize: 14,
             showInvisibles: true
         });
+        // remove powered by ace link
+        advanced.find('.jsoneditor-menu a').remove();
+        // add  listener to .screen-mode button for toggleScreenMode
+        advanced.parents('.field-config').find('.screen-mode').click(toggleFullScreen);
+        // add controls to the editor header
+        advanced.find('.jsoneditor-menu')
+            .append($('<a href="javascript:;" class="jsoneditor-poweredBy"><img class="icon" src="/static/admin/img/icon-deletelink.svg" /> Exit Advanced Mode</a>').click(function(){
+                toggleFullScreen();
+                advanced.parents('.field-config').find('.normal-mode').click();
+            }))
+            .append(advanced.parents('.field-config').find('#netjsonconfig-hint').clone(true))
         return editor;
     }
 
@@ -119,6 +161,8 @@
                 advanced_editor.set(JSON.parse(field.val()));
                 wrapper.hide();
                 container.show();
+                // set the advanced editor container to full screen mode
+                toggleFullScreen();
             });
             container.find('.normal-mode').click(function(){
                 // check if json in advanced mode is valid before coming back to normal mode

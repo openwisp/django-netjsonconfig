@@ -16,6 +16,11 @@ input.deletelink:focus{ background: #a41515 }
     margin-left: 10px;
     padding: 6px 12px;
 }
+a.json-editor-btn-edit{
+    margin-left: 10px;
+    padding: 6px 12px;
+    color: #ffffff;
+}
 
 .form-row .json-editor-btn-edit{ margin-bottom: 10px !important }
 .jsoneditor-wrapper div.jsoneditor .form-row{ padding: 15px 15px 15px 0 }

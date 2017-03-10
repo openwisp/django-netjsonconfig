@@ -943,3 +943,32 @@ table.jsoneditor-search button.jsoneditor-previous:hover {
     margin-top: 1px !important;
 }
 .jsoneditor-text-errors td pre{ margin: 0 }
+
+.full-screen{
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  padding-left: 0px;
+  padding-right: 0px;
+  background-color: #ffffff;
+  width: 100%;
+  z-index: 99999;
+}
+
+.editor-full{
+  overflow: hidden;
+}
+
+.field-config .screen-mode{
+  float: right;
+}
+
+.jsoneditor-menu label{
+  margin-left: 10px;
+  color: #ffffff !important;
+}
+
+.jsoneditor-menu label a{
+  font-weight: bolder !important;
+  color: #ffffff !important;
+}
