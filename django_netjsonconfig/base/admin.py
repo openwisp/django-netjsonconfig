@@ -96,7 +96,8 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
             # have pk of relations, therefore use {relation}_id
             elif field.is_relation:
                 key = '{relation}_id'.format(relation=key)
-                kwargs[key] = value
+                # pass non-empty string or None
+                kwargs[key] = value or None
             # put regular field values in kwargs dict
             else:
                 kwargs[key] = value
