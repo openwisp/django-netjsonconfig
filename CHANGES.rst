@@ -1,10 +1,13 @@
 Changelog
 =========
 
-Version 0.5.6 [unreleased]
+Version 0.5.6 [2017-03-15]
 --------------------------
 
-WIP
+- `75210ad <https://github.com/openwisp/django-netjsonconfig/commit/75210ad>`_:
+  [base_admin] Do not pass empty strings to relations in preview
+- `c31d9c5 <https://github.com/openwisp/django-netjsonconfig/commit/c31d9c5>`_:
+  [admin-theme] Added title tag to temporary frontend
 
 Version 0.5.5 [2017-03-08]
 --------------------------
