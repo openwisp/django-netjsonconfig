@@ -1,3 +1,5 @@
+a.button:focus,
+a.jsoneditor-poweredBy:focus{ text-decoration: none }
 .djnjc-preformatted, .field-config .vLargeTextField,
 .jsoneditor .vLargeTextField{
     font-size:1em;

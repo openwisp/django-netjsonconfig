@@ -1,7 +1,7 @@
 (function ($) {
-    var inFullScreenMode = false;
-    var oldHeight = 0;
-    var oldWidth = 0;
+    var inFullScreenMode = false,
+        oldHeight = 0,
+        oldWidth = 0;
     var toggleFullScreen = function(){
         var advanced = $('#advanced_editor');
         if(!inFullScreenMode){
@@ -28,7 +28,6 @@
             advanced.find('.jsoneditor-menu label').hide()
         }
     }
-
 
     var initAdvancedEditor = function(target, data, schema){
         var advanced = $("<div id='advanced_editor'></div>");
@@ -58,7 +57,7 @@
         advanced.parents('.field-config').find('.screen-mode').click(toggleFullScreen);
         // add controls to the editor header
         advanced.find('.jsoneditor-menu')
-            .append($('<a href="javascript:;" class="jsoneditor-poweredBy"><img class="icon" src="/static/admin/img/icon-deletelink.svg" /> Exit Advanced Mode</a>').click(function(){
+            .append($('<a href="javascript:;" class="jsoneditor-poweredBy"><img class="icon" src="/static/admin/img/icon-deletelink.svg" /> back to normal mode</a>').click(function(){
                 toggleFullScreen();
                 advanced.parents('.field-config').find('.normal-mode').click();
             }))
@@ -68,7 +67,7 @@
 
     // returns true if JSON is well formed
     // and valid according to its schema
-    function isValidJson(advanced){
+    var isValidJson = function(advanced){
         var valid;
         try{
             valid = advanced.validateSchema(advanced.get());
@@ -78,7 +77,7 @@
         return valid;
     }
 
-    function alertInvalidJson(){
+    var alertInvalidJson = function(){
         alert("The JSON entered is not valid");
     }
 

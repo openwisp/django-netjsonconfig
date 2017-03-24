@@ -849,6 +849,13 @@ div.jsoneditor-menu a.jsoneditor-poweredBy {
   right: 0;
   top: 0;
   padding: 10px;
+  font-size: 13px;
+  background-color: #fff;
+  color: #000;
+  margin-bottom: 1px;
+}
+div.jsoneditor-menu a.jsoneditor-poweredBy img{
+  margin: -2px 1px 0 0;
 }
 table.jsoneditor-search input,
 table.jsoneditor-search div.jsoneditor-results {
@@ -965,10 +972,13 @@ table.jsoneditor-search button.jsoneditor-previous:hover {
 
 .jsoneditor-menu label{
   margin-left: 10px;
-  color: #ffffff !important;
+  color: #fff !important;
+  line-height: 28px;
+  padding: 0;
+  margin-left: 20px;
 }
 
 .jsoneditor-menu label a{
-  font-weight: bolder !important;
-  color: #ffffff !important;
+  font-weight: bold;
+  color: #fff !important;
 }
