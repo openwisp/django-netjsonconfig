@@ -96,8 +96,8 @@ a.jsoneditor-poweredBy:focus{ text-decoration: none }
 }
 #container .help{ margin-top: 2px; font-size: 13px }
 #container .help a,
-#netjsonconfig-hint a{ text-decoration: underline }
-#netjsonconfig-hint{ width: auto }
+#netjsonconfig-hint a, #netjsonconfig-hint-advancedmode a{ text-decoration: underline }
+#netjsonconfig-hint, #netjsonconfig-hint-advancedmode { width: auto }
 
 #container ul.sortedm2m-items{ height: auto; min-height: auto }
 #container .sortedm2m-container .help{
