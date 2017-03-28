@@ -1,10 +1,11 @@
 Changelog
 =========
 
-Version 0.5.7 [unreleased]
+Version 0.5.7 [2017-03-28]
 --------------------------
 
-WIP
+- `#41 <https://github.com/openwisp/django-netjsonconfig/issues/41>`_:
+  [admin] Added full screen for advanced mode, thanks to `@gastonche <https://github.com/gastonche>`_
 
 Version 0.5.6 [2017-03-15]
 --------------------------

@@ -1,4 +1,4 @@
-VERSION = (0, 5, 7, 'alpha')
+VERSION = (0, 5, 7, 'final')
 __version__ = VERSION  # alias
 
 
