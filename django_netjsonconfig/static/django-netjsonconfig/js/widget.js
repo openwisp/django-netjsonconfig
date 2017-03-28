@@ -154,7 +154,7 @@
             header.attr('class', 'controls');
             // move advanced mode button in auto-generated UI
             container.find('.advanced-mode').clone().prependTo(header);
-            // advanced mode & normal mode buttons
+            // advanced mode button
             header.find('.advanced-mode').click(function(){
                 // update autogenrated advanced json editor with new data
                 advanced_editor.set(JSON.parse(field.val()));
@@ -163,6 +163,7 @@
                 // set the advanced editor container to full screen mode
                 toggleFullScreen();
             });
+            // back to normal mode button
             $("#advanced_editor").find('.jsoneditor-exit').click(function(){
                 // check if json in advanced mode is valid before coming back to normal mode
                 if(isValidJson(advanced_editor)){
