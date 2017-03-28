@@ -843,7 +843,7 @@ div.jsoneditor-menu a:hover {
   opacity: 1;
 }
 
-div.jsoneditor-menu a.jsoneditor-poweredBy {
+div.jsoneditor-menu a.jsoneditor-exit {
   font-size: 8pt;
   position: absolute;
   right: 0;
@@ -854,9 +854,7 @@ div.jsoneditor-menu a.jsoneditor-poweredBy {
   color: #000;
   margin-bottom: 1px;
 }
-div.jsoneditor-menu a.jsoneditor-poweredBy img{
-  margin: -2px 1px 0 0;
-}
+div.jsoneditor-menu a.jsoneditor-exit img{ margin: -2px 1px 0 0 }
 table.jsoneditor-search input,
 table.jsoneditor-search div.jsoneditor-results {
   font-family: arial, sans-serif;
