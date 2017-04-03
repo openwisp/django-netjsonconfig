@@ -959,7 +959,7 @@ table.jsoneditor-search button.jsoneditor-previous:hover {
   padding-right: 0px;
   background-color: #ffffff;
   width: 100%;
-  z-index: 99999;
+  z-index: 9;
 }
 
 .editor-full{
