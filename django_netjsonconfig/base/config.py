@@ -46,7 +46,8 @@ class AbstractConfig(BaseConfig):
                                        'download the configuration'))
     mac_address = models.CharField(max_length=17,
                                    unique=True,
-                                   validators=[mac_address_validator])
+                                   validators=[mac_address_validator],
+                                   help_text=_('primary mac address'))
     last_ip = models.GenericIPAddressField(blank=True,
                                            null=True,
                                            help_text=_('indicates the last ip from which the '
