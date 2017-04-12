@@ -211,7 +211,7 @@ class AbstractConfigForm(BaseForm):
 
 class AbstractConfigAdmin(BaseConfigAdmin):
     list_display = ['name', 'backend', 'status', 'last_ip', 'created', 'modified']
-    list_filter = ['backend', 'status', 'created']
+    list_filter = ['backend', 'templates', 'status', 'created']
     search_fields = ['id', 'name', 'key', 'mac_address', 'last_ip']
     readonly_fields = ['id_hex', 'status', 'last_ip']
     fields = ['name',
