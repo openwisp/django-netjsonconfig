@@ -117,6 +117,13 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
         for t in [mesh_protocol, mesh_interface, rome]:
             self.assertEqual(c.templates.filter(name=t.name).count(), 1)
 
+    def test_register_device_info(self):
+        device_model = 'TP-Link TL-WDR4300 v1'
+        os = 'LEDE Reboot 17.01-SNAPSHOT r3270-09a8183'
+        c = self.test_register(model=device_model, os=os)
+        self.assertEqual(c.model, device_model)
+        self.assertEqual(c.os, os)
+
     def test_register_400(self):
         # missing secret
         response = self.client.post(REGISTER_URL, {
