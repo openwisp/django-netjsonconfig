@@ -38,6 +38,14 @@ class AbstractConfig(BaseConfig):
                                            help_text=_('indicates the last ip from which the '
                                                        'configuration was downloaded from '
                                                        '(except downloads from this page)'))
+    model = models.CharField(max_length=64,
+                             blank=True,
+                             help_text=_('device model and manufacturer'))
+    os = models.CharField(_('operating system'),
+                          blank=True,
+                          max_length=128,
+                          help_text=_('operating system identifier'))
+    notes = models.TextField(blank=True)
 
     class Meta:
         abstract = True

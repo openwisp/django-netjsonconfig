@@ -105,4 +105,9 @@ a.jsoneditor-exit:focus{ text-decoration: none }
     color: #333;
     font-weight: bold;
 }
+
 #template_form #id_tags{ width: 261px }
+
+#config_form #id_model{ width: 610px }
+#config_form #id_os{ width: 610px }
+#config_form #id_notes{ height: 42px }
