@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-from django_netjsonconfig.base.config import get_random_mac
+from django_netjsonconfig.utils import get_random_mac
 
 
 def randomize_mac_address(apps, schema_editor):

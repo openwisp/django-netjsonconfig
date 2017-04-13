@@ -12,9 +12,8 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from .. import settings as app_settings
-from ..utils import send_file
+from ..utils import get_random_mac, send_file
 from ..widgets import JsonSchemaWidget
-from .config import get_random_mac
 
 logger = logging.getLogger(__name__)
 prefix = 'django-netjsonconfig/'

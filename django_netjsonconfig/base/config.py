@@ -1,8 +1,5 @@
-import random
-
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
 from model_utils import Choices
 from model_utils.fields import StatusField
@@ -10,20 +7,8 @@ from sortedm2m.fields import SortedManyToManyField
 
 from .. import settings as app_settings
 from ..validators import key_validator, mac_address_validator
+from ..utils import get_random_key
 from .base import BaseConfig
-
-
-def get_random_key():
-    return get_random_string(length=32)
-
-
-def get_random_mac():
-    """
-    used mainly to migrate from 0.3.x to 0.4.x and in tests
-    """
-    return '52:54:00:%02x:%02x:%02x' % (random.randint(0, 255),
-                                        random.randint(0, 255),
-                                        random.randint(0, 255))
 
 
 class AbstractConfig(BaseConfig):

@@ -7,7 +7,7 @@ import re
 import django.core.validators
 from django.db import migrations, models
 
-from django_netjsonconfig.base.config import get_random_mac
+from django_netjsonconfig.utils import get_random_mac
 
 
 class Migration(migrations.Migration):
