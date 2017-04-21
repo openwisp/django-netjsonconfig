@@ -6,8 +6,8 @@ from model_utils.fields import StatusField
 from sortedm2m.fields import SortedManyToManyField
 
 from .. import settings as app_settings
-from ..validators import key_validator, mac_address_validator
 from ..utils import get_random_key
+from ..validators import key_validator, mac_address_validator
 from .base import BaseConfig
 
 
