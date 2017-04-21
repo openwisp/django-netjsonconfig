@@ -231,3 +231,15 @@ class TemplatesVpnMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+def sortedm2m__str__(self):
+    """
+    Improves string representation of m2m relationship objects
+
+    TODO
+    ----
+    this method can be removed if the following pull request
+    gets merged: https://github.com/gregmuellegger/django-sortedm2m/pull/101
+    """
+    return _('Relationship with {0}').format(self.template.name)

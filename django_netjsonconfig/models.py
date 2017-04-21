@@ -1,4 +1,4 @@
-from .base.config import AbstractConfig, TemplatesVpnMixin
+from .base.config import AbstractConfig, TemplatesVpnMixin, sortedm2m__str__
 from .base.template import AbstractTemplate
 from .base.vpn import AbstractVpn, AbstractVpnClient
 
@@ -9,13 +9,6 @@ class Config(TemplatesVpnMixin, AbstractConfig):
     """
     class Meta(AbstractConfig.Meta):
         abstract = False
-
-
-def sortedm2m__str__(self):
-    """
-    Improves string representation of m2m relationship objects
-    """
-    return self.template.name
 
 
 Config.templates.through.__str__ = sortedm2m__str__

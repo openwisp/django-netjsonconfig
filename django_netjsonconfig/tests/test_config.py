@@ -418,3 +418,10 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         self.assertNotIn(key_contents_key, context)
         self.assertIn(ca_path_key, context)
         self.assertIn(ca_contents_key, context)
+
+    def test_m2m_str_conversion(self):
+        t = self._create_template()
+        c = self._create_config(name='test-m2m-str-repr')
+        c.templates.add(t)
+        c.save()
+        self.assertIn('Relationship with', str(c.templates.through.objects.first()))
