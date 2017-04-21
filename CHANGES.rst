@@ -1,10 +1,13 @@
 Changelog
 =========
 
-Version 0.5.8 [unreleased]
+Version 0.5.8 [2017-04-21]
 --------------------------
 
-WIP
+- `#49 <https://github.com/openwisp/django-netjsonconfig/issues/49>`_:
+  [admin] fixed fullscreen covering preview issue, thanks to `@gastonche <https://github.com/gastonche>`_
+- `#47 <https://github.com/openwisp/django-netjsonconfig/issues/47>`_:
+  [admin] Added templates in config filter
 
 Version 0.5.7 [2017-03-28]
 --------------------------
