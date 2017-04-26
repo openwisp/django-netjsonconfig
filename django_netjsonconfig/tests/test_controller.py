@@ -4,9 +4,9 @@ from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
-from . import CreateConfigMixin
+from . import CreateConfigMixin, CreateTemplateMixin
 from .. import settings as app_settings
-from ..models import Config
+from ..models import Config, Template
 
 TEST_MACADDR = '00:11:22:33:44:55'
 mac_plus_secret = '%s+%s' % (TEST_MACADDR, settings.NETJSONCONFIG_SHARED_SECRET)
@@ -14,11 +14,12 @@ TEST_CONSISTENT_KEY = md5(mac_plus_secret.encode()).hexdigest()
 REGISTER_URL = reverse('controller:register')
 
 
-class TestController(CreateConfigMixin, TestCase):
+class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
     """
     tests for django_netjsonconfig.controller
     """
     config_model = Config
+    template_model = Template
 
     def _check_header(self, response):
         self.assertEqual(response['X-Openwisp-Controller'], 'true')
@@ -85,13 +86,15 @@ class TestController(CreateConfigMixin, TestCase):
         response = self.client.post(reverse('controller:download_config', args=[d.pk]), {'key': d.key})
         self.assertEqual(response.status_code, 405)
 
-    def test_register(self):
-        response = self.client.post(REGISTER_URL, {
+    def test_register(self, **kwargs):
+        options = {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
             'mac_address': TEST_MACADDR,
             'backend': 'netjsonconfig.OpenWrt'
-        })
+        }
+        options.update(kwargs)
+        response = self.client.post(REGISTER_URL, options)
         self.assertEqual(response.status_code, 201)
         lines = response.content.decode().split('\n')
         self.assertEqual(lines[0], 'registration-result: success')
@@ -101,6 +104,18 @@ class TestController(CreateConfigMixin, TestCase):
         self._check_header(response)
         self.assertIsNotNone(c.last_ip)
         self.assertEqual(c.mac_address, TEST_MACADDR)
+        return c
+
+    def test_register_template_tags(self):
+        mesh_protocol = self._create_template(name='mesh protocol')
+        mesh_protocol.tags.add('mesh')
+        mesh_interface = self._create_template(name='mesh interface')
+        mesh_interface.tags.add('mesh')
+        rome = self._create_template(name='rome')
+        rome.tags.add('rome')
+        c = self.test_register(tags='mesh rome')
+        for t in [mesh_protocol, mesh_interface, rome]:
+            self.assertEqual(c.templates.filter(name=t.name).count(), 1)
 
     def test_register_400(self):
         # missing secret

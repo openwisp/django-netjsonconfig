@@ -3,6 +3,8 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from taggit.managers import TaggableManager
+
 from ..settings import DEFAULT_AUTO_CERT
 from .base import BaseConfig
 
@@ -26,6 +28,10 @@ class AbstractTemplate(BaseConfig):
     Abstract model implementing a
     netjsonconfig template
     """
+    tags = TaggableManager(through='django_netjsonconfig.TaggedTemplate', blank=True,
+                           help_text=_('A comma-separated list of template tags, may be used '
+                                       'to ease auto configuration with specific settings (eg: '
+                                       '4G, mesh, WDS, VPN, ecc.)'))
     vpn = models.ForeignKey('django_netjsonconfig.Vpn',
                             verbose_name=_('VPN'),
                             blank=True,

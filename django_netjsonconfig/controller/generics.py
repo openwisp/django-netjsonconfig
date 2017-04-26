@@ -83,6 +83,9 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
     registers new Config objects
     """
     def init_object(self, **kwargs):
+        """
+        initializes Config object with incoming POST data
+        """
         options = {}
         for attr in kwargs.keys():
             # skip attributes that are not model fields
@@ -98,6 +101,30 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
                                  or options['key'] is None):
             del options['key']
         return self.model(**options)
+
+    def get_template_queryset(self, config):
+        """
+        returns Template model queryset
+        """
+        # dynamically get Template model (avoid breaking third party extensions)
+        template_model = config.__class__.templates.rel.model
+        return template_model.objects.all()
+
+    def add_tagged_templates(self, config, request):
+        """
+        adds templates specified in incoming POST tag setting
+        """
+        tags = request.POST.get('tags')
+        if not tags:
+            return
+        # retrieve tags and add them to current config
+        tags = tags.split()
+        queryset = self.get_template_queryset(config)
+        templates = queryset.filter(tags__name__in=tags) \
+                            .only('id') \
+                            .distinct()
+        for template in templates:
+            config.templates.add(template)
 
     def invalid(self, request):
         """
@@ -162,6 +189,8 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
         else:
             new = False
             self.update_last_ip(config, request)
+        # add templates specified in tags
+        self.add_tagged_templates(config, request)
         # return id and key in response
         s = 'registration-result: success\n' \
             'uuid: {id}\n' \

@@ -47,6 +47,7 @@ Current features
 * **advanced edit mode**: edit `NetJSON`_ *DeviceConfiguration* objects for maximum flexibility
 * **configuration templates**: reduce repetition to the minimum
 * **configuration context**: reference ansible-like variables in the configuration
+* **template tags**: tag templates to automate different types of auto-configurations (eg: mesh, WDS, 4G)
 * **simple HTTP resources**: allow devices to automatically download configuration updates
 * **VPN management**: easily create VPN servers and clients
 
@@ -398,17 +399,19 @@ This example provides an example of how to extend the base models of
 
 .. code-block:: python
 
-    # models.py of your app
+    # models.py of your custom ``config`` app
     from django.db import models
     from sortedm2m.fields import SortedManyToManyField
+    from taggit.managers import TaggableManager
 
-    from django_netjsonconfig.base.config import TemplatesVpnMixin
-    from django_netjsonconfig.base.config import AbstractConfig
+    from django_netjsonconfig.base.config import AbstractConfig, TemplatesVpnMixin
+    from django_netjsonconfig.base.tag import AbstractTaggedTemplate, AbstractTemplateTag
     from django_netjsonconfig.base.template import AbstractTemplate
     from django_netjsonconfig.base.vpn import AbstractVpn, AbstractVpnClient
 
     # the model ``organizations.Organization`` is omitted for brevity
     # if you are curious to see a real implementation, check out django-organizations
+    # https://github.com/bennylope/django-organizations
 
     class OrganizationMixin(models.Model):
         organization = models.ForeignKey('organizations.Organization')
@@ -434,7 +437,22 @@ This example provides an example of how to extend the base models of
             abstract = False
 
 
+    class TemplateTag(AbstractTemplateTag):
+        class Meta(AbstractTemplateTag.Meta):
+            abstract = False
+
+
+    class TaggedTemplate(AbstractTaggedTemplate):
+        tag = models.ForeignKey('config.TemplateTag',
+                                related_name='%(app_label)s_%(class)s_items',
+                                on_delete=models.CASCADE)
+
+        class Meta(AbstractTaggedTemplate.Meta):
+            abstract = False
+
+
     class Template(OrganizationMixin, AbstractTemplate):
+        tags = TaggableManager(through='config.TaggedTemplate', blank=True)
         vpn = models.ForeignKey('config.Vpn', blank=True, null=True)
 
         def clean(self):

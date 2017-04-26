@@ -259,6 +259,7 @@ class AbstractTemplateAdmin(BaseConfigAdmin):
               'backend',
               'vpn',
               'auto_cert',
+              'tags',
               'default',
               'config',
               'created',
