@@ -30,7 +30,8 @@ django.jQuery(function($) {
             })
         })
         .error(function(){
-            $('#content-main form').trigger('submit');
+            // rare case, leaving it untranslated for simplicity
+            alert('Error while generating preview');
         })
     };
     var closePreview = function () {
