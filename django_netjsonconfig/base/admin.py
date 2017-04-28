@@ -35,6 +35,8 @@ class TimeStampedEditableAdmin(BaseAdmin):
 
 class BaseConfigAdmin(TimeStampedEditableAdmin):
     preview_template = None
+    actions_on_bottom = True
+    save_on_top = True
 
     class Media:
         css = {'all': (static('{0}css/admin.css'.format(prefix)),)}
@@ -224,8 +226,6 @@ class AbstractConfigAdmin(BaseConfigAdmin):
               'config',
               'created',
               'modified']
-    actions_on_bottom = True
-    save_on_top = True
 
     def id_hex(self, obj):
         return obj.pk.hex
@@ -264,8 +264,6 @@ class AbstractTemplateAdmin(BaseConfigAdmin):
               'config',
               'created',
               'modified']
-    actions_on_bottom = True
-    save_on_top = True
 
 
 class AbstractVpnForm(forms.ModelForm):
@@ -290,8 +288,6 @@ class AbstractVpnAdmin(BaseConfigAdmin):
     list_display = ['name', 'backend', 'created', 'modified']
     list_filter = ['backend', 'ca', 'created']
     search_fields = ['id', 'name', 'host']
-    actions_on_bottom = True
-    save_on_top = True
     fields = ['name',
               'host',
               'ca',
