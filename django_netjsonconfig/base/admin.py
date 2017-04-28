@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from .. import settings as app_settings
-from ..utils import get_random_mac, send_file
+from ..utils import send_file
 from ..widgets import JsonSchemaWidget
 
 logger = logging.getLogger(__name__)
@@ -83,7 +83,6 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
         returns a temporary preview instance used for preview
         """
         kwargs = {}
-        unique = {}
         for key, value in request.POST.items():
             # skip keys that are not model fields
             try:
@@ -93,9 +92,6 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
             # skip m2m
             if field.many_to_many:
                 continue
-            # set aside unique field values
-            if field.unique:
-                unique[key] = value
             # adapt attribute names to the fact that we only
             # have pk of relations, therefore use {relation}_id
             elif field.is_relation:
@@ -105,21 +101,11 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
             # put regular field values in kwargs dict
             else:
                 kwargs[key] = value
-        # randomize name
-        kwargs['name'] = self.model().pk.hex
-        # include a random mac address to pass validation
-        if 'mac_address' in request.POST:
-            kwargs['mac_address'] = get_random_mac()
         # this object is instanciated only to generate the preview
         # it won't be saved to the database
         instance = self.model(**kwargs)
-        instance.full_clean()
-        # some field values must be filled-in after
-        # validation in order to avoid unique checks
-        # but need to be present because may be used
-        # in the configuration context (eg: name, mac_address)
-        for key, value in unique.items():
-            setattr(instance, key, value)
+        instance.full_clean(exclude=['mac_address'],
+                            validate_unique=False)
         return instance
 
     preview_error_msg = _('Preview for {0} with name {1} failed')
