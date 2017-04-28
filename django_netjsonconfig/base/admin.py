@@ -55,11 +55,11 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
 
     def add_view(self, request, form_url='', extra_context=None):
         extra_context = self.get_extra_context()
-        if 'config' in self.model.__name__.lower():
-            templates = self.model().get_default_templates()
-            extra_context.update({
-                'default_templates': [str(t.id) for t in templates]
-            })
+        instance = self.model()
+        if hasattr(instance, 'get_default_templates'):
+            templates = instance.get_default_templates()
+            templates = [str(t.id) for t in templates]
+            extra_context.update({'default_templates': templates})
         return super(BaseConfigAdmin, self).add_view(request, form_url, extra_context)
 
     def change_view(self, request, pk, form_url='', extra_context=None):
