@@ -1,5 +1,4 @@
 import logging
-import random
 
 from django.conf.urls import url
 from django.http import Http404, HttpResponse
@@ -113,12 +112,3 @@ def get_random_key():
     generates a device key of 32 characters
     """
     return get_random_string(length=32)
-
-
-def get_random_mac():
-    """
-    generates a random mac address
-    """
-    return '52:54:00:%02x:%02x:%02x' % (random.randint(0, 255),
-                                        random.randint(0, 255),
-                                        random.randint(0, 255))

@@ -4,14 +4,13 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-from django_netjsonconfig.utils import get_random_mac
-
 
 def randomize_mac_address(apps, schema_editor):
-    Config = apps.get_model('django_netjsonconfig', 'Config')
-    for c in Config.objects.all():
-        c.mac_address = get_random_mac()
-        c.save()
+    """
+    This data migration is not necessary anymore.
+    It will be squashed in future versions.
+    """
+    pass
 
 
 class Migration(migrations.Migration):

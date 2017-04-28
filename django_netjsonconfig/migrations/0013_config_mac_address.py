@@ -7,8 +7,6 @@ import re
 import django.core.validators
 from django.db import migrations, models
 
-from django_netjsonconfig.utils import get_random_mac
-
 
 class Migration(migrations.Migration):
 
@@ -20,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='config',
             name='mac_address',
-            field=models.CharField(default=get_random_mac, max_length=17, null=True, validators=[django.core.validators.RegexValidator(re.compile('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})', 32), code='invalid', message='Must be a valid mac address.')]),
+            field=models.CharField(max_length=17, null=True, validators=[django.core.validators.RegexValidator(re.compile('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})', 32), code='invalid', message='Must be a valid mac address.')]),
         ),
     ]
