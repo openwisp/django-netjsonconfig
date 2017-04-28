@@ -78,7 +78,10 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
                 name='{0}_preview'.format(url_prefix))
         ] + super(BaseConfigAdmin, self).get_urls()
 
-    def _prepare_preview_model(self, request):
+    def _get_preview_instance(self, request):
+        """
+        returns a temporary preview instance used for preview
+        """
         kwargs = {}
         unique = {}
         for key, value in request.POST.items():
@@ -109,13 +112,15 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
             kwargs['mac_address'] = get_random_mac()
         # this object is instanciated only to generate the preview
         # it won't be saved to the database
-        model = self.model(**kwargs)
-        model.full_clean()
+        instance = self.model(**kwargs)
+        instance.full_clean()
         # some field values must be filled-in after
         # validation in order to avoid unique checks
+        # but need to be present because may be used
+        # in the configuration context (eg: name, mac_address)
         for key, value in unique.items():
-            setattr(model, key, value)
-        return model
+            setattr(instance, key, value)
+        return instance
 
     preview_error_msg = _('Preview for {0} with name {1} failed')
 
@@ -129,7 +134,7 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
         # error message for eventual exceptions
         error_msg = self.preview_error_msg.format(self.model.__name__, request.POST.get('name'))
         try:
-            model = self._prepare_preview_model(request)
+            instance = self._get_preview_instance(request)
         except ValidationError as e:
             logger.exception(error_msg, extra={'request': request})
             return HttpResponse(str(e), status=400)
@@ -145,9 +150,9 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
         else:
             templates = None
         if not error:
-            backend = model.get_backend_instance(template_instances=templates)
+            backend = instance.get_backend_instance(template_instances=templates)
             try:
-                model.clean_netjsonconfig_backend(backend)
+                instance.clean_netjsonconfig_backend(backend)
                 output = backend.render()
             except ValidationError as e:
                 error = str(e)
