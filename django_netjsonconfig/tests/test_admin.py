@@ -195,13 +195,9 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
 
     def test_uuid_field_in_change(self):
         t = Template.objects.first()
-        c = Config(name='test',
-                   backend=t.backend,
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   config=t.config,
-                   key=self.TEST_KEY)
-        c.full_clean()
-        c.save()
+        c = self._create_config(name='test',
+                                backend=t.backend,
+                                config=t.config)
         path = reverse('admin:django_netjsonconfig_config_change', args=[c.pk])
         response = self.client.get(path)
         self.assertEqual(response.status_code, 200)
