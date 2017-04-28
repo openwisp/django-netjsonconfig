@@ -53,8 +53,8 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
             ctx.update({'download_url': reverse('{0}_download'.format(prefix), args=[pk])})
         return ctx
 
-    def add_view(self, request, form_url='', extra_context={}):
-        extra_context.update(self.get_extra_context())
+    def add_view(self, request, form_url='', extra_context=None):
+        extra_context = self.get_extra_context()
         if 'config' in self.model.__name__.lower():
             templates = self.model().get_default_templates()
             extra_context.update({
@@ -62,8 +62,8 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
             })
         return super(BaseConfigAdmin, self).add_view(request, form_url, extra_context)
 
-    def change_view(self, request, pk, form_url='', extra_context={}):
-        extra_context.update(self.get_extra_context(pk))
+    def change_view(self, request, pk, form_url='', extra_context=None):
+        extra_context = self.get_extra_context(pk)
         return super(BaseConfigAdmin, self).change_view(request, pk, form_url, extra_context)
 
     def get_urls(self):
