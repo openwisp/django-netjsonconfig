@@ -102,10 +102,13 @@ class TemplatesVpnMixin(models.Model):
 
     def get_default_templates(self):
         """
-        retrieves default templates
+        retrieves default templates of a Config object
         may be redefined with a custom logic if needed
         """
-        return self.templates.model.objects.filter(backend=self.backend, default=True)
+        qs = self.templates.model.objects.filter(default=True)
+        if self.backend:
+            qs = qs.filter(backend=self.backend)
+        return qs
 
     @classmethod
     def get_templates_from_pk_set(cls, action, pk_set):
