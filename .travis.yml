@@ -21,7 +21,6 @@ before_install:
 install:
   - pip install $DJANGO
   - python setup.py -q develop
-  - pip install --no-cache-dir -U django-taggit
 
 # command to run tests, e.g. python setup.py test
 script:
