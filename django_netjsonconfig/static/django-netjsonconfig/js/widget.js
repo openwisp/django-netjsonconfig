@@ -138,6 +138,7 @@
 
             // update raw value before form submit
             form.submit(function(e){
+                if ($('#advanced_editor').is(':hidden')) { return }
                 // only submit the form if the json in the advanced editor is valid
                 if(!isValidJson(advanced_editor)){
                     e.preventDefault();
