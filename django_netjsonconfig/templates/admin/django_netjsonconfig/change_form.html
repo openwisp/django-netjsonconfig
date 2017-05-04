@@ -17,12 +17,14 @@
     <div class="inner"></div>
 </div>
 
+{% block default_templates_js %}
 {% if default_templates %}
 <script>
-    // enable default templates
+    // enable default templates - do not remove this comment
 {% for template in default_templates %}
     django.jQuery('input.sortedm2m[value={{ template }}]').prop('checked', true);
 {% endfor %}
 </script>
 {% endif %}
+{% endblock %}
 {% endblock %}
