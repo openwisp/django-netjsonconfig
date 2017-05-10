@@ -393,3 +393,9 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         c.templates.add(t)
         c.save()
         self.assertIn('Relationship with', str(c.templates.through.objects.first()))
+
+    def test_get_template_model_static(self):
+        self.assertIs(Config.get_template_model(), Template)
+
+    def test_get_template_model_bound(self):
+        self.assertIs(Config().get_template_model(), Template)

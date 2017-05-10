@@ -138,6 +138,10 @@ class TemplatesVpnMixin(models.Model):
             if default_templates:
                 self.templates.add(*default_templates)
 
+    @classmethod
+    def get_template_model(cls):
+        return cls.templates.rel.model
+
     def get_default_templates(self):
         """
         retrieves default templates of a Config object
@@ -158,7 +162,7 @@ class TemplatesVpnMixin(models.Model):
             return False
         # coming from signal
         if isinstance(pk_set, set):
-            template_model = cls.templates.rel.model
+            template_model = cls.get_template_model()
             templates = template_model.objects.filter(pk__in=list(pk_set))
         # coming from admin ModelForm
         else:
@@ -210,7 +214,7 @@ class TemplatesVpnMixin(models.Model):
         vpn_client_model = cls.vpn.through
         # coming from signal
         if isinstance(pk_set, set):
-            template_model = cls.templates.rel.model
+            template_model = cls.get_template_model()
             templates = template_model.objects.filter(pk__in=list(pk_set))
         # coming from admin ModelForm
         else:

@@ -146,7 +146,7 @@ class BaseConfigAdmin(BaseAdmin):
             return HttpResponse(str(e), status=status)
         template_ids = request.POST.get('templates')
         if template_ids:
-            template_model = config_model.templates.rel.model
+            template_model = config_model.get_template_model()
             templates = template_model.objects.filter(pk__in=template_ids.split(','))
             try:
                 templates = list(templates)  # evaluating queryset performs query

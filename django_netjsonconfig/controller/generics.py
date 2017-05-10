@@ -113,9 +113,7 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
         """
         returns Template model queryset
         """
-        # dynamically get Template model (avoid breaking third party extensions)
-        template_model = config.__class__.templates.rel.model
-        return template_model.objects.all()
+        return config.get_template_model().objects.all()
 
     def add_tagged_templates(self, config, request):
         """
