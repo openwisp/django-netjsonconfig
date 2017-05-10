@@ -107,6 +107,12 @@
             else{
                 editorContainer.html('');
             }
+
+            // stop operation if empty admin inline object
+            if (field.attr('id').indexOf('__prefix__') > -1) {
+                return;
+            }
+
             wrapper = editorContainer.parents('.jsoneditor-wrapper');
             options = {
                 theme: 'django',
@@ -128,6 +134,7 @@
             updateRaw = function(){
                 field.val(getEditorValue());
             };
+
             editor.editors.root.addproperty_button.value = 'Configuration Menu';
             // set initial field value to the schema default
             if (setInitialValue) {
@@ -164,6 +171,7 @@
                 // set the advanced editor container to full screen mode
                 toggleFullScreen();
             });
+
             // back to normal mode button
             $advanced_el.find('.jsoneditor-exit').click(function(){
                 // check if json in advanced mode is valid before coming back to normal mode
@@ -178,11 +186,21 @@
                     alertInvalidJson();
                 }
             });
+
+            // allow to add object properties by pressing enter
+            form.on('keypress', '.jsoneditor .modal input[type=text]', function(e){
+                if(e.keyCode == 13){
+                    e.preventDefault();
+                    $(e.target).siblings('input.json-editor-btn-add').trigger('click');
+                    $(e.target).val('');
+                }
+            });
         });
     };
-    $(function() {
+
+    var bindLoadUi = function(){
         $.getJSON(django._netjsonconfigSchemaUrl).success(function(schemas){
-            var backend = $('#id_backend');
+            var backend = $('#id_backend, #id_config-0-backend');
             // load first time
             loadUi(backend.val(), schemas, true)
             // reload when backend is changed
@@ -190,14 +208,15 @@
                 loadUi(backend.val(), schemas);
             });
         });
-        // allow to add object properties by pressing enter
-        $('#config_form, #template_form').on('keypress', '.jsoneditor .modal input[type=text]', function(e){
-            if(e.keyCode == 13){
-                e.preventDefault();
-                $(e.target).siblings('input.json-editor-btn-add').trigger('click');
-                $(e.target).val('');
-            }
-        });
+    }
+
+    $(function() {
+        var add_config = $('#config-group.inline-group .add-row');
+        // if configuration is admin inline
+        // load it when add button is clicked
+        add_config.click(bindLoadUi);
+        // otherwise load immediately
+        bindLoadUi();
     });
 })(django.jQuery);
 

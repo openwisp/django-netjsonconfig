@@ -108,6 +108,6 @@ a.jsoneditor-exit:focus{ text-decoration: none }
 
 #template_form #id_tags{ width: 261px }
 
-#config_form #id_model{ width: 610px }
-#config_form #id_os{ width: 610px }
-#config_form #id_notes{ height: 42px }
+#device_form #id_model{ width: 610px }
+#device_form #id_os{ width: 610px }
+#device_form #id_notes{ height: 42px }

@@ -16,7 +16,6 @@
                 else {
                     object[name] = value;
                 }
-
             });
         };
 

@@ -6,7 +6,7 @@ from django_x509.models import Ca
 from netjsonconfig import OpenWrt
 
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
-from ..models import Config, Template, Vpn
+from ..models import Config, Device, Template, Vpn
 
 
 class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
@@ -16,6 +16,7 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
     """
     ca_model = Ca
     config_model = Config
+    device_model = Device
     template_model = Template
     vpn_model = Vpn
 
@@ -41,7 +42,7 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
 
     def test_config_status_modified_after_change(self):
         t = self._create_template()
-        c = self._create_config(name='test-status')
+        c = self._create_config(device=self._create_device(name='test-status'))
         c.templates.add(t)
         c.status = 'running'
         c.save()
@@ -63,7 +64,7 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         # no default templates defined yet
         c = self._create_config()
         self.assertEqual(c.templates.count(), 0)
-        c.delete()
+        c.device.delete()
         # create default templates for different backends
         t1 = self._create_template(name='default-openwrt',
                                    backend='netjsonconfig.OpenWrt',
@@ -71,13 +72,12 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         t2 = self._create_template(name='default-openwisp',
                                    backend='netjsonconfig.OpenWisp',
                                    default=True)
-        c1 = self._create_config(name='test-openwrt',
-                                 key=None,  # generater new key
+        c1 = self._create_config(device=self._create_device(name='test-openwrt'),
                                  backend='netjsonconfig.OpenWrt')
-        c2 = self._create_config(name='test-openwisp',
-                                 backend='netjsonconfig.OpenWisp',
-                                 key=None,  # generater new key
+        d2 = self._create_device(name='test-openwisp',
                                  mac_address=self.TEST_MAC_ADDRESS.replace('55', '56'))
+        c2 = self._create_config(device=d2,
+                                 backend='netjsonconfig.OpenWisp')
         # ensure OpenWRT device has only the default OpenWRT backend
         self.assertEqual(c1.templates.count(), 1)
         self.assertEqual(c1.templates.first().id, t1.id)
@@ -133,7 +133,7 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
                 'contents': '{{ name }}\n{{ vpnserver1 }}\n'
             }
         ]})
-        c = self._create_config(name='test-var')
+        c = self._create_config()
         c.templates.add(t)
         # clear cache
         del c.backend_instance

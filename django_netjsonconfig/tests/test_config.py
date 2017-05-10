@@ -10,7 +10,7 @@ from netjsonconfig import OpenWrt
 
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 from .. import settings as app_settings
-from ..models import Config, Template, Vpn
+from ..models import Config, Device, Template, Vpn
 
 
 class TestConfig(CreateConfigMixin, CreateTemplateMixin,
@@ -22,52 +22,52 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
     maxDiff = None
     ca_model = Ca
     config_model = Config
+    device_model = Device
     template_model = Template
     vpn_model = Vpn
 
     def test_str(self):
-        d = Config(name='test')
-        self.assertEqual(str(d), 'test')
+        c = Config()
+        self.assertEqual(str(c), str(c.pk))
+        c = Config(device=Device(name='test'))
+        self.assertEqual(str(c), 'test')
 
     def test_config_not_none(self):
-        c = Config(name='test',
-                   mac_address=self.TEST_MAC_ADDRESS,
+        c = Config(device=self._create_device(),
                    backend='netjsonconfig.OpenWrt',
                    config=None)
         c.full_clean()
         self.assertEqual(c.config, {})
 
     def test_backend_class(self):
-        d = Config(name='test',
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   backend='netjsonconfig.OpenWrt')
-        self.assertIs(d.backend_class, OpenWrt)
+        c = Config(backend='netjsonconfig.OpenWrt')
+        self.assertIs(c.backend_class, OpenWrt)
 
     def test_backend_instance(self):
         config = {'general': {'hostname': 'config'}}
-        d = Config(name='test',
-                   mac_address=self.TEST_MAC_ADDRESS,
+        c = Config(backend='netjsonconfig.OpenWrt',
+                   config=config)
+        self.assertIsInstance(c.backend_instance, OpenWrt)
+
+    def test_netjson_validation(self):
+        config = {'interfaces': {'invalid': True}}
+        c = Config(device=self._create_device(),
                    backend='netjsonconfig.OpenWrt',
                    config=config)
-        self.assertIsInstance(d.backend_instance, OpenWrt)
-
-    def test_validation(self):
-        config = {'interfaces': {'invalid': True}}
-        d = Config(name='test',
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   backend='netjsonconfig.OpenWrt',
-                   config=config,
-                   key=self.TEST_KEY)
         # ensure django ValidationError is raised
-        with self.assertRaises(ValidationError):
-            d.full_clean()
+        try:
+            c.full_clean()
+        except ValidationError as e:
+            self.assertIn('Invalid configuration', e.message_dict['__all__'][0])
+        else:
+            self.fail('ValidationError not raised')
 
     def test_json(self):
         dhcp = Template.objects.get(name='dhcp')
         radio = Template.objects.get(name='radio0')
-        d = self._create_config(config={'general': {'hostname': 'json-test'}})
-        d.templates.add(dhcp)
-        d.templates.add(radio)
+        c = self._create_config(config={'general': {'hostname': 'json-test'}})
+        c.templates.add(dhcp)
+        c.templates.add(radio)
         full_config = {
             'general': {
                 'hostname': 'json-test'
@@ -97,9 +97,9 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
                 }
             ]
         }
-        del d.backend_instance
-        self.assertDictEqual(d.json(dict=True), full_config)
-        json_string = d.json()
+        del c.backend_instance
+        self.assertDictEqual(c.json(dict=True), full_config)
+        json_string = c.json()
         self.assertIn('json-test', json_string)
         self.assertIn('eth0', json_string)
         self.assertIn('radio0', json_string)
@@ -123,10 +123,10 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
                      config=config)
         t.full_clean()
         t.save()
-        d = self._create_config(config=config_copy)
+        c = self._create_config(config=config_copy)
         with atomic():
             try:
-                d.templates.add(t)
+                c.templates.add(t)
             except ValidationError:
                 pass
             else:
@@ -134,24 +134,7 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         t.config['files'][0]['path'] = '/test2'
         t.full_clean()
         t.save()
-        d.templates.add(t)
-
-    def test_key_validation(self):
-        d = Config(name='test',
-                   mac_address=self.TEST_MAC_ADDRESS,
-                   backend='netjsonconfig.OpenWrt',
-                   config={'general': {'hostname': 'json-test'}})
-        d.key = 'key/key'
-        with self.assertRaises(ValidationError):
-            d.full_clean()
-        d.key = 'key.key'
-        with self.assertRaises(ValidationError):
-            d.full_clean()
-        d.key = 'key key'
-        with self.assertRaises(ValidationError):
-            d.full_clean()
-        d.key = self.TEST_KEY
-        d.full_clean()
+        c.templates.add(t)
 
     def test_checksum(self):
         c = self._create_config()
@@ -162,22 +145,22 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         see issue #5
         https://github.com/openwisp/django-netjsonconfig/issues/5
         """
-        d = Config()
+        c = Config(device=self._create_device())
         with self.assertRaises(ValidationError):
-            d.full_clean()
-        d.backend = 'wrong'
+            c.full_clean()
+        c.backend = 'wrong'
         with self.assertRaises(ValidationError):
-            d.full_clean()
+            c.full_clean()
 
     def test_default_status(self):
-        c = Config(name='test')
+        c = Config()
         self.assertEqual(c.status, 'modified')
 
     def test_status_modified_after_change(self):
         c = self._create_config(status='running')
         self.assertEqual(c.status, 'running')
         c.refresh_from_db()
-        c.name = 'test-status-modified'
+        c.config = {'general': {'description': 'test'}}
         c.full_clean()
         c.save()
         self.assertEqual(c.status, 'modified')
@@ -198,7 +181,7 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         self.assertEqual(c.status, 'modified')
 
     def test_auto_hostname(self):
-        c = self._create_config(name='automate-me')
+        c = self._create_config(device=self._create_device(name='automate-me'))
         expected = {'general': {'hostname': 'automate-me'}}
         self.assertDictEqual(c.backend_instance.config, expected)
         c.refresh_from_db()
@@ -213,15 +196,14 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
                 'mac_address': '{{ mac_address }}'
             }
         }
-        c = Config(name='context-test',
+        c = Config(device=self._create_device(name='context-test'),
                    backend='netjsonconfig.OpenWrt',
-                   mac_address=self.TEST_MAC_ADDRESS,
                    config=config)
         output = c.backend_instance.render()
-        self.assertIn(str(c.id), output)
-        self.assertIn(c.key, output)
-        self.assertIn(c.name, output)
-        self.assertIn(c.mac_address, output)
+        self.assertIn(str(c.device.id), output)
+        self.assertIn(c.device.key, output)
+        self.assertIn(c.device.name, output)
+        self.assertIn(c.device.mac_address, output)
 
     def test_context_setting(self):
         config = {
@@ -229,16 +211,15 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
                 'vpnserver1': '{{ vpnserver1 }}'
             }
         }
-        c = Config(name='context-setting-test',
+        c = Config(device=self._create_device(),
                    backend='netjsonconfig.OpenWrt',
-                   mac_address=self.TEST_MAC_ADDRESS,
                    config=config)
         output = c.backend_instance.render()
         vpnserver1 = settings.NETJSONCONFIG_CONTEXT['vpnserver1']
         self.assertIn(vpnserver1, output)
 
     def test_mac_address_as_hostname(self):
-        c = self._create_config(name='00:11:22:33:44:55')
+        c = self._create_config(device=self._create_device(name='00:11:22:33:44:55'))
         self.assertIn('00-11-22-33-44-55', c.backend_instance.render())
 
     def test_create_vpnclient(self):
@@ -246,7 +227,7 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         t = self._create_template(name='test-network',
                                   type='vpn',
                                   vpn=vpn)
-        c = self._create_config(name='test-create-cert')
+        c = self._create_config(device=self._create_device(name='test-create-cert'))
         c.templates.add(t)
         c.save()
         vpnclient = c.vpnclient_set.first()
@@ -257,7 +238,7 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
 
     def test_delete_vpnclient(self):
         self.test_create_vpnclient()
-        c = Config.objects.get(name='test-create-cert')
+        c = Config.objects.get(device__name='test-create-cert')
         t = Template.objects.get(name='test-network')
         c.templates.remove(t)
         c.save()
@@ -267,25 +248,12 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
 
     def test_clear_vpnclient(self):
         self.test_create_vpnclient()
-        c = Config.objects.get(name='test-create-cert')
+        c = Config.objects.get(device__name='test-create-cert')
         c.templates.clear()
         c.save()
         vpnclient = c.vpnclient_set.first()
         self.assertIsNone(vpnclient)
         self.assertEqual(c.vpnclient_set.count(), 0)
-
-    def test_mac_address_validator(self):
-        d = Config(name='test',
-                   mac_address='WRONG',
-                   backend='netjsonconfig.OpenWrt',
-                   config={'general': {'hostname': 'json-test'}},
-                   key=self.TEST_KEY)
-        try:
-            d.full_clean()
-        except ValidationError as e:
-            self.assertIn('mac_address', e.message_dict)
-        else:
-            self.fail('ValidationError not raised')
 
     def test_create_cert(self):
         vpn = self._create_vpn()
@@ -293,7 +261,7 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
                                   type='vpn',
                                   vpn=vpn,
                                   auto_cert=True)
-        c = self._create_config(name='test-create-cert')
+        c = self._create_config(device=self._create_device(name='test-create-cert'))
         c.templates.add(t)
         vpnclient = c.vpnclient_set.first()
         self.assertIsNotNone(vpnclient)
@@ -303,14 +271,14 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
 
     def test_automatically_created_cert_common_name_format(self):
         self.test_create_cert()
-        c = Config.objects.get(name='test-create-cert')
+        c = Config.objects.get(device__name='test-create-cert')
         vpnclient = c.vpnclient_set.first()
-        expected_cn = app_settings.COMMON_NAME_FORMAT.format(**c.__dict__)
+        expected_cn = app_settings.COMMON_NAME_FORMAT.format(**c.device.__dict__)
         self.assertEqual(vpnclient.cert.common_name, expected_cn)
 
     def test_automatically_created_cert_deleted_post_clear(self):
         self.test_create_cert()
-        c = Config.objects.get(name='test-create-cert')
+        c = Config.objects.get(device__name='test-create-cert')
         vpnclient = c.vpnclient_set.first()
         cert = vpnclient.cert
         cert_model = cert.__class__
@@ -320,7 +288,7 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
 
     def test_automatically_created_cert_deleted_post_remove(self):
         self.test_create_cert()
-        c = Config.objects.get(name='test-create-cert')
+        c = Config.objects.get(device__name='test-create-cert')
         t = Template.objects.get(name='test-create-cert')
         vpnclient = c.vpnclient_set.first()
         cert = vpnclient.cert
@@ -332,7 +300,7 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
     def test_create_cert_false(self):
         vpn = self._create_vpn()
         t = self._create_template(type='vpn', auto_cert=False, vpn=vpn)
-        c = self._create_config(name='test-create-cert')
+        c = self._create_config(device=self._create_device(name='test-create-cert'))
         c.templates.add(t)
         c.save()
         vpnclient = c.vpnclient_set.first()
@@ -343,7 +311,7 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
 
     def _get_vpn_context(self):
         self.test_create_cert()
-        c = Config.objects.get(name='test-create-cert')
+        c = Config.objects.get(device__name='test-create-cert')
         context = c.get_context()
         vpnclient = c.vpnclient_set.first()
         return context, vpnclient
@@ -401,7 +369,7 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
     def test_vpn_context_no_cert(self):
         vpn = self._create_vpn()
         t = self._create_template(type='vpn', auto_cert=False, vpn=vpn)
-        c = self._create_config(name='test-create-cert')
+        c = self._create_config(device=self._create_device(name='test-create-cert'))
         c.templates.add(t)
         c.save()
         context = c.get_context()
@@ -421,7 +389,7 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
 
     def test_m2m_str_conversion(self):
         t = self._create_template()
-        c = self._create_config(name='test-m2m-str-repr')
+        c = self._create_config(device=self._create_device(name='test-m2m-str-repr'))
         c.templates.add(t)
         c.save()
         self.assertIn('Relationship with', str(c.templates.through.objects.first()))

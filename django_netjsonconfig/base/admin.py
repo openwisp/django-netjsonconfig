@@ -3,9 +3,10 @@ import logging
 from django import forms
 from django.conf import settings
 from django.conf.urls import url
+from django.contrib import admin
 from django.contrib.admin.templatetags.admin_static import static
 from django.core.exceptions import FieldDoesNotExist, ValidationError
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -19,21 +20,30 @@ logger = logging.getLogger(__name__)
 prefix = 'django-netjsonconfig/'
 
 if 'reversion' in settings.INSTALLED_APPS:
-    from reversion.admin import VersionAdmin as BaseAdmin
+    from reversion.admin import VersionAdmin as ModelAdmin
 else:  # pragma: nocover
-    from django.contrib.admin import ModelAdmin as BaseAdmin
+    from django.contrib.admin import ModelAdmin
 
 
-class TimeStampedEditableAdmin(BaseAdmin):
+class TimeReadonlyMixin(object):
     """
-    ModelAdmin for TimeStampedEditableModel
+    mixin that automatically flags
+    `created` and `modified` as readonly
     """
     def __init__(self, *args, **kwargs):
         self.readonly_fields += ('created', 'modified',)
-        super(TimeStampedEditableAdmin, self).__init__(*args, **kwargs)
+        super(TimeReadonlyMixin, self).__init__(*args, **kwargs)
 
 
-class BaseConfigAdmin(TimeStampedEditableAdmin):
+class BaseAdmin(TimeReadonlyMixin, ModelAdmin):
+    pass
+
+
+# TODO: kept for backward compatibility, remove in 0.7.0
+TimeStampedEditableAdmin = BaseAdmin
+
+
+class BaseConfigAdmin(BaseAdmin):
     preview_template = None
     actions_on_bottom = True
     save_on_top = True
@@ -78,15 +88,22 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
                 name='{0}_preview'.format(url_prefix))
         ] + super(BaseConfigAdmin, self).get_urls()
 
+    def _get_config_model(self):
+        model = self.model
+        if hasattr(model, 'get_backend_instance'):
+            return model
+        return model.get_config_model()
+
     def _get_preview_instance(self, request):
         """
         returns a temporary preview instance used for preview
         """
         kwargs = {}
+        config_model = self._get_config_model()
         for key, value in request.POST.items():
             # skip keys that are not model fields
             try:
-                field = self.model._meta.get_field(key)
+                field = config_model._meta.get_field(key)
             except FieldDoesNotExist:
                 continue
             # skip m2m
@@ -103,8 +120,8 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
                 kwargs[key] = value
         # this object is instanciated only to generate the preview
         # it won't be saved to the database
-        instance = self.model(**kwargs)
-        instance.full_clean(exclude=['mac_address'],
+        instance = config_model(**kwargs)
+        instance.full_clean(exclude=['device'],
                             validate_unique=False)
         return instance
 
@@ -115,18 +132,21 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
             msg = _('Preview: request method {0} is not allowed').format(request.method)
             logger.warning(msg, extra={'request': request, 'stack': True})
             return HttpResponse(status=405)
+        config_model = self._get_config_model()
         error = None
         output = None
         # error message for eventual exceptions
-        error_msg = self.preview_error_msg.format(self.model.__name__, request.POST.get('name'))
+        error_msg = self.preview_error_msg.format(config_model.__name__, request.POST.get('name'))
         try:
             instance = self._get_preview_instance(request)
-        except ValidationError as e:
+        except Exception as e:
             logger.exception(error_msg, extra={'request': request})
-            return HttpResponse(str(e), status=400)
+            # return 400 for validation errors, otherwise 500
+            status = 400 if e.__class__ is ValidationError else 500
+            return HttpResponse(str(e), status=status)
         template_ids = request.POST.get('templates')
         if template_ids:
-            template_model = self.model.templates.rel.model
+            template_model = config_model.templates.rel.model
             templates = template_model.objects.filter(pk__in=template_ids.split(','))
             try:
                 templates = list(templates)  # evaluating queryset performs query
@@ -158,7 +178,13 @@ class BaseConfigAdmin(TimeStampedEditableAdmin):
         ], context)
 
     def download_view(self, request, pk):
-        config = get_object_or_404(self.model, pk=pk)
+        instance = get_object_or_404(self.model, pk=pk)
+        if hasattr(instance, 'generate'):
+            config = instance
+        elif hasattr(instance, 'config'):
+            config = instance.config
+        else:
+            raise Http404()
         config_archive = config.generate()
         return send_file(filename='{0}.tar.gz'.format(config.name),
                          contents=config_archive.getvalue())
@@ -170,8 +196,9 @@ class BaseForm(forms.ModelForm):
     """
     if app_settings.DEFAULT_BACKEND:
         def __init__(self, *args, **kwargs):
-            if 'initial' in kwargs:
-                kwargs['initial'].update({'backend': app_settings.DEFAULT_BACKEND})
+            if 'initial' not in kwargs:
+                kwargs['initial'] = {}
+            kwargs['initial'].update({'backend': app_settings.DEFAULT_BACKEND})
             super(BaseForm, self).__init__(*args, **kwargs)
 
     class Meta:
@@ -201,23 +228,34 @@ class AbstractConfigForm(BaseForm):
         return templates
 
 
-class AbstractConfigAdmin(BaseConfigAdmin):
-    list_display = ['name', 'backend', 'status', 'last_ip', 'created', 'modified']
-    list_filter = ['backend', 'templates', 'status', 'created']
-    search_fields = ['id', 'name', 'key', 'mac_address', 'last_ip']
-    readonly_fields = ['id_hex', 'status', 'last_ip']
-    fields = ['name',
-              'backend',
-              'id_hex',
-              'key',
-              'mac_address',
+class AbstractConfigInline(TimeReadonlyMixin, admin.StackedInline):
+    verbose_name_plural = _('Device configuration details')
+    readonly_fields = ['status', 'last_ip']
+    fields = ['backend',
               'status',
               'last_ip',
-              'model',
-              'os',
-              'notes',
               'templates',
               'config',
+              'created',
+              'modified']
+
+
+class AbstractDeviceAdmin(BaseConfigAdmin):
+    list_display = ['name', 'backend', 'status',
+                    'last_ip', 'created', 'modified']
+    search_fields = ['id', 'name', 'config__key']
+    list_filter = ['config__backend',
+                   'config__templates',
+                   'config__status',
+                   'created']
+    list_select_related = ('config',)
+    readonly_fields = ['id_hex']
+    fields = ['name',
+              'mac_address',
+              'id_hex',
+              'key',
+              'model',
+              'os',
               'created',
               'modified']
 
@@ -242,6 +280,14 @@ class AbstractConfigAdmin(BaseConfigAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         return self._get_fields(self.readonly_fields, request, obj)
+
+    def _get_preview_instance(self, request):
+        c = super(AbstractDeviceAdmin, self)._get_preview_instance(request)
+        c.device = self.model(id=request.POST.get('id'),
+                              name=request.POST.get('name'),
+                              mac_address=request.POST.get('mac_address'),
+                              key=request.POST.get('key'))
+        return c
 
 
 class AbstractTemplateAdmin(BaseConfigAdmin):

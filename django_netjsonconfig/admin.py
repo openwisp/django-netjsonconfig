@@ -1,18 +1,14 @@
 from django.contrib import admin
 
-from .base.admin import (AbstractConfigAdmin, AbstractConfigForm,
-                         AbstractTemplateAdmin, AbstractVpnAdmin,
-                         AbstractVpnForm, BaseForm)
-from .models import Config, Template, Vpn
+from .base.admin import (AbstractConfigForm, AbstractConfigInline,
+                         AbstractDeviceAdmin, AbstractTemplateAdmin,
+                         AbstractVpnAdmin, AbstractVpnForm, BaseForm)
+from .models import Config, Device, Template, Vpn
 
 
 class ConfigForm(AbstractConfigForm):
     class Meta(AbstractConfigForm.Meta):
         model = Config
-
-
-class ConfigAdmin(AbstractConfigAdmin):
-    form = ConfigForm
 
 
 class TemplateForm(BaseForm):
@@ -33,6 +29,16 @@ class VpnAdmin(AbstractVpnAdmin):
     form = VpnForm
 
 
-admin.site.register(Config, ConfigAdmin)
+class ConfigInline(AbstractConfigInline):
+    model = Config
+    form = ConfigForm
+    extra = 0
+
+
+class DeviceAdmin(AbstractDeviceAdmin):
+    inlines = [ConfigInline]
+
+
+admin.site.register(Device, DeviceAdmin)
 admin.site.register(Template, TemplateAdmin)
 admin.site.register(Vpn, VpnAdmin)

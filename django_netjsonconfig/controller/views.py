@@ -1,22 +1,22 @@
-from ..models import Config
+from ..models import Device
 from .generics import (BaseChecksumView, BaseDownloadConfigView,
                        BaseRegisterView, BaseReportStatusView)
 
 
 class ChecksumView(BaseChecksumView):
-    model = Config
+    model = Device
 
 
 class DownloadConfigView(BaseDownloadConfigView):
-    model = Config
+    model = Device
 
 
 class ReportStatusView(BaseReportStatusView):
-    model = Config
+    model = Device
 
 
 class RegisterView(BaseRegisterView):
-    model = Config
+    model = Device
 
 
 checksum = ChecksumView.as_view()

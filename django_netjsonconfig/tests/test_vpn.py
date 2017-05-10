@@ -4,7 +4,7 @@ from django.test import TestCase
 from django_x509.models import Ca, Cert
 
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
-from ..models import Config, Template, Vpn, VpnClient
+from ..models import Config, Device, Template, Vpn, VpnClient
 from ..vpn_backends import OpenVpn
 
 
@@ -16,6 +16,7 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
     maxDiff = None
     ca_model = Ca
     config_model = Config
+    device_model = Device
     template_model = Template
     vpn_model = Vpn
 
@@ -77,7 +78,7 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
     def test_vpn_client_unique_together(self):
         vpn = self._create_vpn()
         t = self._create_template(name='vpn-test', type='vpn', vpn=vpn)
-        c = self._create_config(name='test-create-cert')
+        c = self._create_config()
         c.templates.add(t)
         # one VpnClient instance has been automatically created
         # now try to create a duplicate
@@ -96,7 +97,7 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
                                   type='vpn',
                                   vpn=vpn,
                                   auto_cert=True)
-        c = self._create_config(name='test-create-cert')
+        c = self._create_config()
         c.templates.add(t)
         vpnclient = c.vpnclient_set.first()
         cert_pk = vpnclient.cert.pk

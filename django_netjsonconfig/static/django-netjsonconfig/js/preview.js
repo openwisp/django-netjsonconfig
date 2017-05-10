@@ -6,13 +6,21 @@ django.jQuery(function($) {
     var openPreview = function() {
         var selectors = 'input[type=text], input[type=hidden], select, textarea',
             fields = $(selectors, '#content-main form').not('#id_config_jsoneditor *'),
-            $id = $('#id_id')
+            $id = $('#id_id'),
             data = {};
         // gather data to send in POST
         fields.each(function(i, field){
             var $field = $(field),
                 name = $field.attr('name');
-            if(!name || name.substr(0, 8) == 'initial-'){ return }
+            // skip management fields
+            if(!name ||
+               name.indexOf('initial-') === 0 ||
+               name.indexOf('config-__') === 0 ||
+               name.indexOf('_FORMS') != -1){ return }
+            // rename fields of OneToOne relation
+            if(name.indexOf('config-0-') === 0){
+                name = name.replace('config-0-', '');
+            }
             data[name] = $field.val();
         });
         // add id to POST data
@@ -29,9 +37,16 @@ django.jQuery(function($) {
                 closePreview();
             })
         })
-        .error(function(){
+        .error(function(xhr){
+            // if validation error, show it on page
+            if (xhr.status == 400) {
+                $('#content-main form').trigger('submit');
+            }
+            // 500 internal server error
             // rare case, leaving it untranslated for simplicity
-            alert('Error while generating preview');
+            else{
+                alert('Error while generating preview:\n\n' + xhr.responseText);
+            }
         })
     };
     var closePreview = function () {

@@ -1,8 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-
 from taggit.managers import TaggableManager
 
 from ..settings import DEFAULT_AUTO_CERT
@@ -22,7 +20,6 @@ def default_auto_cert():
     return DEFAULT_AUTO_CERT
 
 
-@python_2_unicode_compatible
 class AbstractTemplate(BaseConfig):
     """
     Abstract model implementing a
@@ -61,9 +58,6 @@ class AbstractTemplate(BaseConfig):
         abstract = True
         verbose_name = _('template')
         verbose_name_plural = _('templates')
-
-    def __str__(self):
-        return self.name
 
     def save(self, *args, **kwargs):
         """

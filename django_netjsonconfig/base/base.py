@@ -19,12 +19,26 @@ from .. import settings as app_settings
 
 
 @python_2_unicode_compatible
-class BaseConfig(models.Model):
+class BaseModel(models.Model):
     """
-    Base configuration management model logic shared between models
+    Shared logic
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=64, unique=True)
+    created = AutoCreatedField(_('created'), editable=True)
+    modified = AutoLastModifiedField(_('modified'), editable=True)
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.name
+
+
+class BaseConfig(BaseModel):
+    """
+    Base configuration management model logic shared between models
+    """
     backend = models.CharField(_('backend'),
                                choices=app_settings.BACKENDS,
                                max_length=128,
@@ -35,17 +49,12 @@ class BaseConfig(models.Model):
                        help_text=_('configuration in NetJSON DeviceConfiguration format'),
                        load_kwargs={'object_pairs_hook': collections.OrderedDict},
                        dump_kwargs={'indent': 4})
-    created = AutoCreatedField(_('created'), editable=True)
-    modified = AutoLastModifiedField(_('modified'), editable=True)
 
     __template__ = False
     __vpn__ = False
 
     class Meta:
         abstract = True
-
-    def __str__(self):
-        return self.name
 
     def clean(self):
         """

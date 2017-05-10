@@ -2,7 +2,6 @@ import uuid
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-
 from taggit.models import GenericUUIDTaggedItemBase, TagBase, TaggedItemBase
 
 

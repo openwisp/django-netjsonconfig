@@ -182,8 +182,9 @@ class AbstractVpnClient(models.Model):
         automatically creates an x509 certificate when ``auto_cert`` is True
         """
         if self.auto_cert:
-            cn = app_settings.COMMON_NAME_FORMAT.format(**self.config.__dict__)
-            self._auto_create_cert(name=self.config.name,
+            device = self.config.device
+            cn = app_settings.COMMON_NAME_FORMAT.format(**device.__dict__)
+            self._auto_create_cert(name=device.name,
                                    common_name=cn)
         super(AbstractVpnClient, self).save(*args, **kwargs)
 

@@ -6,8 +6,6 @@ from model_utils.fields import StatusField
 from sortedm2m.fields import SortedManyToManyField
 
 from .. import settings as app_settings
-from ..utils import get_random_key
-from ..validators import key_validator, mac_address_validator
 from .base import BaseConfig
 
 
@@ -16,41 +14,28 @@ class AbstractConfig(BaseConfig):
     Abstract model implementing the
     NetJSON DeviceConfiguration object
     """
+    device = models.OneToOneField('django_netjsonconfig.Device')
     STATUS = Choices('modified', 'running', 'error')
     status = StatusField(help_text=_(
         'modified means the configuration is not applied yet; '
         'running means applied and running; '
         'error means the configuration caused issues and it was rolledback'
     ))
-    key = models.CharField(max_length=64,
-                           unique=True,
-                           db_index=True,
-                           default=get_random_key,
-                           validators=[key_validator],
-                           help_text=_('unique key that can be used to '
-                                       'download the configuration'))
-    mac_address = models.CharField(max_length=17,
-                                   unique=True,
-                                   validators=[mac_address_validator],
-                                   help_text=_('primary mac address'))
     last_ip = models.GenericIPAddressField(blank=True,
                                            null=True,
                                            help_text=_('indicates the last ip from which the '
                                                        'configuration was downloaded from '
                                                        '(except downloads from this page)'))
-    model = models.CharField(max_length=64,
-                             blank=True,
-                             help_text=_('device model and manufacturer'))
-    os = models.CharField(_('operating system'),
-                          blank=True,
-                          max_length=128,
-                          help_text=_('operating system identifier'))
-    notes = models.TextField(blank=True)
 
     class Meta:
         abstract = True
         verbose_name = _('configuration')
         verbose_name_plural = _('configurations')
+
+    def __str__(self):
+        if hasattr(self, 'device'):
+            return self.name
+        return str(self.pk)
 
     def clean(self):
         """
@@ -61,7 +46,7 @@ class AbstractConfig(BaseConfig):
         if self._state.adding:
             return
         current = self.__class__.objects.get(pk=self.pk)
-        for attr in ['name', 'backend', 'config']:
+        for attr in ['backend', 'config']:
             if getattr(self, attr) != getattr(current, attr):
                 self.status = 'modified'
                 break
@@ -70,14 +55,42 @@ class AbstractConfig(BaseConfig):
         """
         additional context passed to netjsonconfig
         """
-        c = {
-            'id': str(self.id),
-            'key': self.key,
-            'name': self.name,
-            'mac_address': self.mac_address
-        }
+        c = {}
+        if hasattr(self, 'device'):
+            c.update({
+                'id': str(self.device.id),
+                'key': self.key,
+                'name': self.name,
+                'mac_address': self.mac_address
+            })
         c.update(app_settings.CONTEXT)
         return c
+
+    @property
+    def name(self):
+        """
+        returns device name
+        (kept for backward compatibility with pre 0.6 versions)
+        """
+        if hasattr(self, 'device'):
+            return self.device.name
+        return str(self.pk)
+
+    @property
+    def mac_address(self):
+        """
+        returns device mac address
+        (kept for backward compatibility with pre 0.6 versions)
+        """
+        return self.device.mac_address
+
+    @property
+    def key(self):
+        """
+        returns device key
+        (kept for backward compatibility with pre 0.6 versions)
+        """
+        return self.device.key
 
 
 AbstractConfig._meta.get_field('config').blank = True

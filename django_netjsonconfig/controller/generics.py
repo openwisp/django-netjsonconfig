@@ -17,6 +17,7 @@ class BaseConfigView(SingleObjectMixin, View):
     Subclassed by all views dealing with existing objects
     """
     def get_object(self, *args, **kwargs):
+        kwargs['config__isnull'] = False
         return get_object_or_404(self.model, *args, **kwargs)
 
 
@@ -39,12 +40,12 @@ class BaseChecksumView(UpdateLastIpMixin, BaseConfigView):
     returns configuration checksum
     """
     def get(self, request, *args, **kwargs):
-        config = self.get_object(*args, **kwargs)
-        bad_request = forbid_unallowed(request, 'GET', 'key', config.key)
+        device = self.get_object(*args, **kwargs)
+        bad_request = forbid_unallowed(request, 'GET', 'key', device.key)
         if bad_request:
             return bad_request
-        self.update_last_ip(config, request)
-        return ControllerResponse(config.checksum, content_type='text/plain')
+        self.update_last_ip(device.config, request)
+        return ControllerResponse(device.config.checksum, content_type='text/plain')
 
 
 class BaseDownloadConfigView(BaseConfigView):
@@ -52,9 +53,9 @@ class BaseDownloadConfigView(BaseConfigView):
     returns configuration archive as attachment
     """
     def get(self, request, *args, **kwargs):
-        config = self.get_object(*args, **kwargs)
-        return (forbid_unallowed(request, 'GET', 'key', config.key) or
-                send_config(config, request))
+        device = self.get_object(*args, **kwargs)
+        return (forbid_unallowed(request, 'GET', 'key', device.key) or
+                send_config(device.config, request))
 
 
 class BaseReportStatusView(CsrfExtemptMixin, BaseConfigView):
@@ -62,10 +63,11 @@ class BaseReportStatusView(CsrfExtemptMixin, BaseConfigView):
     updates status of config objects
     """
     def post(self, request, *args, **kwargs):
-        config = self.get_object(*args, **kwargs)
+        device = self.get_object(*args, **kwargs)
+        config = device.config
         # ensure request is well formed and authorized
-        allowed_status = [choices[0] for choices in self.model.STATUS]
-        required_params = [('key', config.key),
+        allowed_status = [choices[0] for choices in config.STATUS]
+        required_params = [('key', device.key),
                            ('status', allowed_status)]
         for key, value in required_params:
             bad_response = forbid_unallowed(request, 'POST', key, value)
@@ -86,11 +88,13 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
         """
         initializes Config object with incoming POST data
         """
+        device_model = self.model
+        config_model = device_model.get_config_model()
         options = {}
         for attr in kwargs.keys():
             # skip attributes that are not model fields
             try:
-                self.model._meta.get_field(attr)
+                device_model._meta.get_field(attr)
             except FieldDoesNotExist:
                 continue
             options[attr] = kwargs.get(attr)
@@ -100,7 +104,9 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
         if 'key' in options and (settings.CONSISTENT_REGISTRATION is False
                                  or options['key'] is None):
             del options['key']
-        return self.model(**options)
+        return config_model(device=device_model(**options),
+                            backend=kwargs['backend'],
+                            last_ip=kwargs['last_ip'])
 
     def get_template_queryset(self, config):
         """
@@ -167,38 +173,45 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
         last_ip = request.META.get('REMOTE_ADDR')
         if settings.CONSISTENT_REGISTRATION:
             key = request.POST.get('key')
-        # try retrieving existing Config first
+        # try retrieving existing Device first
         # (key is not None only if CONSISTENT_REGISTRATION is enabled)
         try:
-            config = self.model.objects.get(key=key)
-        # otherwise create new Config
+            device = self.model.objects.get(key=key)
+            config = device.config
+        # otherwise create new Device and Config
         except self.model.DoesNotExist:
             new = True
             config = self.init_object(last_ip=last_ip, **request.POST.dict())
+            device = config.device
             try:
+                device.full_clean()
+                device.save()
                 config.full_clean()
+                config.save()
             except ValidationError as e:
                 # dump message_dict as JSON,
                 # this should make it easy to debug
                 return ControllerResponse(json.dumps(e.message_dict, indent=4, sort_keys=True),
                                           content_type='text/plain',
                                           status=400)
-            else:
-                config.save()
         # update last_ip on existing configs
         else:
             new = False
             self.update_last_ip(config, request)
         # add templates specified in tags
         self.add_tagged_templates(config, request)
-        # return id and key in response
+        # prepare response
         s = 'registration-result: success\n' \
             'uuid: {id}\n' \
             'key: {key}\n' \
-            'hostname: {name}\n'
-        s += 'is-new: %s\n' % (int(new))
-        attributes = config.__dict__
-        attributes['id'] = config.pk.hex
+            'hostname: {name}\n' \
+            'is-new: {is_new}\n'
+        attributes = device.__dict__.copy()
+        attributes.update({
+            'id': device.pk.hex,
+            'key': device.key,
+            'is_new': int(new)
+        })
         return ControllerResponse(s.format(**attributes),
                                   content_type='text/plain',
                                   status=201)

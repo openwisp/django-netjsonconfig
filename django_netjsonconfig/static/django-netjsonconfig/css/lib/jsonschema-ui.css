@@ -278,8 +278,24 @@ div[data-schematype="object"] > .inline-related > .grid-container > div >
     margin: 0;
 }
 
-
-#id_config_jsoneditor{
+#id_config_jsoneditor,
+#id_config-0-config_jsoneditor{
     border: 0px !important;
     height: auto !important;
 }
+
+/* support django admin inline */
+
+div.jsoneditor > div > h3.controls{
+    background: transparent !important;
+}
+
+div.jsoneditor .inline-related h3 {
+    color: #666 !important;
+    background-color: #f8f8f8 !important;
+    border-top: 1px solid #eee !important;
+    border-bottom: 1px solid #eee !important;
+    font-size: 13px !important;
+}
+
+#config-0.inline-related{ position: static }

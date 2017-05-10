@@ -6,19 +6,39 @@ change with care.
 from django_x509.tests import TestX509Mixin
 
 
-class CreateConfigMixin(object):
-    TEST_KEY = 'w1gwJxKaHcamUw62TQIPgYchwLKn3AA0'
+class CreateDeviceMixin(object):
     TEST_MAC_ADDRESS = '00:11:22:33:44:55'
 
-    def _create_config(self, **kwargs):
-        options = dict(name='test',
+    def _create_device(self, **kwargs):
+        options = dict(name='test-device',
                        mac_address=self.TEST_MAC_ADDRESS,
-                       backend='netjsonconfig.OpenWrt',
-                       config={'general': {}},
-                       key=self.TEST_KEY)
+                       model='TP-Link TL-WDR4300 v1',
+                       os='LEDE Reboot 17.01-SNAPSHOT r3313-c2999ef')
         options.update(kwargs)
-        if 'key' in kwargs and kwargs['key'] is None:
-            del options['key']
+        d = self.device_model(**options)
+        d.full_clean()
+        d.save()
+        return d
+
+    def _create_device_config(self, device_opts=None, config_opts=None):
+        device_opts = device_opts or {}
+        config_opts = config_opts or {}
+        device_opts['name'] = 'test'
+        d = self._create_device(**device_opts)
+        config_opts['device'] = d
+        self._create_config(**config_opts)
+        return d
+
+
+class CreateConfigMixin(CreateDeviceMixin):
+    TEST_KEY = 'w1gwJxKaHcamUw62TQIPgYchwLKn3AA0'
+
+    def _create_config(self, **kwargs):
+        options = dict(backend='netjsonconfig.OpenWrt',
+                       config={'general': {}})
+        options.update(kwargs)
+        if 'device' not in kwargs:
+            options['device'] = self._create_device(name='test-device')
         c = self.config_model(**options)
         c.full_clean()
         c.save()

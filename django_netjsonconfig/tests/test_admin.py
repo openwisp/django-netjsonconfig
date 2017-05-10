@@ -7,7 +7,7 @@ from django.urls import reverse
 from django_x509.models import Ca
 
 from . import CreateConfigMixin, TestVpnX509Mixin
-from ..models import Config, Template, Vpn
+from ..models import Config, Device, Template, Vpn
 
 
 class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
@@ -18,6 +18,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
     maxDiff = None
     ca_model = Ca
     config_model = Config
+    device_model = Device
     vpn_model = Vpn
 
     def setUp(self):
@@ -26,42 +27,75 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
                                       email='admin@admin.com')
         self.client.login(username='admin', password='tester')
 
-    def test_change_config_clean_templates(self):
-        t = Template.objects.first()
-        c = self._create_config(name='test', backend=t.backend, config=t.config)
-        path = reverse('admin:django_netjsonconfig_config_change', args=[c.pk])
-        # ensure it fails with error
-        response = self.client.post(path, {'templates': str(t.pk), 'key': self.TEST_KEY})
-        self.assertIn('errors field-templates', str(response.content))
-        # remove conflicting template and ensure doesn't error
-        response = self.client.post(path, {'templates': '', 'key': self.TEST_KEY})
-        self.assertNotIn('errors field-templates', str(response.content))
-
-    def test_add_config(self):
-        t = Template.objects.first()
-        path = reverse('admin:django_netjsonconfig_config_add')
-        params = {
-            'name': 'add-config-test',
+    def _get_device_params(self):
+        return {
+            'name': '',
             'mac_address': self.TEST_MAC_ADDRESS,
             'key': self.TEST_KEY,
-            'templates': str(t.pk),
-            'backend': 'netjsonconfig.OpenWrt',
-            'config': json.dumps({})
+            'model': '',
+            'os': '',
+            'notes': '',
+            'config-0-id': '',
+            'config-0-device': '',
+            'config-0-templates': '',
+            'config-0-backend': 'netjsonconfig.OpenWrt',
+            'config-0-config': json.dumps({}),
+            'config-TOTAL_FORMS': 1,
+            'config-INITIAL_FORMS': 0,
+            'config-MIN_NUM_FORMS': 0,
+            'config-MAX_NUM_FORMS': 1,
         }
+
+    def test_change_device_clean_templates(self):
+        t = Template.objects.first()
+        d = self._create_device()
+        c = self._create_config(device=d, backend=t.backend, config=t.config)
+        path = reverse('admin:django_netjsonconfig_device_change', args=[d.pk])
+        params = self._get_device_params()
+        params.update({
+            'name': 'test-change-device',
+            'config-0-id': str(c.pk),
+            'config-0-device': str(d.pk),
+            'config-0-templates': str(t.pk),
+            'config-INITIAL_FORMS': 1
+        })
+        # ensure it fails with error
+        response = self.client.post(path, params)
+        self.assertContains(response, 'errors field-templates')
+        # remove conflicting template and ensure doesn't error
+        params['config-0-templates'] = ''
+        response = self.client.post(path, params)
+        self.assertNotContains(response, 'errors field-templates', status_code=302)
+
+    def test_add_device(self):
+        t = Template.objects.first()
+        path = reverse('admin:django_netjsonconfig_device_add')
+        params = self._get_device_params()
+        params.update({
+            'name': 'test-add-config',
+            'config-0-templates': str(t.pk)
+        })
         response = self.client.post(path, params)
         self.assertEqual(response.status_code, 302)
-        d = Config.objects.last()
-        self.assertEqual(d.name, 'add-config-test')
+        self.assertEqual(Device.objects.filter(name=params['name']).count(), 1)
 
-    def test_download_config(self):
-        c = self._create_config(name='download')
-        path = reverse('admin:django_netjsonconfig_config_download', args=[c.pk])
+    def test_download_device_config(self):
+        d = self._create_device(name='download')
+        self._create_config(device=d)
+        path = reverse('admin:django_netjsonconfig_device_download', args=[d.pk])
         response = self.client.get(path)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get('content-type'), 'application/octet-stream')
 
-    def test_preview_config(self):
+    def test_download_device_config_404(self):
+        d = self._create_device(name='download')
+        path = reverse('admin:django_netjsonconfig_device_download', args=[d.pk])
+        response = self.client.get(path)
+        self.assertEqual(response.status_code, 404)
+
+    def test_preview_device_config(self):
         templates = Template.objects.all()
-        path = reverse('admin:django_netjsonconfig_config_preview')
+        path = reverse('admin:django_netjsonconfig_device_preview')
         config = json.dumps({
             'interfaces': [
                 {
@@ -79,7 +113,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
             ]
         })
         data = {
-            'name': 'test-config',
+            'name': 'test-device',
             'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': config,
@@ -93,10 +127,10 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         self.assertContains(response, 'dhcp')
         self.assertContains(response, 'radio0')
 
-    def test_preview_config_attributeerror(self):
-        path = reverse('admin:django_netjsonconfig_config_preview')
+    def test_preview_device_attributeerror(self):
+        path = reverse('admin:django_netjsonconfig_device_preview')
         data = {
-            'name': 'test-config',
+            'name': 'test-device',
             'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': '{}',
@@ -105,10 +139,10 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         response = self.client.post(path, data)
         self.assertContains(response, '<pre class="djnjc-preformatted')
 
-    def test_preview_config_valueerror(self):
-        path = reverse('admin:django_netjsonconfig_config_preview')
+    def test_preview_device_valueerror(self):
+        path = reverse('admin:django_netjsonconfig_device_preview')
         data = {
-            'name': 'test-config',
+            'name': 'test-device',
             'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': '{}',
@@ -118,10 +152,10 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         response = self.client.post(path, data)
         self.assertEqual(response.status_code, 400)
 
-    def test_preview_config_validationerror(self):
-        path = reverse('admin:django_netjsonconfig_config_preview')
+    def test_preview_device_validationerror(self):
+        path = reverse('admin:django_netjsonconfig_device_preview')
         data = {
-            'name': 'test-config',
+            'name': 'test-device',
             'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': '{"interfaces": {"wrong":"wrong"}}',
@@ -130,10 +164,10 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         response = self.client.post(path, data)
         self.assertEqual(response.status_code, 400)
 
-    def test_preview_config_jsonerror(self):
-        path = reverse('admin:django_netjsonconfig_config_preview')
+    def test_preview_device_jsonerror(self):
+        path = reverse('admin:django_netjsonconfig_device_preview')
         data = {
-            'name': 'test-config',
+            'name': 'test-device',
             'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': 'WRONG',
@@ -142,7 +176,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         response = self.client.post(path, data)
         self.assertEqual(response.status_code, 400)
 
-    def test_preview_config_showerror(self):
+    def test_preview_device_showerror(self):
         t1 = Template.objects.first()
         t2 = Template(name='t',
                       config=t1.config,
@@ -150,9 +184,9 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         t2.full_clean()
         t2.save()
         templates = [t1, t2]
-        path = reverse('admin:django_netjsonconfig_config_preview')
+        path = reverse('admin:django_netjsonconfig_device_preview')
         data = {
-            'name': 'test-config',
+            'name': 'test-device',
             'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': '{}',
@@ -162,8 +196,8 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         response = self.client.post(path, data)
         self.assertContains(response, '<pre class="djnjc-preformatted error')
 
-    def test_preview_config_405(self):
-        path = reverse('admin:django_netjsonconfig_config_preview')
+    def test_preview_device_405(self):
+        path = reverse('admin:django_netjsonconfig_device_preview')
         response = self.client.get(path, {})
         self.assertEqual(response.status_code, 405)
 
@@ -187,37 +221,32 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         self.assertNotContains(response, 'system')
         self.assertNotContains(response, 'hostname')
 
-    def test_uuid_field_not_in_add(self):
-        path = reverse('admin:django_netjsonconfig_config_add')
-        response = self.client.get(path)
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'field-id')
-
     def test_uuid_field_in_change(self):
         t = Template.objects.first()
-        c = self._create_config(name='test',
+        c = self._create_config(device=self._create_device(),
                                 backend=t.backend,
                                 config=t.config)
-        path = reverse('admin:django_netjsonconfig_config_change', args=[c.pk])
+        path = reverse('admin:django_netjsonconfig_device_change', args=[c.device.pk])
         response = self.client.get(path)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'field-id')
 
     def test_empty_backend_import_error(self):
         t = Template.objects.first()
-        path = reverse('admin:django_netjsonconfig_config_add')
-        params = {
+        path = reverse('admin:django_netjsonconfig_device_add')
+        params = self._get_device_params()
+        params.update({
             'name': 'empty-backend',
             'key': self.TEST_KEY,
-            'templates': str(t.pk),
-            'backend': '',
-            'config': json.dumps({'general': {'hostname': 'config'}})
-        }
+            'config-0-templates': str(t.pk),
+            'config-0-backend': '',
+            'config-0-config': json.dumps({'general': {'hostname': 'config'}})
+        })
         response = self.client.post(path, params)
-        self.assertIn('errors field-backend', str(response.content))
+        self.assertContains(response, 'errors field-backend')
 
-    def test_default_config_backend(self):
-        path = reverse('admin:django_netjsonconfig_config_add')
+    def test_default_device_backend(self):
+        path = reverse('admin:django_netjsonconfig_device_add')
         response = self.client.get(path)
         self.assertContains(response, '<option value="netjsonconfig.OpenWrt" selected')
 
@@ -227,27 +256,28 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         self.assertContains(response, '<option value="netjsonconfig.OpenWrt" selected')
 
     def test_preview_variables(self):
-        path = reverse('admin:django_netjsonconfig_config_preview')
-        c = self._create_config(name='variables',
+        path = reverse('admin:django_netjsonconfig_device_preview')
+        c = self._create_config(device=self._create_device(name='variables'),
                                 config={'general': {'cid': '{{ id }}',
                                                     'ckey': '{{ key }}',
                                                     'cname': '{{ name }}'}})
         templates = Template.objects.all()
         c.templates.add(*templates)
+        d = c.device
         data = {
-            'name': c.name,
-            'id': c.id,
-            'mac_address': self.TEST_MAC_ADDRESS,
-            'key': c.key,
+            'name': d.name,
+            'id': d.id,
+            'mac_address': d.mac_address,
+            'key': d.key,
             'backend': c.backend,
             'config': json.dumps(c.config),
             'csrfmiddlewaretoken': 'test',
             'templates': ','.join([str(t.pk) for t in templates])
         }
         response = self.client.post(path, data)
-        self.assertContains(response, "cid &#39;{0}&#39;".format(str(c.id)))
-        self.assertContains(response, "ckey &#39;{0}&#39;".format(c.key))
-        self.assertContains(response, "cname &#39;{0}&#39;".format(c.name))
+        self.assertContains(response, "cid &#39;{0}&#39;".format(str(d.id)))
+        self.assertContains(response, "ckey &#39;{0}&#39;".format(d.key))
+        self.assertContains(response, "cname &#39;{0}&#39;".format(d.name))
 
     def test_download_vpn_config(self):
         v = self._create_vpn()
