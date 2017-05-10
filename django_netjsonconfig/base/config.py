@@ -76,9 +76,9 @@ class AbstractConfig(BaseConfig):
         if self._has_device():
             c.update({
                 'id': str(self.device.id),
-                'key': self.device.key,
-                'name': self.device.name,
-                'mac_address': self.device.mac_address
+                'key': self.key,
+                'name': self.name,
+                'mac_address': self.mac_address
             })
         c.update(app_settings.CONTEXT)
         return c
