@@ -33,7 +33,7 @@ class AbstractConfig(BaseConfig):
         verbose_name_plural = _('configurations')
 
     def __str__(self):
-        if hasattr(self, 'device'):
+        if self._has_device():
             return self.name
         return str(self.pk)
 
@@ -65,12 +65,15 @@ class AbstractConfig(BaseConfig):
     def set_status_error(self, save=True):
         self._set_status('error', save)
 
+    def _has_device(self):
+        return hasattr(self, 'device')
+
     def get_context(self):
         """
         additional context passed to netjsonconfig
         """
         c = {}
-        if hasattr(self, 'device'):
+        if self._has_device():
             c.update({
                 'id': str(self.device.id),
                 'key': self.device.key,
@@ -86,7 +89,7 @@ class AbstractConfig(BaseConfig):
         returns device name
         (kept for backward compatibility with pre 0.6 versions)
         """
-        if hasattr(self, 'device'):
+        if self._has_device():
             return self.device.name
         return str(self.pk)
 
