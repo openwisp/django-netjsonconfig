@@ -44,8 +44,7 @@ class AbstractDevice(BaseModel):
             return
         current = self.__class__.objects.get(pk=self.pk)
         if self.name != current.name and self._has_config():
-            self.config.status = 'modified'
-            self.config.save()
+            self.config.set_status_modified()
 
     def _has_config(self):
         return hasattr(self, 'config')

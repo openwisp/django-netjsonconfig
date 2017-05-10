@@ -48,8 +48,22 @@ class AbstractConfig(BaseConfig):
         current = self.__class__.objects.get(pk=self.pk)
         for attr in ['backend', 'config']:
             if getattr(self, attr) != getattr(current, attr):
-                self.status = 'modified'
+                self.set_status_modified(save=False)
                 break
+
+    def _set_status(self, status, save=True):
+        self.status = status
+        if save:
+            self.save()
+
+    def set_status_modified(self, save=True):
+        self._set_status('modified', save)
+
+    def set_status_running(self, save=True):
+        self._set_status('running', save)
+
+    def set_status_error(self, save=True):
+        self._set_status('error', save)
 
     def get_context(self):
         """
@@ -59,9 +73,9 @@ class AbstractConfig(BaseConfig):
         if hasattr(self, 'device'):
             c.update({
                 'id': str(self.device.id),
-                'key': self.key,
-                'name': self.name,
-                'mac_address': self.mac_address
+                'key': self.device.key,
+                'name': self.device.name,
+                'mac_address': self.device.mac_address
             })
         c.update(app_settings.CONTEXT)
         return c
@@ -177,8 +191,7 @@ class TemplatesVpnMixin(models.Model):
         if action not in ['post_add', 'post_remove', 'post_clear']:
             return
         if instance.status != 'modified':
-            instance.status = 'modified'
-            instance.save()
+            instance.set_status_modified()
 
     @classmethod
     def manage_vpn_clients(cls, action, instance, pk_set, **kwargs):

@@ -73,8 +73,9 @@ class BaseReportStatusView(CsrfExtemptMixin, BaseConfigView):
             bad_response = forbid_unallowed(request, 'POST', key, value)
             if bad_response:
                 return bad_response
-        config.status = request.POST.get('status')
-        config.save()
+        # call set_status_{status} method on Config model
+        method_name = 'set_status_{status}'.format(**request.POST.dict())
+        getattr(config, method_name)()
         return ControllerResponse('report-result: success\n'
                                   'current-status: {}\n'.format(config.status),
                                   content_type='text/plain')
