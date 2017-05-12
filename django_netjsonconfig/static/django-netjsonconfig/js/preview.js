@@ -45,7 +45,9 @@ django.jQuery(function($) {
             // 500 internal server error
             // rare case, leaving it untranslated for simplicity
             else{
-                alert('Error while generating preview:\n\n' + xhr.responseText);
+                var message = 'Error while generating preview';
+                if (gettext) { message = gettext(message); }
+                alert(message + ':\n\n' + xhr.responseText);
             }
         })
     };
