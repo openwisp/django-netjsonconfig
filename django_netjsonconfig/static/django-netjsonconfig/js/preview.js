@@ -57,8 +57,19 @@ django.jQuery(function($) {
         body.attr('style', '');
     }
     $('.previewlink').click(function(e){
+        var configUi = $('#id_config_jsoneditor, #id_config-0-config_jsoneditor'),
+            message;
         e.preventDefault();
-        openPreview();
+        // show preview only if there's a configuration
+        // (device items may not have one)
+        if(configUi.length){
+            openPreview();
+        }
+        else{
+            message = 'No configuration available';
+            if (gettext) { message = gettext(message) }
+            alert(message);
+        }
     });
     $(document).keyup(function(e) {
         // ALT+P
