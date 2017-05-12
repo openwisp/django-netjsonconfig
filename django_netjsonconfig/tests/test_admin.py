@@ -127,6 +127,21 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         self.assertContains(response, 'dhcp')
         self.assertContains(response, 'radio0')
 
+    def test_preview_device_config_empty_id(self):
+        path = reverse('admin:django_netjsonconfig_device_preview')
+        config = json.dumps({'general': {'descripion': 'id: {{ id }}'}})
+        data = {
+            'id': '',
+            'name': 'test-empty-id',
+            'mac_address': self.TEST_MAC_ADDRESS,
+            'backend': 'netjsonconfig.OpenWrt',
+            'config': config,
+            'csrfmiddlewaretoken': 'test',
+        }
+        response = self.client.post(path, data)
+        # expect 200
+        self.assertContains(response, 'id:')
+
     def test_preview_device_attributeerror(self):
         path = reverse('admin:django_netjsonconfig_device_preview')
         data = {
@@ -146,8 +161,8 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
             'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': '{}',
+            'templates': 'wrong,totally',
             'csrfmiddlewaretoken': 'test',
-            'templates': 'wrong,totally'
         }
         response = self.client.post(path, data)
         self.assertEqual(response.status_code, 400)
@@ -177,7 +192,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_preview_device_showerror(self):
-        t1 = Template.objects.first()
+        t1 = Template.objects.get(name='dhcp')
         t2 = Template(name='t',
                       config=t1.config,
                       backend='netjsonconfig.OpenWrt')
@@ -190,10 +205,11 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
             'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': '{}',
+            'templates': ','.join([str(t.pk) for t in templates]),
             'csrfmiddlewaretoken': 'test',
-            'templates': ','.join([str(t.pk) for t in templates])
         }
         response = self.client.post(path, data)
+        # expect duplicate error
         self.assertContains(response, '<pre class="djnjc-preformatted error')
 
     def test_preview_device_405(self):
@@ -208,7 +224,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         self.assertEqual(response.get('content-type'), 'application/octet-stream')
 
     def test_preview_template(self):
-        template = Template.objects.first()
+        template = Template.objects.get(name='radio0')
         path = reverse('admin:django_netjsonconfig_template_preview')
         data = {
             'name': template.name,
@@ -218,6 +234,8 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         }
         response = self.client.post(path, data)
         self.assertContains(response, '<pre class="djnjc-preformatted')
+        self.assertContains(response, 'radio0')
+        self.assertContains(response, 'phy')
         self.assertNotContains(response, 'system')
         self.assertNotContains(response, 'hostname')
 

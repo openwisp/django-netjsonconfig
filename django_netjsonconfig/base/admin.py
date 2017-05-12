@@ -109,6 +109,9 @@ class BaseConfigAdmin(BaseAdmin):
             # skip m2m
             if field.many_to_many:
                 continue
+            # skip if falsy value and PK or relations
+            elif not value and any([field.primary_key, field.is_relation]):
+                continue
             # adapt attribute names to the fact that we only
             # have pk of relations, therefore use {relation}_id
             elif field.is_relation:
