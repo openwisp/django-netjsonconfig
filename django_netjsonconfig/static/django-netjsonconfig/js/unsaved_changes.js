@@ -6,7 +6,12 @@
                     name = field.attr('name'),
                     value = field.val();
                 // ignore fields that have no name attribute, begin with "_" or "initial-"
-                if (!name || name.substr(0, 1) == '_' || name.substr(0, 8) == 'initial-') {
+                if (!name || name.substr(0, 1) == '_' || name.substr(0, 8) == 'initial-' ||
+                // ignore hidden fields
+                name == 'csrfmiddlewaretoken' ||
+                // ignore hidden inline helper fields
+                name.indexOf('__prefix__') >= 0 ||
+                name.indexOf('root') === 0) {
                     return;
                 }
                 // fix checkbox values inconsistency
@@ -15,6 +20,14 @@
                 }
                 else {
                     object[name] = value;
+                }
+                // convert JSON string to Javascript object in order
+                // to perform object comparison with `objectIsEqual`
+                if (name == 'config' || name == 'config-0-config') {
+                    try{
+                        object[name] = JSON.parse(value);
+                    }
+                    catch(e){}
                 }
             });
         };
@@ -34,7 +47,7 @@
             // fix checkbox value inconsistency
             if (initialValue == 'True') { initialValue = true }
             else if (initialValue == 'False') { initialValue = false }
-            if (initialValue != current_values[name]) {
+            if (!objectIsEqual(initialValue, current_values[name])) {
                 changed = true;
                 break;
             }
@@ -44,6 +57,28 @@
             return message;
         }
     };
+
+    // compares equality of two objects
+    var objectIsEqual = function(obj1, obj2) {
+        if (typeof(obj1) != 'object' && typeof(obj2) != 'object') {
+            return obj1 == obj2;
+        }
+        if (typeof(obj1) != typeof(obj2)) {
+            return false
+        }
+        for(p in obj1) {
+            switch(typeof(obj1[p])) {
+                case 'object':
+                    if (!objectIsEqual(obj1[p], obj2[p])) { return false }; break;
+                default:
+                    if (obj1[p] != obj2[p]) { return false }
+            }
+        }
+        for(p in obj2) {
+            if(typeof(obj1[p]) == 'undefined') { return false }
+        }
+        return true;
+    }
 
     $(window).load(function(){
         if (!$('.submit-row').length) { return }
