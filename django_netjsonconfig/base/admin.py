@@ -246,7 +246,7 @@ class AbstractConfigInline(TimeReadonlyMixin, admin.StackedInline):
 class AbstractDeviceAdmin(BaseConfigAdmin):
     list_display = ['name', 'backend', 'status',
                     'last_ip', 'created', 'modified']
-    search_fields = ['id', 'name', 'config__key']
+    search_fields = ['id', 'name', 'key']
     list_filter = ['config__backend',
                    'config__templates',
                    'config__status',

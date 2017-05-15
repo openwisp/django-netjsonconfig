@@ -268,6 +268,14 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         response = self.client.get(path)
         self.assertContains(response, '<option value="netjsonconfig.OpenWrt" selected')
 
+    def test_device_search(self):
+        d = self._create_device(name='admin-search-test')
+        path = reverse('admin:django_netjsonconfig_device_changelist')
+        response = self.client.get(path, {'q': str(d.pk.hex)})
+        self.assertContains(response, 'admin-search-test')
+        response = self.client.get(path, {'q': 'ZERO-RESULTS-PLEASE'})
+        self.assertNotContains(response, 'admin-search-test')
+
     def test_default_template_backend(self):
         path = reverse('admin:django_netjsonconfig_template_add')
         response = self.client.get(path)
