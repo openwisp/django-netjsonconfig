@@ -24,9 +24,11 @@ class AbstractDevice(BaseModel):
                            help_text=_('unique device key'))
     model = models.CharField(max_length=64,
                              blank=True,
+                             db_index=True,
                              help_text=_('device model and manufacturer'))
     os = models.CharField(_('operating system'),
                           blank=True,
+                          db_index=True,
                           max_length=128,
                           help_text=_('operating system identifier'))
     notes = models.TextField(blank=True)
