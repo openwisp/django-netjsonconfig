@@ -24,7 +24,7 @@ class BaseModel(models.Model):
     Shared logic
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=64, unique=True)
+    name = models.CharField(max_length=64, unique=True, db_index=True)
     created = AutoCreatedField(_('created'), editable=True)
     modified = AutoLastModifiedField(_('modified'), editable=True)
 

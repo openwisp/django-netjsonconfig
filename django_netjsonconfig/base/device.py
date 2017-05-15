@@ -14,6 +14,7 @@ class AbstractDevice(BaseModel):
     """
     mac_address = models.CharField(max_length=17,
                                    unique=True,
+                                   db_index=True,
                                    validators=[mac_address_validator],
                                    help_text=_('primary mac address'))
     key = models.CharField(max_length=64,
