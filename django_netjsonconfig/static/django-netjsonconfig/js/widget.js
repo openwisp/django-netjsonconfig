@@ -30,10 +30,12 @@
         }
     }
 
-    var initAdvancedEditor = function(target, data, schema){
+    var initAdvancedEditor = function(target, data, schema, disableSchema){
         var advanced = $("<div id='advanced_editor'></div>");
         $(advanced).insertBefore($(target));
         $(target).hide();
+        // if disableSchema is true, do not validate againsts schema, default is false
+        schema = disableSchema ? {} : schema;
         var options = {
             mode:'code',
             theme: 'ace/theme/tomorrow_night_bright',
