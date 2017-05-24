@@ -37,13 +37,14 @@
         current_values = {}
         map_values(current_values);
         var changed = false,
-            message = 'You haven\'t saved your changes yet!';
+            message = 'You haven\'t saved your changes yet!',
+            initialField, initialValue, currentValue;
         if (gettext) { message = gettext(message); }  // i18n if enabled
         // compare initial with current values
         for (name in django._njc_initial_values) {
             // use initial values from initial fields if present
-            var initialField = $('#initial-id_' + name),
-                initialValue = initialField.length ? initialField.val() : django._njc_initial_values[name];
+            initialField = $('#initial-id_' + name);
+            initialValue = initialField.length ? initialField.val() : django._njc_initial_values[name];
             // fix checkbox value inconsistency
             if (initialValue == 'True') { initialValue = true }
             else if (initialValue == 'False') { initialValue = false }
