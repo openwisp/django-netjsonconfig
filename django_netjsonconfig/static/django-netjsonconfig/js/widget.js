@@ -127,8 +127,8 @@
                 schema: backend ? schemas[backend] : {}
             }
             editor = new JSONEditor(document.getElementById(id), options);
-            // initialise advanced json editor here
-            advancedEditor = initAdvancedEditor(field, value, options.schema);
+            // initialise advanced json editor here (disable schema validation in VPN admin)
+            advancedEditor = initAdvancedEditor(field, value, options.schema, $('#vpn_form').length === 1);
             $advancedEl = $('#advanced_editor');
             getEditorValue = function(){
                 return JSON.stringify(editor.getValue(), null, 4)
