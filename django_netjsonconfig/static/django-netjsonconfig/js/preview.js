@@ -8,6 +8,9 @@ django.jQuery(function($) {
             fields = $(selectors, '#content-main form').not('#id_config_jsoneditor *'),
             $id = $('#id_id'),
             data = {};
+        // add id to POST data
+        // note: may be overridden by fields of OneToOne relation
+        if ($id.length) { data['id'] = $id.val() }
         // gather data to send in POST
         fields.each(function(i, field){
             var $field = $(field),
@@ -23,8 +26,6 @@ django.jQuery(function($) {
             }
             data[name] = $field.val();
         });
-        // add id to POST data
-        if ($id.length) { data['id'] = $id.val() }
         // show preview
         $.post(preview_url, data, function(html){
             inner.html($('#content-main div', html).html());
