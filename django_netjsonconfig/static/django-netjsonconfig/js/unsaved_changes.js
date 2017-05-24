@@ -48,6 +48,8 @@
             // fix checkbox value inconsistency
             if (initialValue == 'True') { initialValue = true }
             else if (initialValue == 'False') { initialValue = false }
+            if (name == 'config') { initialValue = JSON.parse(initialValue) }
+            // currentValue = current_values[name]
             if (!objectIsEqual(initialValue, current_values[name])) {
                 changed = true;
                 break;
