@@ -1,10 +1,15 @@
 Changelog
 =========
 
-Version 0.6.0 [unreleased]
+Version 0.6.0 [2017-05-24]
 --------------------------
 
-WIP
+- `#48 <https://github.com/openwisp/django-netjsonconfig/issues/48>`_:
+  [feature] Added template tags
+- `#52 <https://github.com/openwisp/django-netjsonconfig/issues/52>`_:
+  [models] Added device model (**backward incompatible change**)
+- `#55 <https://github.com/openwisp/django-netjsonconfig/issues/55>`_:
+  [config-editor] Disabled schema validation for VPN
 
 Version 0.5.8 [2017-04-21]
 --------------------------
