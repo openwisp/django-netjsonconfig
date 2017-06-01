@@ -3,7 +3,11 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-from netjsonconfig.backends.openwrt.schema import DEFAULT_FILE_MODE
+try:
+    from netjsonconfig.backends.openwrt.schema import DEFAULT_FILE_MODE
+# netjsonconfig >= 0.6.0
+except ImportError:
+    from netjsonconfig.schema import DEFAULT_FILE_MODE
 
 
 def forwards(apps, schema_editor):
