@@ -32,6 +32,11 @@ class AbstractDevice(BaseModel):
                           db_index=True,
                           max_length=128,
                           help_text=_('operating system identifier'))
+    system = models.CharField(_('SOC / CPU'),
+                              blank=True,
+                              db_index=True,
+                              max_length=128,
+                              help_text=_('system on chip or CPU info'))
     notes = models.TextField(blank=True)
 
     class Meta:

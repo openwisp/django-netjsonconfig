@@ -123,9 +123,11 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
     def test_register_device_info(self):
         device_model = 'TP-Link TL-WDR4300 v1'
         os = 'LEDE Reboot 17.01-SNAPSHOT r3270-09a8183'
-        d = self.test_register(model=device_model, os=os)
+        system = 'Atheros AR9344 rev 2'
+        d = self.test_register(model=device_model, os=os, system=system)
         self.assertEqual(d.model, device_model)
         self.assertEqual(d.os, os)
+        self.assertEqual(d.system, system)
 
     def test_register_400(self):
         # missing secret
