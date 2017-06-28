@@ -1,7 +1,6 @@
 import collections
 import hashlib
 import json
-import uuid
 from copy import deepcopy
 
 from django.core.exceptions import ValidationError
@@ -11,22 +10,19 @@ from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
-from model_utils.fields import AutoCreatedField, AutoLastModifiedField
 
 from netjsonconfig.exceptions import ValidationError as SchemaError
+from openwisp_utils.base import TimeStampedEditableModel
 
 from .. import settings as app_settings
 
 
 @python_2_unicode_compatible
-class BaseModel(models.Model):
+class BaseModel(TimeStampedEditableModel):
     """
     Shared logic
     """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=64, unique=True, db_index=True)
-    created = AutoCreatedField(_('created'), editable=True)
-    modified = AutoLastModifiedField(_('modified'), editable=True)
 
     class Meta:
         abstract = True

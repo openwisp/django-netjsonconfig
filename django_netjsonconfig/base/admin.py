@@ -12,6 +12,8 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from openwisp_utils.admin import TimeReadonlyAdminMixin
+
 from .. import settings as app_settings
 from ..utils import send_file
 from ..widgets import JsonSchemaWidget
@@ -25,17 +27,7 @@ else:  # pragma: nocover
     from django.contrib.admin import ModelAdmin
 
 
-class TimeReadonlyMixin(object):
-    """
-    mixin that automatically flags
-    `created` and `modified` as readonly
-    """
-    def __init__(self, *args, **kwargs):
-        self.readonly_fields += ('created', 'modified',)
-        super(TimeReadonlyMixin, self).__init__(*args, **kwargs)
-
-
-class BaseAdmin(TimeReadonlyMixin, ModelAdmin):
+class BaseAdmin(TimeReadonlyAdminMixin, ModelAdmin):
     pass
 
 
@@ -231,7 +223,7 @@ class AbstractConfigForm(BaseForm):
         return templates
 
 
-class AbstractConfigInline(TimeReadonlyMixin, admin.StackedInline):
+class AbstractConfigInline(TimeReadonlyAdminMixin, admin.StackedInline):
     verbose_name_plural = _('Device configuration details')
     readonly_fields = ['status', 'last_ip']
     fields = ['backend',
