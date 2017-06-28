@@ -1,6 +1,5 @@
 from ..models import Device
-from .generics import (BaseChecksumView, BaseDownloadConfigView,
-                       BaseRegisterView, BaseReportStatusView)
+from .generics import BaseChecksumView, BaseDownloadConfigView, BaseRegisterView, BaseReportStatusView
 
 
 class ChecksumView(BaseChecksumView):

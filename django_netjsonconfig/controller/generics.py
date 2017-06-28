@@ -7,8 +7,7 @@ from django.views.generic.base import View
 from django.views.generic.detail import SingleObjectMixin
 
 from .. import settings
-from ..utils import (ControllerResponse, forbid_unallowed, get_object_or_404,
-                     send_config, update_last_ip)
+from ..utils import ControllerResponse, forbid_unallowed, get_object_or_404, send_config, update_last_ip
 
 
 class BaseConfigView(SingleObjectMixin, View):

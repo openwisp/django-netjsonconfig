@@ -2,9 +2,8 @@
 import os
 import sys
 
-from setuptools import find_packages, setup
-
 from django_netjsonconfig import get_version
+from setuptools import find_packages, setup
 
 
 def get_install_requires():

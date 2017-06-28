@@ -4,8 +4,8 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
 from django.test import TestCase
-
 from django_x509.models import Ca
+
 from netjsonconfig import OpenWrt
 
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
