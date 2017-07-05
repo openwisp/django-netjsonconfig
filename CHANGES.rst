@@ -1,10 +1,16 @@
 Changelog
 =========
 
-Version 0.6.2 [unreleased]
+Version 0.6.2 [2017-07-05]
 --------------------------
 
-WIP
+- `1bc8304 <https://github.com/openwisp/django-netjsonconfig/commit/1bc8304>`_:
+  [controller] Collect SOC / CPU field during registration
+- `a6847b5 <https://github.com/openwisp/django-netjsonconfig/commit/a6847b5>`_:
+  [admin] Added ``system`` field in ``DeviceAdmin``
+- `0dcc71d <https://github.com/openwisp/django-netjsonconfig/commit/0dcc71d>`_:
+  [openwisp-utils] Moved shared logic to `openwisp-utils
+  <https://github.com/openwisp/openwisp-utils>`_
 
 Version 0.6.1 [2017-06-01]
 --------------------------
