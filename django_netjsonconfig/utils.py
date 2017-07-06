@@ -1,6 +1,7 @@
 import logging
 
 from django.conf.urls import url
+from django.core.exceptions import ValidationError
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404 as base_get_object_or_404
 from django.utils.crypto import get_random_string
@@ -16,7 +17,7 @@ def get_object_or_404(model, **kwargs):
     """
     try:
         return base_get_object_or_404(model, **kwargs)
-    except ValueError:
+    except ValidationError:
         raise Http404()
 
 

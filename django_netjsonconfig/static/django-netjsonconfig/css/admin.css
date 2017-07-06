@@ -30,7 +30,7 @@ a.jsoneditor-exit:focus{ text-decoration: none }
     box-sizing: border-box;
 }
 
-.readonly{
+input.readonly{
     border: 1px solid rgba(0, 0, 0, 0.05) !important;
     background-color: rgba(0, 0, 0, 0.070);
 }
@@ -94,7 +94,7 @@ a.jsoneditor-exit:focus{ text-decoration: none }
 .field-vpn, .field-auto_cert{
     display: none;
 }
-#container .help{ margin-top: 2px; font-size: 13px }
+#container .help{ margin-top: 3px; font-size: 13px }
 #container .help a,
 #netjsonconfig-hint a, #netjsonconfig-hint-advancedmode a{ text-decoration: underline }
 #netjsonconfig-hint, #netjsonconfig-hint-advancedmode { width: auto }

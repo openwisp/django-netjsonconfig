@@ -148,7 +148,7 @@ class BaseConfigAdmin(BaseAdmin):
             templates = template_model.objects.filter(pk__in=template_ids.split(','))
             try:
                 templates = list(templates)  # evaluating queryset performs query
-            except ValueError as e:
+            except ValidationError as e:
                 logger.exception(error_msg, extra={'request': request})
                 return HttpResponse(str(e), status=400)
         else:
