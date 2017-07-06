@@ -50,9 +50,12 @@ class BaseConfigAdmin(BaseAdmin):
 
     def get_extra_context(self, pk=None):
         prefix = 'admin:{0}_{1}'.format(self.opts.app_label, self.model.__name__.lower())
-        ctx = {'preview_url': reverse('{0}_preview'.format(prefix))}
+        ctx = {
+            'submit_line': 'admin/django_netjsonconfig/submit_line.html',
+            'preview_url': reverse('{0}_preview'.format(prefix))
+        }
         if pk:
-            ctx.update({'download_url': reverse('{0}_download'.format(prefix), args=[pk])})
+            ctx['download_url'] = reverse('{0}_download'.format(prefix), args=[pk])
         return ctx
 
     def add_view(self, request, form_url='', extra_context=None):
