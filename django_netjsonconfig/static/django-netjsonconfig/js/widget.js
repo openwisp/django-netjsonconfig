@@ -189,6 +189,12 @@
                 }
             });
 
+            // re-enable click on netjsonconfig hint
+            $advancedEl.find('#netjsonconfig-hint-advancedmode a').click(function(){
+                var window_ = window.open($(this).attr('href'), '_blank');
+                window_.focus();
+            });
+
             // allow to add object properties by pressing enter
             form.on('keypress', '.jsoneditor .modal input[type=text]', function(e){
                 if(e.keyCode == 13){
