@@ -96,7 +96,10 @@ input.readonly{
 }
 #container .help{ margin-top: 3px; font-size: 13px }
 #container .help a,
-#netjsonconfig-hint a, #netjsonconfig-hint-advancedmode a{ text-decoration: underline }
+#netjsonconfig-hint a, #netjsonconfig-hint-advancedmode a{
+    text-decoration: underline;
+    vertical-align: initial;
+}
 #netjsonconfig-hint, #netjsonconfig-hint-advancedmode { width: auto }
 
 #container ul.sortedm2m-items{ height: auto; min-height: auto }
