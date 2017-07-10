@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'openwisp_utils.admin_theme',
     'django_netjsonconfig',
     'django.contrib.admin',
     'sortedm2m',

@@ -109,6 +109,7 @@ Add ``django_netjsonconfig``, ``django.contrib.admin``, ``sortedm2m`` and ``reve
 
     INSTALLED_APPS = [
         # other apps
+        'openwisp_utils.admin_theme',
         'django_netjsonconfig',
         # ensure the django admin comes after django-netjsonconfig
         'django.contrib.admin',
