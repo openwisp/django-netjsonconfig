@@ -1,10 +1,16 @@
 Changelog
 =========
 
-Version 0.6.3 [unreleased]
+Version 0.6.3 [2017-07-10]
 --------------------------
 
-WIP
+- `#51 <https://github.com/openwisp/django-netjsonconfig/issues/51>`_:
+  [django] Upgraded to django 1.11
+- `#59 <https://github.com/openwisp/django-netjsonconfig/issues/59>`_:
+  [json_editor] Fixed alignment issue
+- `5945b70 <https://github.com/openwisp/django-netjsonconfig/commit/5945b70>`_:
+  [admin] Moved ``submit_line.html`` to `openwisp-utils
+  <https://github.com/openwisp/openwisp-utils>`_
 
 Version 0.6.2 [2017-07-05]
 --------------------------
