@@ -61,6 +61,11 @@ Project goals
 * provide ways to support more firmwares by adding custom backends
 * keep the core as simple as possible
 
+Deploy it in production
+-----------------------
+
+An automated installer is available at `ansible-openwisp2 <https://github.com/openwisp/ansible-openwisp2>`_.
+
 Dependencies
 ------------
 
@@ -140,11 +145,6 @@ Then run:
 .. code-block:: shell
 
     ./manage.py migrate
-
-Deploy it in production
------------------------
-
-An automated installer is available at `ansible-openwisp2 <https://github.com/openwisp/ansible-openwisp2>`_.
 
 Installing for development
 --------------------------
