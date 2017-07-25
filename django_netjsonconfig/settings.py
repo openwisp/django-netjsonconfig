@@ -3,6 +3,7 @@ from django.conf import settings
 BACKENDS = getattr(settings, 'NETJSONCONFIG_BACKENDS', (
     ('netjsonconfig.OpenWrt', 'OpenWRT/LEDE'),
     ('netjsonconfig.OpenWisp', 'OpenWISP Firmware 1.x'),
+    ('netjsonconfig.Raspbian', 'Raspbian Jessie'),
 ))
 VPN_BACKENDS = getattr(settings, 'NETJSONCONFIG_VPN_BACKENDS', (
     ('django_netjsonconfig.vpn_backends.OpenVpn', 'OpenVPN'),
