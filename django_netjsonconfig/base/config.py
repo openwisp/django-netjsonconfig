@@ -113,6 +113,14 @@ class AbstractConfig(BaseConfig):
 AbstractConfig._meta.get_field('config').blank = True
 
 
+class TemplatesThrough(object):
+    """
+    Improves string representation of m2m relationship objects
+    """
+    def __str__(self):
+        return _('Relationship with {0}').format(self.template.name)
+
+
 class TemplatesVpnMixin(models.Model):
     """
     Provides a mixin that adds two m2m relationships:
@@ -122,6 +130,7 @@ class TemplatesVpnMixin(models.Model):
     templates = SortedManyToManyField('django_netjsonconfig.Template',
                                       related_name='config_relations',
                                       verbose_name=_('templates'),
+                                      base_class=TemplatesThrough,
                                       blank=True,
                                       help_text=_('configuration templates, applied from '
                                                   'first to last'))
@@ -277,13 +286,7 @@ class TemplatesVpnMixin(models.Model):
         abstract = True
 
 
-def sortedm2m__str__(self):
-    """
-    Improves string representation of m2m relationship objects
-
-    TODO
-    ----
-    this method can be removed if the following pull request
-    gets merged: https://github.com/gregmuellegger/django-sortedm2m/pull/101
-    """
-    return _('Relationship with {0}').format(self.template.name)
+# kept for backward compatibility to avoid
+# breaking openwisp-controller 0.2.x
+# TODO: remove in 0.7.x
+sortedm2m__str__ = TemplatesThrough.__str__

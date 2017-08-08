@@ -392,7 +392,9 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         c = self._create_config(device=self._create_device(name='test-m2m-str-repr'))
         c.templates.add(t)
         c.save()
-        self.assertIn('Relationship with', str(c.templates.through.objects.first()))
+        through = str(c.templates.through.objects.first())
+        self.assertIn('Relationship with', through)
+        self.assertIn(t.name, through)
 
     def test_get_template_model_static(self):
         self.assertIs(Config.get_template_model(), Template)

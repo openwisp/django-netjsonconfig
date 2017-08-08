@@ -1,4 +1,4 @@
-from .base.config import AbstractConfig, TemplatesVpnMixin, sortedm2m__str__
+from .base.config import AbstractConfig, TemplatesVpnMixin
 from .base.device import AbstractDevice
 from .base.tag import AbstractTaggedTemplate, AbstractTemplateTag
 from .base.template import AbstractTemplate
@@ -11,9 +11,6 @@ class Config(TemplatesVpnMixin, AbstractConfig):
     """
     class Meta(AbstractConfig.Meta):
         abstract = False
-
-
-Config.templates.through.__str__ = sortedm2m__str__
 
 
 class Device(AbstractDevice):
