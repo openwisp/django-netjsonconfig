@@ -203,9 +203,11 @@ class BaseForm(forms.ModelForm):
     """
     if app_settings.DEFAULT_BACKEND:
         def __init__(self, *args, **kwargs):
-            if 'initial' not in kwargs:
-                kwargs['initial'] = {}
-            kwargs['initial'].update({'backend': app_settings.DEFAULT_BACKEND})
+            # set initial backend value to use the default
+            # backend but only for new instances
+            if 'instance' not in kwargs:
+                kwargs.setdefault('initial', {})
+                kwargs['initial'].update({'backend': app_settings.DEFAULT_BACKEND})
             super(BaseForm, self).__init__(*args, **kwargs)
 
     class Meta:

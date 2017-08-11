@@ -267,6 +267,13 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         response = self.client.get(path)
         self.assertContains(response, '<option value="netjsonconfig.OpenWrt" selected')
 
+    def test_existing_device_backend(self):
+        d = self._create_device()
+        c = self._create_config(device=d, backend='netjsonconfig.OpenWisp')
+        path = reverse('admin:django_netjsonconfig_device_change', args=[d.pk])
+        response = self.client.get(path)
+        self.assertContains(response, '<option value="netjsonconfig.OpenWisp" selected')
+
     def test_device_search(self):
         d = self._create_device(name='admin-search-test')
         path = reverse('admin:django_netjsonconfig_device_changelist')
@@ -279,6 +286,14 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         path = reverse('admin:django_netjsonconfig_template_add')
         response = self.client.get(path)
         self.assertContains(response, '<option value="netjsonconfig.OpenWrt" selected')
+
+    def test_existing_template_backend(self):
+        t = Template.objects.first()
+        t.backend = 'netjsonconfig.OpenWisp'
+        t.save()
+        path = reverse('admin:django_netjsonconfig_template_change', args=[t.pk])
+        response = self.client.get(path)
+        self.assertContains(response, '<option value="netjsonconfig.OpenWisp" selected')
 
     def test_preview_variables(self):
         path = reverse('admin:django_netjsonconfig_device_preview')
