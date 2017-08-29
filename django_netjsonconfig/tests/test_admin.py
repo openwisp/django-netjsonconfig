@@ -269,7 +269,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
 
     def test_existing_device_backend(self):
         d = self._create_device()
-        c = self._create_config(device=d, backend='netjsonconfig.OpenWisp')
+        self._create_config(device=d, backend='netjsonconfig.OpenWisp')
         path = reverse('admin:django_netjsonconfig_device_change', args=[d.pk])
         response = self.client.get(path)
         self.assertContains(response, '<option value="netjsonconfig.OpenWisp" selected')
