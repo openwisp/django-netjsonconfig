@@ -1,10 +1,15 @@
 Changelog
 =========
 
-Version 0.6.4 [unreleased]
+Version 0.6.4 [2017-08-29]
 --------------------------
 
-WIP
+- `#29 <https://github.com/openwisp/django-netjsonconfig/issues/29>`_:
+  [models] Updated sortedm2m ``__str__`` definition
+- `bc1910d <https://github.com/openwisp/django-netjsonconfig/commit/bc1910d>`_:
+  [admin] Do not set initial backend value for existing instances
+- `6a24393 <https://github.com/openwisp/django-netjsonconfig/commit/6a24393>`_:
+  [requirements] netjsonconfig>=0.6.2,<0.7.0
 
 Version 0.6.3 [2017-07-10]
 --------------------------
