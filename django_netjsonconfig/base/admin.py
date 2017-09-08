@@ -247,6 +247,11 @@ class AbstractConfigInline(TimeReadonlyAdminMixin, admin.StackedInline):
               'config',
               'created',
               'modified']
+    change_select_related = ('device',)
+
+    def get_queryset(self, request):
+        qs = super(AbstractConfigInline, self).get_queryset(request)
+        return qs.select_related(*self.change_select_related)
 
 
 class AbstractDeviceAdmin(BaseConfigAdmin):
