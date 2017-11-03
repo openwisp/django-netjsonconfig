@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Version 0.6.5 [unreleased]
+Version 0.7.0 [unreleased]
 --------------------------
 
 WIP
