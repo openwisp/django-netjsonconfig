@@ -115,7 +115,7 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
                     country_code='IT',
                     state='RM',
                     city='Rome',
-                    organization='OpenWISP',
+                    organization_name='OpenWISP',
                     email='test@test.com',
                     common_name='openwisp.org')
         cert.full_clean()

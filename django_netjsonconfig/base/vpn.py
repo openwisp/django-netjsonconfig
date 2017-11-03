@@ -84,11 +84,20 @@ class AbstractVpn(BaseConfig):
                           country_code=self.ca.country_code,
                           state=self.ca.state,
                           city=self.ca.city,
-                          organization=self.ca.organization,
+                          organization_name=self.ca.organization_name,
                           email=self.ca.email,
                           common_name=common_name,
                           extensions=server_extensions)
+        cert = self._auto_create_cert_extra(cert)
         cert.save()
+        return cert
+
+    def _auto_create_cert_extra(self, cert):
+        """
+        this method can be overridden in order to perform
+        extra operations on a Cert object when auto-creating
+        certificates for VPN servers
+        """
         return cert
 
     def get_context(self):
@@ -218,7 +227,7 @@ class AbstractVpnClient(models.Model):
                           country_code=ca.country_code,
                           state=ca.state,
                           city=ca.city,
-                          organization=ca.organization,
+                          organization_name=ca.organization_name,
                           email=ca.email,
                           common_name=common_name,
                           extensions=server_extensions)
