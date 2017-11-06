@@ -209,7 +209,7 @@ class AbstractVpnClient(models.Model):
 
     def _auto_create_cert(self, name, common_name):
         """
-        Automatically creates and assigns an x509 certificate
+        Automatically creates and assigns a client x509 certificate
         """
         server_extensions = [
             {
@@ -231,7 +231,16 @@ class AbstractVpnClient(models.Model):
                           email=ca.email,
                           common_name=common_name,
                           extensions=server_extensions)
+        cert = self._auto_create_cert_extra(cert)
         cert.full_clean()
         cert.save()
         self.cert = cert
+        return cert
+
+    def _auto_create_cert_extra(self, cert):
+        """
+        this method can be overridden in order to perform
+        extra operations on a Cert object when auto-creating
+        certificates for VPN clients
+        """
         return cert
