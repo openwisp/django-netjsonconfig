@@ -1,10 +1,11 @@
 Changelog
 =========
 
-Version 0.7.1 [unreleased]
+Version 0.7.1 [2017-11-07]
 --------------------------
 
-WIP
+- `a8925dc <https://github.com/openwisp/django-netjsonconfig/commit/a8925dc>`_:
+  [models] Added ``_auto_create_cert_extra`` method to ``AbstractVpnClient``
 
 Version 0.7.0 [2017-11-03]
 --------------------------
