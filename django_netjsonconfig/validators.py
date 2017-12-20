@@ -12,3 +12,13 @@ mac_address_validator = RegexValidator(
     message=_('Must be a valid mac address.'),
     code='invalid',
 )
+
+# colons are allowed as devices that auto register set their names
+# to a mac address.
+device_name_validator = RegexValidator(
+    _lazy_re_compile('^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-:]{0,61}' +
+                     '[a-zA-Z0-9])(\.([a-zA-Z0-9]|[a-zA-Z0-9]' +
+                     '[a-zA-Z0-9\-:]{0,61}[a-zA-Z0-9]))*$'),
+    message=_('Must be a valid hostname.'),
+    code='invalid'
+)

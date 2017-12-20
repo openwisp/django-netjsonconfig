@@ -2,7 +2,11 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from ..utils import get_random_key
-from ..validators import key_validator, mac_address_validator
+from ..validators import (
+            key_validator,
+            mac_address_validator,
+            device_name_validator
+            )
 from .base import BaseModel
 
 
@@ -105,3 +109,10 @@ class AbstractDevice(BaseModel):
     @classmethod
     def get_config_model(cls):
         return cls._meta.get_field('config').related_model
+
+
+# edit validators
+name_field = AbstractDevice._meta.get_field('name')
+name_field.validators = name_field.validators[:] + [
+    device_name_validator
+]
