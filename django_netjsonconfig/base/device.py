@@ -2,11 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from ..utils import get_random_key
-from ..validators import (
-            key_validator,
-            mac_address_validator,
-            device_name_validator
-            )
+from ..validators import device_name_validator, key_validator, mac_address_validator
 from .base import BaseModel
 
 
@@ -111,7 +107,9 @@ class AbstractDevice(BaseModel):
         return cls._meta.get_field('config').related_model
 
 
-# edit validators
+# Create a copy of the validators
+# (to avoid modifying parent classes)
+# and add device_name_validator
 name_field = AbstractDevice._meta.get_field('name')
 name_field.validators = name_field.validators[:] + [
     device_name_validator

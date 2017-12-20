@@ -3,6 +3,7 @@ from django.test import TestCase
 
 from . import CreateConfigMixin
 from ..models import Config, Device
+from ..validators import device_name_validator
 
 
 class TestDevice(CreateConfigMixin, TestCase):
@@ -92,13 +93,16 @@ class TestDevice(CreateConfigMixin, TestCase):
         bad_host_name_list = [
             'test device',
             'openwisp..mydomain.com',
-            'openwisp,mydomain.test'
+            'openwisp,mydomain.test',
+            '{0}:BB:CC'.format(self.TEST_MAC_ADDRESS),
+            'AA:BB:CC:11:22033'
         ]
-        for hosts in bad_host_name_list:
+        for host in bad_host_name_list:
             try:
-                self._create_device(name=hosts)
+                self._create_device(name=host)
             except ValidationError as e:
-                self.assertEqual(
-                    'Must be a valid hostname.',
-                    e.message_dict['name'][0]
-                    )
+                self.assertIn('name', e.message_dict)
+                self.assertEqual(device_name_validator.message,
+                                 e.message_dict['name'][0])
+            else:
+                self.fail('ValidationError not raised for "{0}"'.format(host))
