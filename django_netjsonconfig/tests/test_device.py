@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from . import CreateConfigMixin
 from ..models import Config, Device
-from ..validators import device_name_validator
+from ..validators import device_name_validator, mac_address_validator
 
 
 class TestDevice(CreateConfigMixin, TestCase):
@@ -19,14 +19,22 @@ class TestDevice(CreateConfigMixin, TestCase):
 
     def test_mac_address_validator(self):
         d = Device(name='test',
-                   mac_address='WRONG',
                    key=self.TEST_KEY)
-        try:
-            d.full_clean()
-        except ValidationError as e:
-            self.assertIn('mac_address', e.message_dict)
-        else:
-            self.fail('ValidationError not raised')
+        bad_mac_addresses_list = [
+            '{0}:BB:CC'.format(self.TEST_MAC_ADDRESS),
+            'AA:BB:CC:11:22033',
+            'AA BB CC 11 22 33'
+        ]
+        for mac_address in bad_mac_addresses_list:
+            d.mac_address = mac_address
+            try:
+                d.full_clean()
+            except ValidationError as e:
+                self.assertIn('mac_address', e.message_dict)
+                self.assertEqual(mac_address_validator.message,
+                                 e.message_dict['mac_address'][0])
+            else:
+                self.fail('ValidationError not raised for "{0}"'.format(mac_address))
 
     def test_config_status_modified(self):
         c = self._create_config(device=self._create_device(),
