@@ -14,12 +14,13 @@ class AbstractVpn(BaseConfig):
     Abstract VPN model
     """
     host = models.CharField(max_length=64, help_text=_('VPN server hostname or ip address'))
-    ca = models.ForeignKey('django_x509.Ca', verbose_name=_('CA'))
+    ca = models.ForeignKey('django_x509.Ca', verbose_name=_('CA'), on_delete=models.CASCADE)
     cert = models.ForeignKey('django_x509.Cert',
                              verbose_name=_('x509 Certificate'),
                              help_text=_('leave blank to create automatically'),
                              blank=True,
-                             null=True)
+                             null=True,
+                             on_delete=models.CASCADE)
     backend = models.CharField(_('VPN backend'),
                                choices=app_settings.VPN_BACKENDS,
                                max_length=128,

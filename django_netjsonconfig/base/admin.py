@@ -76,9 +76,9 @@ class BaseConfigAdmin(BaseAdmin):
             extra_context.update({'default_templates': templates})
         return super(BaseConfigAdmin, self).add_view(request, form_url, extra_context)
 
-    def change_view(self, request, pk, form_url='', extra_context=None):
-        extra_context = self.get_extra_context(pk)
-        return super(BaseConfigAdmin, self).change_view(request, pk, form_url, extra_context)
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = self.get_extra_context(object_id)
+        return super(BaseConfigAdmin, self).change_view(request, object_id, form_url, extra_context)
 
     def get_urls(self):
         options = getattr(self.model, '_meta')

@@ -19,9 +19,9 @@ class JsonSchemaWidget(AdminTextareaWidget):
                         'lib/tomorrow_night_bright.js',
                         'lib/jsonschema-ui.js',
                         'widget.js')]
-        css = {'all': (static('{0}/css/{1}'.format(prefix, f))
+        css = {'all': [static('{0}/css/{1}'.format(prefix, f))
                        for f in ('lib/jsonschema-ui.css',
-                                 'lib/advanced-mode.css'))}
+                                 'lib/advanced-mode.css')]}
         return forms.Media(js=js, css=css)
 
     def render(self, name, value, attrs={}):
