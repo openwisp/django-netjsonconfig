@@ -14,7 +14,7 @@ class AbstractConfig(BaseConfig):
     Abstract model implementing the
     NetJSON DeviceConfiguration object
     """
-    device = models.OneToOneField('django_netjsonconfig.Device')
+    device = models.OneToOneField('django_netjsonconfig.Device', on_delete=models.CASCADE)
     STATUS = Choices('modified', 'running', 'error')
     status = StatusField(help_text=_(
         'modified means the configuration is not applied yet; '

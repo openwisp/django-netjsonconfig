@@ -32,7 +32,8 @@ class AbstractTemplate(BaseConfig):
     vpn = models.ForeignKey('django_netjsonconfig.Vpn',
                             verbose_name=_('VPN'),
                             blank=True,
-                            null=True)
+                            null=True,
+                            on_delete=models.CASCADE)
     type = models.CharField(_('type'),
                             max_length=16,
                             choices=TYPE_CHOICES,

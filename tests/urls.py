@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
     # controller URLs
     # used by devices to download/update their configuration
     # keep the namespace argument unchanged
