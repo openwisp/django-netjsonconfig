@@ -1,5 +1,5 @@
 django.jQuery(function($) {
-    var type_select = $('#id_type');
+    var type_select = $('#id_type'),
         vpn_specific = $('.field-vpn, .field-auto_cert'),
         toggle_vpn_specific = function(){
             if (type_select.val() == 'vpn') {

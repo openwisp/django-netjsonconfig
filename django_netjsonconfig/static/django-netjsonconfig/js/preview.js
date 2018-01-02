@@ -10,7 +10,7 @@ django.jQuery(function($) {
             data = {};
         // add id to POST data
         // note: may be overridden by fields of OneToOne relation
-        if ($id.length) { data['id'] = $id.val() }
+        if ($id.length) { data['id'] = $id.val(); }
         // gather data to send in POST
         fields.each(function(i, field){
             var $field = $(field),
@@ -19,7 +19,7 @@ django.jQuery(function($) {
             if(!name ||
                name.indexOf('initial-') === 0 ||
                name.indexOf('config-__') === 0 ||
-               name.indexOf('_FORMS') != -1){ return }
+               name.indexOf('_FORMS') != -1){ return; }
             // rename fields of OneToOne relation
             if(name.indexOf('config-0-') === 0){
                 name = name.replace('config-0-', '');
@@ -36,7 +36,7 @@ django.jQuery(function($) {
             overlay.find('.close').click(function(e){
                 e.preventDefault();
                 closePreview();
-            })
+            });
         })
         .error(function(xhr){
             // if validation error, show it on page
@@ -50,13 +50,13 @@ django.jQuery(function($) {
                 if (gettext) { message = gettext(message); }
                 alert(message + ':\n\n' + xhr.responseText);
             }
-        })
+        });
     };
     var closePreview = function () {
         overlay.hide();
         inner.html('');
         body.attr('style', '');
-    }
+    };
     $('.previewlink').click(function(e){
         var configUi = $('#id_config_jsoneditor, #id_config-0-config_jsoneditor'),
             message;
@@ -68,7 +68,7 @@ django.jQuery(function($) {
         }
         else{
             message = 'No configuration available';
-            if (gettext) { message = gettext(message) }
+            if (gettext) { message = gettext(message); }
             alert(message);
         }
     });

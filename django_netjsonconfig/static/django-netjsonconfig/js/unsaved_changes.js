@@ -16,7 +16,7 @@
                 }
                 // fix checkbox values inconsistency
                 if (field.attr('type') == 'checkbox') {
-                    object[name] = field.is(':checked')
+                    object[name] = field.is(':checked');
                 }
                 else {
                     object[name] = value;
@@ -27,18 +27,19 @@
                     try{
                         object[name] = JSON.parse(value);
                     }
-                    catch(e){}
+                    catch(ignore){}
                 }
             });
         };
 
     var unsaved_changes = function(e) {
         // get current values
-        current_values = {}
+        var current_values = {};
         map_values(current_values);
         var changed = false,
             message = 'You haven\'t saved your changes yet!',
-            initialField, initialValue, currentValue;
+            initialField, initialValue,
+            name;
         if (gettext) { message = gettext(message); }  // i18n if enabled
         // compare initial with current values
         for (name in django._njc_initial_values) {
@@ -46,10 +47,10 @@
             initialField = $('#initial-id_' + name);
             initialValue = initialField.length ? initialField.val() : django._njc_initial_values[name];
             // fix checkbox value inconsistency
-            if (initialValue == 'True') { initialValue = true }
-            else if (initialValue == 'False') { initialValue = false }
-            if (name == 'config') { initialValue = JSON.parse(initialValue) }
-            // currentValue = current_values[name]
+            if (initialValue == 'True') { initialValue = true; }
+            else if (initialValue == 'False') { initialValue = false; }
+            if (name == 'config') { initialValue = JSON.parse(initialValue); }
+
             if (!objectIsEqual(initialValue, current_values[name])) {
                 changed = true;
                 break;
@@ -63,36 +64,42 @@
 
     // compares equality of two objects
     var objectIsEqual = function(obj1, obj2) {
-        if (typeof(obj1) != 'object' && typeof(obj2) != 'object') {
+        if (typeof obj1 != 'object' && typeof obj2 != 'object') {
             return obj1 == obj2;
         }
-        if (typeof(obj1) != typeof(obj2)) {
-            return false
+
+        // jslint doesn't like comparing typeof with a non-constant
+        // see https://stackoverflow.com/a/18526510
+        var obj1Type = typeof obj1,
+            obj2Type = typeof obj2;
+        if (obj1Type != obj2Type) {
+            return false;
         }
+        var p;
         for(p in obj1) {
-            switch(typeof(obj1[p])) {
+            switch(typeof obj1[p]) {
                 case 'object':
-                    if (!objectIsEqual(obj1[p], obj2[p])) { return false }; break;
+                    if (!objectIsEqual(obj1[p], obj2[p])) { return false; } break;
                 default:
-                    if (obj1[p] != obj2[p]) { return false }
+                    if (obj1[p] != obj2[p]) { return false; }
             }
         }
         for(p in obj2) {
-            if(typeof(obj1[p]) == 'undefined') { return false }
+            if(obj1[p] === undefined) { return false; }
         }
         return true;
-    }
+    };
 
     $(window).load(function(){
-        if (!$('.submit-row').length) { return }
+        if (!$('.submit-row').length) { return; }
         // populate initial map of form values
-        django._njc_initial_values = {}
+        django._njc_initial_values = {};
         map_values(django._njc_initial_values);
         // do not perform unsaved_changes if submitting form
         $(form).submit(function() {
             $(window).unbind('beforeunload', unsaved_changes);
-        })
+        });
         // bind unload event
         $(window).bind('beforeunload', unsaved_changes);
     });
-})(django.jQuery);
+}(django.jQuery));
