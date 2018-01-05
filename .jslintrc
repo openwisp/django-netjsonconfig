@@ -1,0 +1,34 @@
+{
+    "predef": [
+        "document",
+        "navigator",
+        "console",
+        "window",
+        "django",
+        "$",
+        "gettext",
+        "alert",
+        "closePreview",
+        "objectIsEqual",
+        "editor",
+        "advancedJSONEditor",
+        "JSONEditor"
+    ],
+
+    "browser": true,
+    "eqeq": true,
+    "white": true,
+    "unparam": true,
+    "undef": true,
+    "sub": true,
+    "asi": true,
+    "sloppy": true,
+    "vars": true,
+    "forin": true,
+    "nomen": true,
+    "continue": true,
+    "plusplus": true,
+    "newcap": true,
+    "indent": 4,
+    "maxerr": 10000
+}
