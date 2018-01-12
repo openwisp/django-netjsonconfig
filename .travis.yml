@@ -34,6 +34,7 @@ install:
 
 script:
   - coverage run --source=django_netjsonconfig runtests.py
+  - ./tests/manage.py makemigrations --dry-run | grep "No changes detected"
 
 after_success:
   coveralls
