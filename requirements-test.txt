@@ -1,4 +1,4 @@
 coverage
 coveralls
-isort>=4.2.15,<4.3
+isort
 flake8

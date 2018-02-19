@@ -1,10 +1,13 @@
 Changelog
 =========
 
-Version 0.7.2 [unreleased]
+Version 0.8.0 [2018-02-19]
 --------------------------
 
-WIP
+- `#62 <https://github.com/openwisp/django-netjsonconfig/issues/62>`_:
+  [models] Added a name validator to ``Device.name``
+- `#68 <https://github.com/openwisp/django-netjsonconfig/issues/68>`_:
+  Added support for django 2.0
 
 Version 0.7.1 [2017-11-07]
 --------------------------
