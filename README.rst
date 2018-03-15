@@ -392,6 +392,16 @@ To extend *django-netjsonconfig*, **you MUST NOT** add it to ``settings.INSTALLE
 but you must create your own app (which goes into ``settings.INSTALLED_APPS``), import the
 base classes from django-netjsonconfig and add your customizations.
 
+You also need to include the static files from django_netjsonconfig manually, as django_netjsonconfig is not in
+INSTALLED_APPS. This can be achieved by adding
+
+    import imp
+    STATICFILES_DIRS = [os.path.join(imp.find_module("django_netjsonconfig")[1], 'static')]
+
+to ``settings.py``
+
+For a full working example, see https://github.com/innovationgarage/extendnetjson_project
+
 Extending models
 ~~~~~~~~~~~~~~~~
 
@@ -489,6 +499,9 @@ code by importing the base admin classes and registering your models with.
 .. code-block:: python
 
     # admin.py of your app
+    # these are your custom models, they must be imported before the abstract admin classes
+    from .models import Config, Template, Vpn
+
     from django.contrib import admin
     from django_netjsonconfig.base.admin import (AbstractConfigAdmin,
                                                  AbstractConfigForm,
@@ -496,9 +509,6 @@ code by importing the base admin classes and registering your models with.
                                                  AbstractVpnAdmin,
                                                  AbstractVpnForm,
                                                  BaseForm)
-
-    # these are your custom models
-    from .models import Config, Template, Vpn
 
 
     class ConfigForm(AbstractConfigForm):
@@ -551,19 +561,19 @@ to try to reuse the controller views:
 
 
     class ChecksumView(BaseChecksumView):
-        model = Config
+        model = Device
 
 
     class DownloadConfigView(BaseDownloadConfigView):
-        model = Config
+        model = Device
 
 
     class ReportStatusView(BaseReportStatusView):
-        model = Config
+        model = Device
 
 
     class RegisterView(BaseRegisterView):
-        model = Config
+        model = Device
 
 
     checksum = ChecksumView.as_view()
