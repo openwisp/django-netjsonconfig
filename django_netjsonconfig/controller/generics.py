@@ -173,28 +173,34 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
             key = request.POST.get('key')
         # try retrieving existing Device first
         # (key is not None only if CONSISTENT_REGISTRATION is enabled)
+        new = False
         try:
             device = self.model.objects.get(key=key)
             config = device.config
-        # otherwise create new Device and Config
+        # if get queryset fails, instantiate a new Device and Config
         except self.model.DoesNotExist:
             new = True
             config = self.init_object(last_ip=last_ip, **request.POST.dict())
             device = config.device
-            try:
-                device.full_clean()
-                device.save()
-                config.full_clean()
-                config.save()
-            except ValidationError as e:
-                # dump message_dict as JSON,
-                # this should make it easy to debug
-                return ControllerResponse(json.dumps(e.message_dict, indent=4, sort_keys=True),
-                                          content_type='text/plain',
-                                          status=400)
+        # if get queryset succedes but device has no related config
+        # instantiate new Config but reuse existing device
+        except self.model.config.RelatedObjectDoesNotExist:
+            config = self.init_object(last_ip=last_ip, **request.POST.dict())
+            config.device = device
+        # validate and save everything or fail otherwise
+        try:
+            device.full_clean()
+            device.save()
+            config.full_clean()
+            config.save()
+        except ValidationError as e:
+            # dump message_dict as JSON,
+            # this should make it easy to debug
+            return ControllerResponse(json.dumps(e.message_dict, indent=4, sort_keys=True),
+                                      content_type='text/plain',
+                                      status=400)
         # update last_ip on existing configs
-        else:
-            new = False
+        if not new:
             self.update_last_ip(config, request)
         # add templates specified in tags
         self.add_tagged_templates(config, request)

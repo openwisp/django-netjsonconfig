@@ -247,6 +247,31 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
         count = Device.objects.filter(pk=uuid, key=key, name=hostname).count()
         self.assertEqual(count, 1)
 
+    def test_consistent_registration_exists_no_config(self):
+        d = self._create_device()
+        d.key = TEST_CONSISTENT_KEY
+        d.save()
+        response = self.client.post(REGISTER_URL, {
+            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+            'name': TEST_MACADDR,
+            'mac_address': TEST_MACADDR,
+            'key': TEST_CONSISTENT_KEY,
+            'backend': 'netjsonconfig.OpenWrt'
+        })
+        self.assertEqual(response.status_code, 201)
+        lines = response.content.decode().split('\n')
+        self.assertEqual(lines[0], 'registration-result: success')
+        uuid = lines[1].replace('uuid: ', '')
+        key = lines[2].replace('key: ', '')
+        hostname = lines[3].replace('hostname: ', '')
+        new = lines[4].replace('is-new: ', '')
+        self.assertEqual(hostname, d.name)
+        self.assertEqual(new, '0')
+        count = Device.objects.filter(pk=uuid, key=key, name=hostname).count()
+        self.assertEqual(count, 1)
+        d.refresh_from_db()
+        self.assertIsNotNone(d.config)
+
     def test_report_status_running(self):
         d = self._create_device_config()
         response = self.client.post(reverse('controller:report_status', args=[d.pk]),
