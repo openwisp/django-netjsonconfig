@@ -325,6 +325,19 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         self.assertIn(key, context)
         self.assertIn(value, context[key])
 
+    def test_vpn_context_ca_path_bug(self):
+        vpn = self._create_vpn(ca_options={'common_name': 'common name CA'})
+        t = self._create_template(type='vpn', auto_cert=True, vpn=vpn)
+        c = self._create_config(device=self._create_device(name='test-create-cert'))
+        c.templates.add(t)
+        context = c.get_context()
+        ca = vpn.ca
+        key = 'ca_path_{0}'.format(vpn.pk.hex)
+        filename = 'ca-{0}-{1}.pem'.format(ca.pk, ca.common_name.replace(' ', '_'))
+        value = '{0}/{1}'.format(app_settings.CERT_PATH, filename)
+        self.assertIn(key, context)
+        self.assertIn(value, context[key])
+
     def test_vpn_context_ca_contents(self):
         context, vpnclient = self._get_vpn_context()
         key = 'ca_contents_{0}'.format(vpnclient.vpn.pk.hex)

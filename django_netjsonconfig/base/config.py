@@ -257,7 +257,7 @@ class TemplatesVpnMixin(models.Model):
             ca = vpn.ca
             cert = vpnclient.cert
             # CA
-            ca_filename = 'ca-{0}-{1}.pem'.format(ca.pk, ca.common_name)
+            ca_filename = 'ca-{0}-{1}.pem'.format(ca.pk, ca.common_name.replace(' ', '_'))
             ca_path = '{0}/{1}'.format(app_settings.CERT_PATH, ca_filename)
             # update context
             c.update({
