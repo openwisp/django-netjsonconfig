@@ -392,15 +392,57 @@ To extend *django-netjsonconfig*, **you MUST NOT** add it to ``settings.INSTALLE
 but you must create your own app (which goes into ``settings.INSTALLED_APPS``), import the
 base classes from django-netjsonconfig and add your customizations.
 
-You also need to include the static files from django_netjsonconfig manually, as django_netjsonconfig is not in
-INSTALLED_APPS. This can be achieved by adding
+In order to help django find the static files and templates of *django-netjsonconfig*,
+you need to perform the steps described below.
 
-    import imp
-    STATICFILES_DIRS = [os.path.join(imp.find_module("django_netjsonconfig")[1], 'static')]
+1. Add ``EXTENDED_APPS``
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-to ``settings.py``
+Add the following to your ``settings.py``:
 
-For a full working example, see https://github.com/innovationgarage/extendnetjson_project
+.. code-block:: python
+
+    EXTENDED_APPS = ('django_netjsonconfig', 'django_x509',)
+
+2. Add ``openwisp_utils.staticfiles.DependencyFinder``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add ``openwisp_utils.staticfiles.DependencyFinder`` to
+``STATICFILES_FINDERS`` in your ``settings.py``:
+
+.. code-block:: python
+
+    STATICFILES_FINDERS = [
+        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+        'openwisp_utils.staticfiles.DependencyFinder',
+    ]
+
+3. Add ``openwisp_utils.loaders.DependencyLoader``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add ``openwisp_utils.loaders.DependencyLoader`` to ``TEMPLATES`` in your ``settings.py``:
+
+.. code-block:: python
+
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'OPTIONS': {
+                'loaders': [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                    'openwisp_utils.loaders.DependencyLoader',
+                ],
+                'context_processors': [
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.request',
+                    'django.contrib.auth.context_processors.auth',
+                    'django.contrib.messages.context_processors.messages',
+                ],
+            },
+        }
+    ]
 
 Extending models
 ~~~~~~~~~~~~~~~~
@@ -493,7 +535,7 @@ This example provides an example of how to extend the base models of
 Extending the admin
 ~~~~~~~~~~~~~~~~~~~
 
-Following the previous `Organization` example, you can avoid duplicating the admin
+Following the previous ``Organization`` example, you can avoid duplicating the admin
 code by importing the base admin classes and registering your models with.
 
 .. code-block:: python
@@ -613,6 +655,14 @@ You may want to reuse the ``AppConfig`` class of *django-netjsonconfig* too:
             from .models import Config, VpnClient  # these are your custom models
             self.config_model = Config
             self.vpnclient_model = VpnClient
+
+Real world extensions of django-netjsonconfig
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For full working examples of django proejcts which extend *django-netjsonconfig*, see:
+
+- `openwisp/openwisp-controller <https://github.com/openwisp/openwisp-controller>`_
+- `innovationgarage/extendnetjson_project <https://github.com/innovationgarage/extendnetjson_project>`_
 
 Screenshots
 -----------
