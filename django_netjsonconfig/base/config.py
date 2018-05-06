@@ -6,6 +6,7 @@ from model_utils.fields import StatusField
 from sortedm2m.fields import SortedManyToManyField
 
 from .. import settings as app_settings
+from ..signals import config_modified
 from .base import BaseConfig
 
 
@@ -51,6 +52,20 @@ class AbstractConfig(BaseConfig):
                 self.set_status_modified(save=False)
                 break
 
+    def save(self, *args, **kwargs):
+        result = super(AbstractConfig, self).save(*args, **kwargs)
+        if not self._state.adding and getattr(self, '_send_config_modified_after_save', False):
+            self._send_config_modified_signal()
+        return result
+
+    def _send_config_modified_signal(self):
+        """
+        sends signal ``config_modified``
+        """
+        config_modified.send(sender=self.__class__,
+                             config=self,
+                             device=self.device)
+
     def _set_status(self, status, save=True):
         self.status = status
         if save:
@@ -58,6 +73,12 @@ class AbstractConfig(BaseConfig):
 
     def set_status_modified(self, save=True):
         self._set_status('modified', save)
+        if save:
+            self._send_config_modified_signal()
+        else:
+            # set this attribute that will be
+            # checked in the save method
+            self._send_config_modified_after_save = True
 
     def set_status_running(self, save=True):
         self._set_status('running', save)
@@ -208,6 +229,8 @@ class TemplatesVpnMixin(models.Model):
             return
         if instance.status != 'modified':
             instance.set_status_modified()
+        else:
+            instance._send_config_modified_signal()
 
     @classmethod
     def manage_vpn_clients(cls, action, instance, pk_set, **kwargs):

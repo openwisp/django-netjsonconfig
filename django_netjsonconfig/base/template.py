@@ -76,7 +76,12 @@ class AbstractTemplate(BaseConfig):
         super(AbstractTemplate, self).save(*args, **kwargs)
         # update relations
         if update_related_config_status:
-            self.config_relations.update(status='modified')
+            self._update_related_config_status()
+
+    def _update_related_config_status(self):
+        self.config_relations.update(status='modified')
+        for config in self.config_relations.all():
+            config._send_config_modified_signal()
 
     def clean(self, *args, **kwargs):
         """
