@@ -31,10 +31,6 @@ class BaseAdmin(TimeReadonlyAdminMixin, ModelAdmin):
     pass
 
 
-# TODO: kept for backward compatibility, remove in 0.7.0
-TimeStampedEditableAdmin = BaseAdmin
-
-
 class BaseConfigAdmin(BaseAdmin):
     preview_template = None
     actions_on_bottom = True
