@@ -267,6 +267,7 @@ class AbstractDeviceAdmin(BaseConfigAdmin):
               'model',
               'os',
               'system',
+              'notes',
               'created',
               'modified']
 

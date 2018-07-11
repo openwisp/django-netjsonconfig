@@ -37,7 +37,7 @@ class AbstractDevice(BaseModel):
                               db_index=True,
                               max_length=128,
                               help_text=_('system on chip or CPU info'))
-    notes = models.TextField(blank=True)
+    notes = models.TextField(blank=True, help_text=_('internal notes'))
 
     class Meta:
         abstract = True
