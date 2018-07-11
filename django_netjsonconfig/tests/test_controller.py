@@ -294,12 +294,24 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
         self.assertIsNotNone(d.config)
 
     def test_report_status_running(self):
+        """
+        maintained for backward compatibility
+        # TODO: remove in stable version 1.0
+        """
         d = self._create_device_config()
         response = self.client.post(reverse('controller:report_status', args=[d.pk]),
                                     {'key': d.key, 'status': 'running'})
         self._check_header(response)
         d.config.refresh_from_db()
-        self.assertEqual(d.config.status, 'running')
+        self.assertEqual(d.config.status, 'applied')
+
+    def test_report_status_applied(self):
+        d = self._create_device_config()
+        response = self.client.post(reverse('controller:report_status', args=[d.pk]),
+                                    {'key': d.key, 'status': 'applied'})
+        self._check_header(response)
+        d.config.refresh_from_db()
+        self.assertEqual(d.config.status, 'applied')
 
     def test_report_status_error(self):
         d = self._create_device_config()

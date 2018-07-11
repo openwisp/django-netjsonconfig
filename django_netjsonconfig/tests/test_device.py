@@ -38,8 +38,8 @@ class TestDevice(CreateConfigMixin, TestCase):
 
     def test_config_status_modified(self):
         c = self._create_config(device=self._create_device(),
-                                status='running')
-        self.assertEqual(c.status, 'running')
+                                status='applied')
+        self.assertEqual(c.status, 'applied')
         c.device.name = 'test-status-modified'
         c.device.full_clean()
         c.device.save()

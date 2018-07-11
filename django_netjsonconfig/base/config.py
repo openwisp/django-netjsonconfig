@@ -16,11 +16,11 @@ class AbstractConfig(BaseConfig):
     NetJSON DeviceConfiguration object
     """
     device = models.OneToOneField('django_netjsonconfig.Device', on_delete=models.CASCADE)
-    STATUS = Choices('modified', 'running', 'error')
-    status = StatusField(help_text=_(
-        'modified means the configuration is not applied yet; '
-        'running means applied and running; '
-        'error means the configuration caused issues and it was rolledback'
+    STATUS = Choices('modified', 'applied', 'error')
+    status = StatusField(_('configuration status'), help_text=_(
+        '"modified" means the configuration is not applied yet; \n'
+        '"applied" means the configuration is applied successfully; \n'
+        '"error" means the configuration caused issues and it was rolled back;'
     ))
 
     class Meta:
@@ -75,8 +75,8 @@ class AbstractConfig(BaseConfig):
             # checked in the save method
             self._send_config_modified_after_save = True
 
-    def set_status_running(self, save=True):
-        self._set_status('running', save)
+    def set_status_applied(self, save=True):
+        self._set_status('applied', save)
 
     def set_status_error(self, save=True):
         self._set_status('error', save)

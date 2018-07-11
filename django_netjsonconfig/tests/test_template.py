@@ -44,10 +44,10 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         t = self._create_template()
         c = self._create_config(device=self._create_device(name='test-status'))
         c.templates.add(t)
-        c.status = 'running'
+        c.status = 'applied'
         c.save()
         c.refresh_from_db()
-        self.assertEqual(c.status, 'running')
+        self.assertEqual(c.status, 'applied')
         t.config['interfaces'][0]['name'] = 'eth1'
         t.full_clean()
         t.save()

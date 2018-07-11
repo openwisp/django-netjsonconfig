@@ -157,8 +157,8 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         self.assertEqual(c.status, 'modified')
 
     def test_status_modified_after_change(self):
-        c = self._create_config(status='running')
-        self.assertEqual(c.status, 'running')
+        c = self._create_config(status='applied')
+        self.assertEqual(c.status, 'applied')
         c.refresh_from_db()
         c.config = {'general': {'description': 'test'}}
         c.full_clean()
@@ -166,16 +166,16 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         self.assertEqual(c.status, 'modified')
 
     def test_status_modified_after_templates_changed(self):
-        c = self._create_config(status='running')
-        self.assertEqual(c.status, 'running')
+        c = self._create_config(status='applied')
+        self.assertEqual(c.status, 'applied')
         t = Template.objects.first()
         c.templates.add(t)
         c.refresh_from_db()
         self.assertEqual(c.status, 'modified')
-        c.status = 'running'
+        c.status = 'applied'
         c.save()
         c.refresh_from_db()
-        self.assertEqual(c.status, 'running')
+        self.assertEqual(c.status, 'applied')
         c.templates.remove(t)
         c.refresh_from_db()
         self.assertEqual(c.status, 'modified')

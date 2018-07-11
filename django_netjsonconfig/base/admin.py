@@ -250,7 +250,7 @@ class AbstractConfigInline(TimeReadonlyAdminMixin, admin.StackedInline):
 
 
 class AbstractDeviceAdmin(BaseConfigAdmin):
-    list_display = ['name', 'backend', 'status',
+    list_display = ['name', 'backend', 'config_status',
                     'ip', 'created', 'modified']
     search_fields = ['id', 'name', 'mac_address', 'key', 'model', 'os', 'system']
     list_filter = ['config__backend',
@@ -281,6 +281,11 @@ class AbstractDeviceAdmin(BaseConfigAdmin):
         return obj.management_ip or obj.last_ip
 
     ip.short_description = _('IP address')
+
+    def config_status(self, obj):
+        return obj.config.status
+
+    config_status.short_description = _('config status')
 
     def _get_fields(self, fields, request, obj=None):
         """
