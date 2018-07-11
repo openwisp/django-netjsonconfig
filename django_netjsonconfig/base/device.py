@@ -38,6 +38,12 @@ class AbstractDevice(BaseModel):
                               max_length=128,
                               help_text=_('system on chip or CPU info'))
     notes = models.TextField(blank=True, help_text=_('internal notes'))
+    # these fields are filled automatically
+    # with data received from devices
+    last_ip = models.GenericIPAddressField(blank=True,
+                                           null=True,
+                                           help_text=_('indicates the IP address logged from '
+                                                       'the last request coming from the device'))
 
     class Meta:
         abstract = True
@@ -82,14 +88,6 @@ class AbstractDevice(BaseModel):
         (eg: admin site)
         """
         return self._get_config_attr('get_status_display')
-
-    @property
-    def last_ip(self):
-        """
-        Used as a shortcut for display purposes
-        (eg: admin site)
-        """
-        return self._get_config_attr('last_ip')
 
     def get_default_templates(self):
         """

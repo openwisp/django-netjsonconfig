@@ -44,19 +44,19 @@ def send_config(config, request):
     calls ``update_last_ip`` and returns a ``ControllerResponse``
     which includes the configuration tar.gz as attachment
     """
-    update_last_ip(config, request)
+    update_last_ip(config.device, request)
     return send_file(filename='{0}.tar.gz'.format(config.name),
                      contents=config.generate().getvalue())
 
 
-def update_last_ip(config, request):
+def update_last_ip(device, request):
     """
     updates ``last_ip`` if necessary
     """
-    latest_ip = request.META.get('REMOTE_ADDR')
-    if config.last_ip != latest_ip:
-        config.last_ip = latest_ip
-        config.save()
+    ip = request.META.get('REMOTE_ADDR')
+    if device.last_ip != ip:
+        device.last_ip = ip
+        device.save()
 
 
 def forbid_unallowed(request, param_group, param, allowed_values=None):

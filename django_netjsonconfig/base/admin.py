@@ -235,10 +235,9 @@ class AbstractConfigForm(BaseForm):
 
 class AbstractConfigInline(TimeReadonlyAdminMixin, admin.StackedInline):
     verbose_name_plural = _('Device configuration details')
-    readonly_fields = ['status', 'last_ip']
+    readonly_fields = ['status']
     fields = ['backend',
               'status',
-              'last_ip',
               'templates',
               'config',
               'created',
@@ -259,11 +258,12 @@ class AbstractDeviceAdmin(BaseConfigAdmin):
                    'config__status',
                    'created']
     list_select_related = ('config',)
-    readonly_fields = ['id_hex']
+    readonly_fields = ['id_hex', 'last_ip']
     fields = ['name',
               'mac_address',
               'id_hex',
               'key',
+              'last_ip',
               'model',
               'os',
               'system',
@@ -274,17 +274,18 @@ class AbstractDeviceAdmin(BaseConfigAdmin):
     def id_hex(self, obj):
         return obj.pk.hex
 
-    id_hex.short_description = "UUID"
+    id_hex.short_description = 'UUID'
 
     def _get_fields(self, fields, request, obj=None):
         """
-        removes "id" field in add view
+        removes readonly_fields in add view
         """
         if obj:
             return fields
         new_fields = fields[:]
-        if 'id_hex' in new_fields:
-            new_fields.remove('id_hex')
+        for field in self.readonly_fields:
+            if field in new_fields:
+                new_fields.remove(field)
         return new_fields
 
     def get_fields(self, request, obj=None):

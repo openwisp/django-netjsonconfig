@@ -75,13 +75,6 @@ class TestDevice(CreateConfigMixin, TestCase):
         self.assertIsNotNone(d.status)
         self.assertEqual(d.status, c.get_status_display())
 
-    def test_last_ip(self):
-        d = self._create_device()
-        self.assertEqual(d.last_ip, None)
-        c = self._create_config(device=d, last_ip='10.0.0.250')
-        self.assertIsNotNone(d.last_ip)
-        self.assertEqual(d.last_ip, c.last_ip)
-
     def test_config_model(self):
         d = Device()
         self.assertIs(d.get_config_model(), Config)

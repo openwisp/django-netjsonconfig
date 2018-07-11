@@ -22,11 +22,6 @@ class AbstractConfig(BaseConfig):
         'running means applied and running; '
         'error means the configuration caused issues and it was rolledback'
     ))
-    last_ip = models.GenericIPAddressField(blank=True,
-                                           null=True,
-                                           help_text=_('indicates the last ip from which the '
-                                                       'configuration was downloaded from '
-                                                       '(except downloads from this page)'))
 
     class Meta:
         abstract = True

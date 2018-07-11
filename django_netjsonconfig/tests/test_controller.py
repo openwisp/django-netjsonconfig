@@ -31,8 +31,8 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
         response = self.client.get(reverse('controller:checksum', args=[d.pk]), {'key': d.key})
         self.assertEqual(response.content.decode(), c.checksum)
         self._check_header(response)
-        c.refresh_from_db()
-        self.assertIsNotNone(c.last_ip)
+        d.refresh_from_db()
+        self.assertIsNotNone(d.last_ip)
 
     def test_checksum_bad_uuid(self):
         d = self._create_device_config()
@@ -62,8 +62,8 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
         response = self.client.get(reverse('controller:download_config', args=[d.pk]), {'key': d.key})
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=test.tar.gz')
         self._check_header(response)
-        d.config.refresh_from_db()
-        self.assertIsNotNone(d.config.last_ip)
+        d.refresh_from_db()
+        self.assertIsNotNone(d.last_ip)
 
     def test_download_config_bad_uuid(self):
         d = self._create_device_config()
@@ -105,7 +105,7 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
         d = Device.objects.get(pk=uuid)
         self._check_header(response)
         self.assertEqual(d.key, key)
-        self.assertIsNotNone(d.config.last_ip)
+        self.assertIsNotNone(d.last_ip)
         self.assertEqual(d.mac_address, TEST_MACADDR)
         return d
 
@@ -222,7 +222,7 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
         d = Device.objects.get(pk=uuid)
         self._check_header(response)
         self.assertEqual(d.key, TEST_CONSISTENT_KEY)
-        self.assertIsNotNone(d.config.last_ip)
+        self.assertIsNotNone(d.last_ip)
 
     def test_consistent_registration_existing(self):
         d = self._create_device_config()

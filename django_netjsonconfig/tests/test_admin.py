@@ -345,3 +345,16 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         path = reverse('admin:django_netjsonconfig_vpn_add')
         response = self.client.get(path)
         self.assertContains(response, 'value="django_netjsonconfig.vpn_backends.OpenVpn" selected')
+
+    def test_ip_not_in_add_device(self):
+        path = reverse('admin:django_netjsonconfig_device_add')
+        response = self.client.get(path)
+        self.assertNotContains(response, 'last_ip')
+
+    def test_ip_in_change_device(self):
+        d = self._create_device()
+        t = Template.objects.first()
+        self._create_config(device=d, backend=t.backend, config=t.config)
+        path = reverse('admin:django_netjsonconfig_device_change', args=[d.pk])
+        response = self.client.get(path)
+        self.assertContains(response, 'last_ip')

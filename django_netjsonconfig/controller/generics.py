@@ -30,8 +30,8 @@ class CsrfExtemptMixin(object):
 
 
 class UpdateLastIpMixin(object):
-    def update_last_ip(self, config, request):
-        update_last_ip(config, request)
+    def update_last_ip(self, device, request):
+        update_last_ip(device, request)
 
 
 class BaseChecksumView(UpdateLastIpMixin, BaseConfigView):
@@ -43,7 +43,7 @@ class BaseChecksumView(UpdateLastIpMixin, BaseConfigView):
         bad_request = forbid_unallowed(request, 'GET', 'key', device.key)
         if bad_request:
             return bad_request
-        self.update_last_ip(device.config, request)
+        self.update_last_ip(device, request)
         return ControllerResponse(device.config.checksum, content_type='text/plain')
 
 
@@ -105,8 +105,7 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
                                  or options['key'] is None):
             del options['key']
         return config_model(device=device_model(**options),
-                            backend=kwargs['backend'],
-                            last_ip=kwargs['last_ip'])
+                            backend=kwargs['backend'])
 
     def get_template_queryset(self, config):
         """
@@ -168,7 +167,6 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
             return forbidden
         # prepare model attributes
         key = None
-        last_ip = request.META.get('REMOTE_ADDR')
         if settings.CONSISTENT_REGISTRATION:
             key = request.POST.get('key')
         # try retrieving existing Device first
@@ -180,13 +178,15 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
         # if get queryset fails, instantiate a new Device and Config
         except self.model.DoesNotExist:
             new = True
-            config = self.init_object(last_ip=last_ip, **request.POST.dict())
+            config = self.init_object(**request.POST.dict())
             device = config.device
         # if get queryset succedes but device has no related config
         # instantiate new Config but reuse existing device
         except self.model.config.RelatedObjectDoesNotExist:
-            config = self.init_object(last_ip=last_ip, **request.POST.dict())
+            config = self.init_object(**request.POST.dict())
             config.device = device
+        # update last_ip field of device
+        device.last_ip = request.META.get('REMOTE_ADDR')
         # validate and save everything or fail otherwise
         try:
             device.full_clean()
@@ -199,9 +199,6 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
             return ControllerResponse(json.dumps(e.message_dict, indent=4, sort_keys=True),
                                       content_type='text/plain',
                                       status=400)
-        # update last_ip on existing configs
-        if not new:
-            self.update_last_ip(config, request)
         # add templates specified in tags
         self.add_tagged_templates(config, request)
         # prepare response
