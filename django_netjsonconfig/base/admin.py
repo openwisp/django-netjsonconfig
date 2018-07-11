@@ -251,19 +251,20 @@ class AbstractConfigInline(TimeReadonlyAdminMixin, admin.StackedInline):
 
 class AbstractDeviceAdmin(BaseConfigAdmin):
     list_display = ['name', 'backend', 'status',
-                    'last_ip', 'created', 'modified']
+                    'ip', 'created', 'modified']
     search_fields = ['id', 'name', 'mac_address', 'key', 'model', 'os', 'system']
     list_filter = ['config__backend',
                    'config__templates',
                    'config__status',
                    'created']
     list_select_related = ('config',)
-    readonly_fields = ['id_hex', 'last_ip']
+    readonly_fields = ['id_hex', 'last_ip', 'management_ip']
     fields = ['name',
               'mac_address',
               'id_hex',
               'key',
               'last_ip',
+              'management_ip',
               'model',
               'os',
               'system',
@@ -275,6 +276,11 @@ class AbstractDeviceAdmin(BaseConfigAdmin):
         return obj.pk.hex
 
     id_hex.short_description = 'UUID'
+
+    def ip(self, obj):
+        return obj.management_ip or obj.last_ip
+
+    ip.short_description = _('IP address')
 
     def _get_fields(self, fields, request, obj=None):
         """

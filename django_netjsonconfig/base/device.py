@@ -44,6 +44,10 @@ class AbstractDevice(BaseModel):
                                            null=True,
                                            help_text=_('indicates the IP address logged from '
                                                        'the last request coming from the device'))
+    management_ip = models.GenericIPAddressField(blank=True,
+                                                 null=True,
+                                                 help_text=_('ip address of the management interface, '
+                                                             'if available'))
 
     class Meta:
         abstract = True

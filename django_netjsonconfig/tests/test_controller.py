@@ -28,11 +28,18 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
     def test_checksum(self):
         d = self._create_device_config()
         c = d.config
-        response = self.client.get(reverse('controller:checksum', args=[d.pk]), {'key': d.key})
+        url = reverse('controller:checksum', args=[d.pk])
+        response = self.client.get(url, {'key': d.key, 'management_ip': '10.0.0.2'})
         self.assertEqual(response.content.decode(), c.checksum)
         self._check_header(response)
         d.refresh_from_db()
         self.assertIsNotNone(d.last_ip)
+        self.assertEqual(d.management_ip, '10.0.0.2')
+        # repeat without management_ip
+        response = self.client.get(url, {'key': d.key})
+        d.refresh_from_db()
+        self.assertIsNotNone(d.last_ip)
+        self.assertIsNone(d.management_ip)
 
     def test_checksum_bad_uuid(self):
         d = self._create_device_config()
@@ -59,11 +66,18 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
 
     def test_download_config(self):
         d = self._create_device_config()
-        response = self.client.get(reverse('controller:download_config', args=[d.pk]), {'key': d.key})
+        url = reverse('controller:download_config', args=[d.pk])
+        response = self.client.get(url, {'key': d.key, 'management_ip': '10.0.0.2'})
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=test.tar.gz')
         self._check_header(response)
         d.refresh_from_db()
         self.assertIsNotNone(d.last_ip)
+        self.assertEqual(d.management_ip, '10.0.0.2')
+        # repeat without management_ip
+        response = self.client.get(url, {'key': d.key})
+        d.refresh_from_db()
+        self.assertIsNotNone(d.last_ip)
+        self.assertIsNone(d.management_ip)
 
     def test_download_config_bad_uuid(self):
         d = self._create_device_config()
@@ -107,7 +121,14 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
         self.assertEqual(d.key, key)
         self.assertIsNotNone(d.last_ip)
         self.assertEqual(d.mac_address, TEST_MACADDR)
+        if 'management_ip' not in kwargs:
+            self.assertIsNone(d.management_ip)
+        else:
+            self.assertEqual(d.management_ip, kwargs['management_ip'])
         return d
+
+    def test_register_with_management_ip(self):
+        self.test_register(management_ip='10.0.0.2')
 
     def test_register_template_tags(self):
         mesh_protocol = self._create_template(name='mesh protocol')

@@ -54,8 +54,15 @@ def update_last_ip(device, request):
     updates ``last_ip`` if necessary
     """
     ip = request.META.get('REMOTE_ADDR')
+    management_ip = request.GET.get('management_ip')
+    changed = False
     if device.last_ip != ip:
         device.last_ip = ip
+        changed = True
+    if device.management_ip != management_ip:
+        device.management_ip = management_ip
+        changed = True
+    if changed:
         device.save()
 
 
