@@ -83,137 +83,150 @@
         alert("The JSON entered is not valid");
     };
 
-    var loadUi = function(backend, schemas, setInitialValue){
-        $('.jsoneditor-raw').each(function(i, el){
-            var field = $(el),
-                form = field.parents('form').eq(0),
-                value = JSON.parse(field.val()),
-                id = field.attr('id') + '_jsoneditor',
-                initialField = $('#initial-' + field.attr('id')),
-                container = field.parents('.form-row').eq(0),
-                labelText = container.find('label:not(#netjsonconfig-hint)').text(),
-                startval = $.isEmptyObject(value) ? null : value,
-                editorContainer = $('#' + id),
-                html, editor, options, wrapper, header,
-                getEditorValue, updateRaw, advancedEditor,
-                $advancedEl;
-            // inject editor unless already present
-            if(!editorContainer.length){
-                html =  '<div class="jsoneditor-wrapper">';
-                html += '<fieldset class="module aligned"><h2>'+ labelText +'</h2>';
-                html += '<div id="'+ id +'" class="jsoneditor"></div></fieldset>';
-                html += '</div>';
-                container.hide().after(html);
-                editorContainer = $('#' + id);
+    var loadUi = function(el, backend, schemas, setInitialValue){
+        var field = $(el),
+            form = field.parents('form').eq(0),
+            value = JSON.parse(field.val()),
+            id = field.attr('id') + '_jsoneditor',
+            initialField = $('#initial-' + field.attr('id')),
+            container = field.parents('.form-row').eq(0),
+            labelText = container.find('label:not(#netjsonconfig-hint)').text(),
+            startval = $.isEmptyObject(value) ? null : value,
+            editorContainer = $('#' + id),
+            html, editor, options, wrapper, header,
+            getEditorValue, updateRaw, advancedEditor,
+            $advancedEl;
+        // inject editor unless already present
+        if(!editorContainer.length){
+            html =  '<div class="jsoneditor-wrapper">';
+            html += '<fieldset class="module aligned"><h2>'+ labelText +'</h2>';
+            html += '<div id="'+ id +'" class="jsoneditor"></div></fieldset>';
+            html += '</div>';
+            container.hide().after(html);
+            editorContainer = $('#' + id);
+        }
+        else{
+            editorContainer.html('');
+        }
+
+        // stop operation if empty admin inline object
+        if (field.attr('id').indexOf('__prefix__') > -1) {
+            return;
+        }
+
+        wrapper = editorContainer.parents('.jsoneditor-wrapper');
+        options = {
+            theme: 'django',
+            disable_collapse: true,
+            disable_edit_json: true,
+            startval: startval,
+            keep_oneof_values: false,
+            show_errors: 'change',
+            // if no backend selected use empty schema
+            schema: backend ? schemas[backend] : {}
+        };
+        if (field.attr("data-options") !== undefined) {
+          $.extend(options, JSON.parse(field.attr("data-options")));
+        }
+        editor = new JSONEditor(document.getElementById(id), options);
+        // initialise advanced json editor here (disable schema validation in VPN admin)
+        advancedEditor = initAdvancedEditor(field, value, options.schema, $('#vpn_form').length === 1);
+        $advancedEl = $('#advanced_editor');
+        getEditorValue = function(){
+            return JSON.stringify(editor.getValue(), null, 4);
+        };
+        updateRaw = function(){
+            field.val(getEditorValue());
+        };
+
+        editor.editors.root.addproperty_button.value = 'Configuration Menu';
+        // set initial field value to the schema default
+        if (setInitialValue) {
+            initialField.val(getEditorValue());
+        }
+        // update raw value on change event
+        editor.on('change', updateRaw);
+
+        // update raw value before form submit
+        form.submit(function(e){
+            if ($advancedEl.is(':hidden')) { return; }
+            // only submit the form if the json in the advanced editor is valid
+            if(!isValidJson(advancedEditor)){
+                e.preventDefault();
+                alertInvalidJson();
             }
             else{
-                editorContainer.html('');
+                if (container.is(':hidden')) { updateRaw(); }
             }
+        });
 
-            // stop operation if empty admin inline object
-            if (field.attr('id').indexOf('__prefix__') > -1) {
-                return;
-            }
+        // add advanced edit button
+        header = editorContainer.find('> div > h3');
+        header.find('span:first-child').hide();  // hides editor title
+        header.attr('class', 'controls');
+        // move advanced mode button in auto-generated UI
+        container.find('.advanced-mode').clone().prependTo(header);
+        // advanced mode button
+        header.find('.advanced-mode').click(function(){
+            // update autogenrated advanced json editor with new data
+            advancedEditor.set(JSON.parse(field.val()));
+            wrapper.hide();
+            container.show();
+            // set the advanced editor container to full screen mode
+            toggleFullScreen();
+        });
 
-            wrapper = editorContainer.parents('.jsoneditor-wrapper');
-            options = {
-                theme: 'django',
-                disable_collapse: true,
-                disable_edit_json: true,
-                startval: startval,
-                keep_oneof_values: false,
-                show_errors: 'change',
-                // if no backend selected use empty schema
-                schema: backend ? schemas[backend] : {}
-            };
-            editor = new JSONEditor(document.getElementById(id), options);
-            // initialise advanced json editor here (disable schema validation in VPN admin)
-            advancedEditor = initAdvancedEditor(field, value, options.schema, $('#vpn_form').length === 1);
-            $advancedEl = $('#advanced_editor');
-            getEditorValue = function(){
-                return JSON.stringify(editor.getValue(), null, 4);
-            };
-            updateRaw = function(){
-                field.val(getEditorValue());
-            };
-
-            editor.editors.root.addproperty_button.value = 'Configuration Menu';
-            // set initial field value to the schema default
-            if (setInitialValue) {
-                initialField.val(getEditorValue());
-            }
-            // update raw value on change event
-            editor.on('change', updateRaw);
-
-            // update raw value before form submit
-            form.submit(function(e){
-                if ($advancedEl.is(':hidden')) { return; }
-                // only submit the form if the json in the advanced editor is valid
-                if(!isValidJson(advancedEditor)){
-                    e.preventDefault();
-                    alertInvalidJson();
-                }
-                else{
-                    if (container.is(':hidden')) { updateRaw(); }
-                }
-            });
-
-            // add advanced edit button
-            header = editorContainer.find('> div > h3');
-            header.find('span:first-child').hide();  // hides editor title
-            header.attr('class', 'controls');
-            // move advanced mode button in auto-generated UI
-            container.find('.advanced-mode').clone().prependTo(header);
-            // advanced mode button
-            header.find('.advanced-mode').click(function(){
-                // update autogenrated advanced json editor with new data
-                advancedEditor.set(JSON.parse(field.val()));
-                wrapper.hide();
-                container.show();
-                // set the advanced editor container to full screen mode
+        // back to normal mode button
+        $advancedEl.find('.jsoneditor-exit').click(function(){
+            // check if json in advanced mode is valid before coming back to normal mode
+            if(isValidJson(advancedEditor)){
+                // update autogenerated UI
+                editor.setValue(JSON.parse(field.val()));
                 toggleFullScreen();
-            });
+                container.hide();
+                wrapper.show();
+            }
+            else{
+                alertInvalidJson();
+            }
+        });
 
-            // back to normal mode button
-            $advancedEl.find('.jsoneditor-exit').click(function(){
-                // check if json in advanced mode is valid before coming back to normal mode
-                if(isValidJson(advancedEditor)){
-                    // update autogenerated UI
-                    editor.setValue(JSON.parse(field.val()));
-                    toggleFullScreen();
-                    container.hide();
-                    wrapper.show();
-                }
-                else{
-                    alertInvalidJson();
-                }
-            });
+        // re-enable click on netjsonconfig hint
+        $advancedEl.find('#netjsonconfig-hint-advancedmode a').click(function(){
+            var window_ = window.open($(this).attr('href'), '_blank');
+            window_.focus();
+        });
 
-            // re-enable click on netjsonconfig hint
-            $advancedEl.find('#netjsonconfig-hint-advancedmode a').click(function(){
-                var window_ = window.open($(this).attr('href'), '_blank');
-                window_.focus();
-            });
-
-            // allow to add object properties by pressing enter
-            form.on('keypress', '.jsoneditor .modal input[type=text]', function(e){
-                if(e.keyCode == 13){
-                    e.preventDefault();
-                    $(e.target).siblings('input.json-editor-btn-add').trigger('click');
-                    $(e.target).val('');
-                }
-            });
+        // allow to add object properties by pressing enter
+        form.on('keypress', '.jsoneditor .modal input[type=text]', function(e){
+            if(e.keyCode == 13){
+                e.preventDefault();
+                $(e.target).siblings('input.json-editor-btn-add').trigger('click');
+                $(e.target).val('');
+            }
         });
     };
 
     var bindLoadUi = function(){
         $.getJSON(django._netjsonconfigSchemaUrl).success(function(schemas){
-            var backend = $('#id_backend, #id_config-0-backend');
-            // load first time
-            loadUi(backend.val(), schemas, true);
-            // reload when backend is changed
-            backend.change(function(){
-                loadUi(backend.val(), schemas);
+            $('.jsoneditor-raw').each(function(i, el){
+                var field = $(el),
+                    schema = field.attr("data-schema"),
+                    schema_selector = field.attr("data-schema-selector");
+                if (schema !== undefined) {
+                    loadUi(el, schema, schemas, true);
+                } else {
+                    if(schema_selector === undefined) {
+                        schema_selector = '#id_backend, #id_config-0-backend';
+                    }
+                    var backend = $(schema_selector);
+                    // load first time
+                    loadUi(el, backend.val(), schemas, true);
+                    // reload when backend is changed
+                    backend.change(function(){
+                        loadUi(el, backend.val(), schemas);
+                    });
+                }
             });
         });
     };
