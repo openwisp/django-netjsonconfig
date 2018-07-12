@@ -1,10 +1,27 @@
 Changelog
 =========
 
-Version 0.8.1 [unreleased]
+Version 0.8.1 [2018-07-12]
 --------------------------
 
-WIP
+- `88ad549 <https://github.com/openwisp/django-netjsonconfig/commit/88ad549>`_:
+  [controller] Avoid failure if device exists but not config
+- `1fca275 <https://github.com/openwisp/django-netjsonconfig/commit/1fca275>`_:
+  [vpn] Ensure ca_path does not contain spaces
+- `dbab6ca <https://github.com/openwisp/django-netjsonconfig/commit/dbab6ca>`_:
+  [vpn] Added auto VPN client template generation hint
+- `#73 <https://github.com/openwisp/django-netjsonconfig/pull/73>`_:
+  [docs] Improved instructions on how to extend and reuse the app
+  (thanks to `@redhog <https://github.com/redhog>`_)
+- `550eb52 <https://github.com/openwisp/django-netjsonconfig/commit/550eb52>`_:
+  [models] Added config_modified signal
+- `d1172e7 <https://github.com/openwisp/django-netjsonconfig/commit/d1172e7>`_:
+  [cleanup] Removed obsolete TimeStampedEditableAdmin
+- `f6bd09e <https://github.com/openwisp/django-netjsonconfig/commit/f6bd09e>`_:
+  [admin] Added forgotten notes field to Device edit page
+- `#74 <https://github.com/openwisp/django-netjsonconfig/pull/74>`_:
+  [js] Generalized json-widget to handle non-config fields
+  (thanks to `@redhog <https://github.com/redhog>`_)
 
 Version 0.8.0 [2018-02-19]
 --------------------------
