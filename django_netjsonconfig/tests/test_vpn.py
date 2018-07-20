@@ -181,6 +181,15 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
         ]
         self.assertDictEqual(auto, control)
 
+    def test_vpn_client_get_common_name(self):
+        vpn = self._create_vpn()
+        d = self._create_device()
+        c = self._create_config(device=d)
+        client = VpnClient(vpn=vpn, config=c, auto_cert=True)
+        self.assertEqual(client._get_common_name(), '{mac_address}-{name}'.format(**d.__dict__))
+        d.name = d.mac_address
+        self.assertEqual(client._get_common_name(), d.mac_address)
+
     def test_get_auto_context_keys(self):
         vpn = self._create_vpn()
         keys = vpn._get_auto_context_keys()
