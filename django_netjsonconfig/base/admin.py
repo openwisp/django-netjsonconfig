@@ -278,7 +278,9 @@ class AbstractDeviceAdmin(BaseConfigAdmin):
     id_hex.short_description = 'UUID'
 
     def ip(self, obj):
-        return obj.management_ip or obj.last_ip
+        mngmt_ip = obj.management_ip if app_settings.MANAGEMENT_IP_DEVICE_LIST \
+                                     else None
+        return mngmt_ip or obj.last_ip
 
     ip.short_description = _('IP address')
 

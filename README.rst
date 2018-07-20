@@ -382,6 +382,25 @@ downloaded on routers when ``auto_cert`` is being used (enabled by default).
 Defines the format of the ``common_name`` attribute of VPN client certificates that are automatically
 created when using VPN templates which have ``auto_cert`` set to ``True``.
 
+``NETJSONCONFIG_MANAGEMENT_IP_DEVICE_LIST``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+------------------------------+
+| **type**:    | ``bool``                     |
++--------------+------------------------------+
+| **default**: | ``True``                     |
++--------------+------------------------------+
+
+In the device list page, the column ``IP`` will show the ``management_ip`` if
+available, defaulting to ``last_ip`` otherwise.
+
+If this setting is set to ``False`` the ``management_ip`` won't be shown
+in the device list page even if present, it will be shown only in the device
+detail page.
+
+You may set this to ``False`` if for some reason the majority of your user
+doesn't care about the management ip address.
+
 Extending django-netjsonconfig
 ------------------------------
 
