@@ -316,6 +316,11 @@ class AbstractDeviceAdmin(BaseConfigAdmin):
         return c
 
 
+if not app_settings.BACKEND_DEVICE_LIST:  # pragma: nocover
+    AbstractDeviceAdmin.list_display.remove('backend')
+    AbstractDeviceAdmin.list_filter.remove('config__backend')
+
+
 class AbstractTemplateAdmin(BaseConfigAdmin):
     list_display = ['name', 'type', 'backend', 'default', 'created', 'modified']
     list_filter = ['backend', 'type', 'default', 'created']

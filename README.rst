@@ -401,6 +401,23 @@ detail page.
 You may set this to ``False`` if for some reason the majority of your user
 doesn't care about the management ip address.
 
+``NETJSONCONFIG_BACKEND_DEVICE_LIST``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+------------------------------+
+| **type**:    | ``bool``                     |
++--------------+------------------------------+
+| **default**: | ``True``                     |
++--------------+------------------------------+
+
+In the device list page, the column ``backend`` and the backend filter are
+shown by default.
+
+If this setting is set to ``False`` these items will be removed from the UI.
+
+You may set this to ``False`` if you are using only one configuration backend
+and having this UI element doesn't add any value to your users.
+
 Extending django-netjsonconfig
 ------------------------------
 
