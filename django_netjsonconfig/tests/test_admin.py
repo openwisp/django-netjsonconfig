@@ -358,3 +358,8 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         path = reverse('admin:django_netjsonconfig_device_change', args=[d.pk])
         response = self.client.get(path)
         self.assertContains(response, 'last_ip')
+
+    def test_error_if_download_config(self):
+        d = self._create_device()
+        res = self.client.get(reverse('admin:django_netjsonconfig_device_change', args=[d.pk]))
+        self.assertNotContains(res, 'Download configuration')
