@@ -3,7 +3,9 @@
 
 {% block object-tools-items %}
 <li>
-    <a href="{{ download_url }}" class="downloadlink">{% trans "Download configuration" %}</a>
+    {% if download_url %}
+      <a href="{{ download_url }}" class="downloadlink">{% trans "Download configuration" %}</a>
+    {% endif %}
 </li>
 {{ block.super }}
 {% endblock %}
