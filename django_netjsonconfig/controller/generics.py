@@ -89,6 +89,8 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
     """
     registers new Config objects
     """
+    UPDATABLE_FIELDS = ['os', 'model', 'system']
+
     def init_object(self, **kwargs):
         """
         initializes Config object with incoming POST data
@@ -180,6 +182,10 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
         try:
             device = self.model.objects.get(key=key)
             config = device.config
+            # update hw info
+            for attr in self.UPDATABLE_FIELDS:
+                if attr in request.POST:
+                    setattr(device, attr, request.POST.get(attr))
         # if get queryset fails, instantiate a new Device and Config
         except self.model.DoesNotExist:
             new = True
@@ -192,14 +198,6 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
             config.device = device
         # update last_ip field of device
         device.last_ip = request.META.get('REMOTE_ADDR')
-        # update os,model and system fields of device
-        os = request.POST.get('os')
-        model = request.POST.get('model')
-        system = request.POST.get('system')
-        if os is not None and model is not None and system is not None:
-            device.os = os
-            device.model = model
-            device.system = system
         # validate and save everything or fail otherwise
         try:
             device.full_clean()

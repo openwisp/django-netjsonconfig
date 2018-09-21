@@ -293,6 +293,30 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
         d.refresh_from_db()
         self.assertIsNotNone(d.config)
 
+    def test_registration_update_hw_info(self):
+        d = self._create_device_config()
+        d.key = TEST_CONSISTENT_KEY
+        d.save()
+        params = {
+            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+            'name': TEST_MACADDR,
+            'mac_address': TEST_MACADDR,
+            'key': TEST_CONSISTENT_KEY,
+            'backend': 'netjsonconfig.OpenWrt',
+            'model': 'TP-Link TL-WDR4300 v2',
+            'os': 'OpenWrt 18.06-SNAPSHOT r7312-e60be11330',
+            'system': 'Atheros AR9344 rev 3'
+        }
+        self.assertNotEqual(d.os, params['os'])
+        self.assertNotEqual(d.system, params['system'])
+        self.assertNotEqual(d.model, params['model'])
+        response = self.client.post(REGISTER_URL, params)
+        self.assertEqual(response.status_code, 201)
+        d.refresh_from_db()
+        self.assertEqual(d.os, params['os'])
+        self.assertEqual(d.system, params['system'])
+        self.assertEqual(d.model, params['model'])
+
     def test_report_status_running(self):
         """
         maintained for backward compatibility
