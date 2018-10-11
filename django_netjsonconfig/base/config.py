@@ -97,6 +97,8 @@ class AbstractConfig(BaseConfig):
                 'mac_address': self.mac_address
             })
         c.update(app_settings.CONTEXT)
+        if app_settings.HARDWARE_ID_ENABLED:
+            c.update({'hardware_id': self.device.hardware_id})
         return c
 
     @property

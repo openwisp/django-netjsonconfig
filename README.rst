@@ -418,6 +418,47 @@ If this setting is set to ``False`` these items will be removed from the UI.
 You may set this to ``False`` if you are using only one configuration backend
 and having this UI element doesn't add any value to your users.
 
+``NETJSONCONFIG_HARDWARE_ID_ENABLED``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+-------------+
+| **type**:    | ``bool``    |
++--------------+-------------+
+| **default**: | ``False``   |
++--------------+-------------+
+
+The field ``hardware_id`` can be used to store a unique hardware id, for example a serial number.
+
+If this setting is set to ``True`` then this field will be shown first in the device list page
+and in the add/edit device page.
+
+This feature is disabled by default.
+
+``NETJSONCONFIG_HARDWARE_ID_OPTIONS``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+--------------------------------------------------------+
+| **type**:    | ``dict``                                               |
++--------------+--------------------------------------------------------+
+| **default**: | ``{                                                    |
+|              |        'blank': not NETJSONCONFIG_HARDWARE_ID_ENABLED, |
+|              |        'null': True,                                   |
+|              |        'max_length': 32,                               |
+|              |        'unique': True,                                 |
+|              |        'verbose_name': _('Serial number'),             |
+|              |        'help_text': _('Serial number of this device')  |
+|              |    }``                                                 |
++--------------+--------------------------------------------------------+
+
+Options for the model field ``hardware_id``.
+
+* ``blank``: wether the field is allowed to be blank
+* ``null``: wether an empty value will be stored as ``NULL`` in the database
+* ``max_length``: maximum length of the field
+* ``unique``: wether the value of the field must be unique
+* ``verbose_name``: text for the human readable label of the field
+* ``help_text``: help text to be displayed with the field
+
 Extending django-netjsonconfig
 ------------------------------
 

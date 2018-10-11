@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from .. import settings as app_settings
 from ..utils import get_random_key
 from ..validators import device_name_validator, key_validator, mac_address_validator
 from .base import BaseModel
@@ -48,6 +49,7 @@ class AbstractDevice(BaseModel):
                                                  null=True,
                                                  help_text=_('ip address of the management interface, '
                                                              'if available'))
+    hardware_id = models.CharField(**(app_settings.HARDWARE_ID_OPTIONS))
 
     class Meta:
         abstract = True

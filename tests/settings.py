@@ -70,6 +70,8 @@ NETJSONCONFIG_CONTEXT = {
     'vpnserver1': 'vpn.testdomain.com'
 }
 
+NETJSONCONFIG_HARDWARE_ID_ENABLED = True
+
 # local settings must be imported before test runner otherwise they'll be ignored
 try:
     from local_settings import *
