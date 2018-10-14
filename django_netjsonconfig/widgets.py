@@ -37,5 +37,5 @@ class JsonSchemaWidget(AdminTextareaWidget):
 """
         html = html.format(_('Advanced mode (raw JSON)'),
                            reverse('netjsonconfig:schema'))
-        html += super(JsonSchemaWidget, self).render(name, value, attrs)
+        html += super(JsonSchemaWidget, self).render(name, value, attrs, renderer)
         return html
