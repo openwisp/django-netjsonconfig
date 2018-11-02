@@ -3,6 +3,8 @@ test utilities shared among test classes
 these mixins are reused also in openwisp2
 change with care.
 """
+from uuid import uuid4
+
 from django_x509.tests import TestX509Mixin
 
 
@@ -12,6 +14,7 @@ class CreateDeviceMixin(object):
     def _create_device(self, **kwargs):
         options = dict(name='test-device',
                        mac_address=self.TEST_MAC_ADDRESS,
+                       hardware_id=str(uuid4().hex),
                        model='TP-Link TL-WDR4300 v1',
                        os='LEDE Reboot 17.01-SNAPSHOT r3313-c2999ef')
         options.update(kwargs)

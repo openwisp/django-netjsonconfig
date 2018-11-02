@@ -29,6 +29,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
     def _get_device_params(self):
         return {
             'name': '',
+            'hardware_id': '1234',
             'mac_address': self.TEST_MAC_ADDRESS,
             'key': self.TEST_KEY,
             'model': '',

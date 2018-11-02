@@ -48,7 +48,8 @@ class TestDevice(CreateConfigMixin, TestCase):
 
     def test_key_validator(self):
         d = Device(name='test',
-                   mac_address=self.TEST_MAC_ADDRESS)
+                   mac_address=self.TEST_MAC_ADDRESS,
+                   hardware_id='1234')
         d.key = 'key/key'
         with self.assertRaises(ValidationError):
             d.full_clean()
