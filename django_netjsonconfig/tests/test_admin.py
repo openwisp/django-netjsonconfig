@@ -29,6 +29,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
     def _get_device_params(self):
         return {
             'name': '',
+            'hardware_id': '1234',
             'mac_address': self.TEST_MAC_ADDRESS,
             'key': self.TEST_KEY,
             'model': '',
@@ -358,6 +359,14 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         path = reverse('admin:django_netjsonconfig_device_change', args=[d.pk])
         response = self.client.get(path)
         self.assertContains(response, 'last_ip')
+
+    def test_hardware_id_in_change_device(self):
+        d = self._create_device()
+        t = Template.objects.first()
+        self._create_config(device=d, backend=t.backend, config=t.config)
+        path = reverse('admin:django_netjsonconfig_device_change', args=[d.pk])
+        response = self.client.get(path)
+        self.assertContains(response, 'hardware_id')
 
     def test_error_if_download_config(self):
         d = self._create_device()

@@ -111,6 +111,8 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
         if 'key' in options and (settings.CONSISTENT_REGISTRATION is False
                                  or options['key'] is None):
             del options['key']
+        if 'hardware_id' in options and options['hardware_id'] == "":
+            options['hardware_id'] = None
         return config_model(device=device_model(**options),
                             backend=kwargs['backend'])
 
