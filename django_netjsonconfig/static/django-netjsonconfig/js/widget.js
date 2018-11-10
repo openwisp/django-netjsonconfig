@@ -208,7 +208,7 @@
     };
 
     var bindLoadUi = function(){
-        $.getJSON(django._netjsonconfigSchemaUrl).success(function(schemas){
+        $.getJSON(django._netjsonconfigSchemaUrl, function(schemas){
             $('.jsoneditor-raw').each(function(i, el){
                 var field = $(el),
                     schema = field.attr("data-schema"),

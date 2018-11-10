@@ -90,7 +90,7 @@
         return true;
     };
 
-    $(window).load(function(){
+    $(window).on('load', function(){
         if (!$('.submit-row').length) { return; }
         // populate initial map of form values
         django._njc_initial_values = {};
