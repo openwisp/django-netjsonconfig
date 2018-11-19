@@ -241,6 +241,7 @@ class AbstractConfigInline(TimeReadonlyAdminMixin, admin.StackedInline):
     fields = ['backend',
               'status',
               'templates',
+              'context',
               'config',
               'created',
               'modified']

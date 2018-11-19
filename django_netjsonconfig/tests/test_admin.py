@@ -372,3 +372,30 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         d = self._create_device()
         res = self.client.get(reverse('admin:django_netjsonconfig_device_change', args=[d.pk]))
         self.assertNotContains(res, 'Download configuration')
+
+    def test_preview_device_with_context(self):
+        path = reverse('admin:django_netjsonconfig_device_preview')
+        config = json.dumps({
+            'openwisp': [
+                {
+                    "config_name": "controller",
+                    "config_value": "http",
+                    "url": "http://controller.examplewifiservice.com",
+                    "interval": "{{ interval }}",
+                    "verify_ssl": "1",
+                    "uuid": "UUID",
+                    "key": self.TEST_KEY
+                }
+            ]
+        })
+        data = {
+            'id': 'd60ecd62-5d00-4e7b-bd16-6fc64a95e60c',
+            'name': 'test-asd',
+            'mac_address': self.TEST_MAC_ADDRESS,
+            'backend': 'netjsonconfig.OpenWrt',
+            'config': config,
+            'csrfmiddlewaretoken': 'test',
+            'context': '{"interval": "60"}'
+        }
+        response = self.client.post(path, data)
+        self.assertContains(response, "option interval &#39;60&#39;")
