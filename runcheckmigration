@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+
+checkmigrations --migration-path ./django_netjsonconfig/migrations/ || exit 1
