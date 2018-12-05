@@ -33,6 +33,7 @@ install:
 
 script:
   - coverage run --source=django_netjsonconfig runtests.py
+  - ./runcheckmigration
   - if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then ./tests/manage.py makemigrations --dry-run | grep "No changes detected"; fi
   - |
     if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
