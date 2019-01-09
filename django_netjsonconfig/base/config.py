@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from jsonfield import JSONField
 from model_utils import Choices
 from model_utils.fields import StatusField
 from sortedm2m.fields import SortedManyToManyField
@@ -22,6 +23,12 @@ class AbstractConfig(BaseConfig):
         '"applied" means the configuration is applied successfully; \n'
         '"error" means the configuration caused issues and it was rolled back;'
     ))
+    context = JSONField(null=True,
+                        blank=True,
+                        help_text=_('Additional '
+                                    '<a href="http://netjsonconfig.openwisp.org/'
+                                    'en/stable/general/basics.html#context">'
+                                    'context</a> for the configuration.'))
 
     class Meta:
         abstract = True
@@ -96,6 +103,8 @@ class AbstractConfig(BaseConfig):
                 'name': self.name,
                 'mac_address': self.mac_address
             })
+            if self.context:
+                c.update(self.context)
         c.update(app_settings.CONTEXT)
         if app_settings.HARDWARE_ID_ENABLED and self._has_device():
             c.update({'hardware_id': self.device.hardware_id})

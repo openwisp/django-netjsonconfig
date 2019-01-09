@@ -108,3 +108,24 @@ class TestDevice(CreateConfigMixin, TestCase):
                                  e.message_dict['name'][0])
             else:
                 self.fail('ValidationError not raised for "{0}"'.format(host))
+
+    def test_add_device_with_context(self):
+        d = self._create_device()
+        d.save()
+        c = self._create_config(device=d, config={
+            "openwisp": [
+                {
+                    "config_name": "controller",
+                    "config_value": "http",
+                    "url": "http://controller.examplewifiservice.com",
+                    "interval": "{{ interval }}",
+                    "verify_ssl": "1",
+                    "uuid": "UUID",
+                    "key": self.TEST_KEY
+                }
+            ]
+        }, context={
+            'interval': '60'
+        })
+        self.assertEqual(c.json(dict=True)['openwisp'][0]['interval'],
+                         '60')
