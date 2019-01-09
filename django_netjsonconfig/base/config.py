@@ -27,8 +27,8 @@ class AbstractConfig(BaseConfig):
                         blank=True,
                         help_text=_('Additional '
                                     '<a href="http://netjsonconfig.openwisp.org/'
-                                    'en/stable/general/basics.html#context">'
-                                    'context</a> for the configuration.'))
+                                    'en/stable/general/basics.html#context" target="_blank">'
+                                    'context (configuration variables)</a> in JSON format'))
 
     class Meta:
         abstract = True

@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='config',
             name='context',
-            field=jsonfield.fields.JSONField(blank=True, help_text='Additional <a href="http://netjsonconfig.openwisp.org/en/stable/general/basics.html#context">context</a> for the configuration.', null=True),
+            field=jsonfield.fields.JSONField(blank=True, help_text='Additional <a href="http://netjsonconfig.openwisp.org/en/stable/general/basics.html#context" target="_blank">context (configuration variables)</a> in JSON format', null=True),
         ),
     ]
