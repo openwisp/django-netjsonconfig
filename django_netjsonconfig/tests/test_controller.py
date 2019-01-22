@@ -3,32 +3,35 @@ from hashlib import md5
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
+from django_x509.models import Ca
 
-from . import CreateConfigMixin, CreateTemplateMixin
+from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 from .. import settings as app_settings
-from ..models import Config, Device, Template
+from ..models import Config, Device, Template, Vpn
 
 TEST_MACADDR = '00:11:22:33:44:55'
 mac_plus_secret = '%s+%s' % (TEST_MACADDR, settings.NETJSONCONFIG_SHARED_SECRET)
 TEST_CONSISTENT_KEY = md5(mac_plus_secret.encode()).hexdigest()
-REGISTER_URL = reverse('controller:register')
+REGISTER_URL = reverse('controller:device_register')
 
 
-class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
+class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX509Mixin):
     """
     tests for django_netjsonconfig.controller
     """
     config_model = Config
     device_model = Device
     template_model = Template
+    ca_model = Ca
+    vpn_model = Vpn
 
     def _check_header(self, response):
         self.assertEqual(response['X-Openwisp-Controller'], 'true')
 
-    def test_checksum(self):
+    def test_device_checksum(self):
         d = self._create_device_config()
         c = d.config
-        url = reverse('controller:checksum', args=[d.pk])
+        url = reverse('controller:device_checksum', args=[d.pk])
         response = self.client.get(url, {'key': d.key, 'management_ip': '10.0.0.2'})
         self.assertEqual(response.content.decode(), c.checksum)
         self._check_header(response)
@@ -41,32 +44,32 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
         self.assertIsNotNone(d.last_ip)
         self.assertIsNone(d.management_ip)
 
-    def test_checksum_bad_uuid(self):
+    def test_device_checksum_bad_uuid(self):
         d = self._create_device_config()
         pk = '{}-wrong'.format(d.pk)
-        response = self.client.get(reverse('controller:checksum', args=[pk]), {'key': d.key})
+        response = self.client.get(reverse('controller:device_checksum', args=[pk]), {'key': d.key})
         self.assertEqual(response.status_code, 404)
 
-    def test_checksum_400(self):
+    def test_device_checksum_400(self):
         d = self._create_device_config()
-        response = self.client.get(reverse('controller:checksum', args=[d.pk]))
+        response = self.client.get(reverse('controller:device_checksum', args=[d.pk]))
         self.assertEqual(response.status_code, 400)
         self._check_header(response)
 
-    def test_checksum_403(self):
+    def test_device_checksum_403(self):
         d = self._create_device_config()
-        response = self.client.get(reverse('controller:checksum', args=[d.pk]), {'key': 'wrong'})
+        response = self.client.get(reverse('controller:device_checksum', args=[d.pk]), {'key': 'wrong'})
         self.assertEqual(response.status_code, 403)
         self._check_header(response)
 
-    def test_checksum_405(self):
+    def test_device_checksum_405(self):
         d = self._create_device_config()
-        response = self.client.post(reverse('controller:checksum', args=[d.pk]), {'key': d.key})
+        response = self.client.post(reverse('controller:device_checksum', args=[d.pk]), {'key': d.key})
         self.assertEqual(response.status_code, 405)
 
-    def test_download_config(self):
+    def test_device_download_config(self):
         d = self._create_device_config()
-        url = reverse('controller:download_config', args=[d.pk])
+        url = reverse('controller:device_download_config', args=[d.pk])
         response = self.client.get(url, {'key': d.key, 'management_ip': '10.0.0.2'})
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=test.tar.gz')
         self._check_header(response)
@@ -79,27 +82,89 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
         self.assertIsNotNone(d.last_ip)
         self.assertIsNone(d.management_ip)
 
-    def test_download_config_bad_uuid(self):
+    def test_device_download_config_bad_uuid(self):
         d = self._create_device_config()
         pk = '{}-wrong'.format(d.pk)
-        response = self.client.get(reverse('controller:download_config', args=[pk]), {'key': d.key})
+        response = self.client.get(reverse('controller:device_download_config', args=[pk]), {'key': d.key})
         self.assertEqual(response.status_code, 404)
 
-    def test_download_config_400(self):
+    def test_device_download_config_400(self):
         d = self._create_device_config()
-        response = self.client.get(reverse('controller:download_config', args=[d.pk]))
+        response = self.client.get(reverse('controller:device_download_config', args=[d.pk]))
         self.assertEqual(response.status_code, 400)
         self._check_header(response)
 
-    def test_download_config_403(self):
+    def test_device_download_config_403(self):
         d = self._create_device_config()
-        response = self.client.get(reverse('controller:download_config', args=[d.pk]), {'key': 'wrong'})
+        path = reverse('controller:device_download_config', args=[d.pk])
+        response = self.client.get(path, {'key': 'wrong'})
         self.assertEqual(response.status_code, 403)
         self._check_header(response)
 
-    def test_download_config_405(self):
+    def test_device_download_config_405(self):
         d = self._create_device_config()
-        response = self.client.post(reverse('controller:download_config', args=[d.pk]), {'key': d.key})
+        response = self.client.post(reverse('controller:device_download_config', args=[d.pk]), {'key': d.key})
+        self.assertEqual(response.status_code, 405)
+
+    def test_vpn_checksum(self):
+        v = self._create_vpn()
+        url = reverse('controller:vpn_checksum', args=[v.pk])
+        response = self.client.get(url, {'key': v.key})
+        self.assertEqual(response.content.decode(), v.checksum)
+        self._check_header(response)
+
+    def test_vpn_checksum_bad_uuid(self):
+        v = self._create_vpn()
+        pk = '{}-wrong'.format(v.pk)
+        response = self.client.get(reverse('controller:vpn_checksum', args=[pk]), {'key': v.key})
+        self.assertEqual(response.status_code, 404)
+
+    def test_vpn_checksum_400(self):
+        v = self._create_vpn()
+        response = self.client.get(reverse('controller:vpn_checksum', args=[v.pk]))
+        self.assertEqual(response.status_code, 400)
+        self._check_header(response)
+
+    def test_vpn_checksum_403(self):
+        v = self._create_vpn()
+        response = self.client.get(reverse('controller:vpn_checksum', args=[v.pk]), {'key': 'wrong'})
+        self.assertEqual(response.status_code, 403)
+        self._check_header(response)
+
+    def test_vpn_checksum_405(self):
+        v = self._create_vpn()
+        response = self.client.post(reverse('controller:vpn_checksum', args=[v.pk]), {'key': v.key})
+        self.assertEqual(response.status_code, 405)
+
+    def test_vpn_download_config(self):
+        v = self._create_vpn()
+        url = reverse('controller:vpn_download_config', args=[v.pk])
+        response = self.client.get(url, {'key': v.key})
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename=test.tar.gz')
+        self._check_header(response)
+
+    def test_vpn_download_config_bad_uuid(self):
+        v = self._create_vpn()
+        pk = '{}-wrong'.format(v.pk)
+        response = self.client.get(reverse('controller:vpn_download_config', args=[pk]), {'key': v.key})
+        self.assertEqual(response.status_code, 404)
+
+    def test_vpn_download_config_400(self):
+        v = self._create_vpn()
+        response = self.client.get(reverse('controller:vpn_download_config', args=[v.pk]))
+        self.assertEqual(response.status_code, 400)
+        self._check_header(response)
+
+    def test_vpn_download_config_403(self):
+        v = self._create_vpn()
+        path = reverse('controller:vpn_download_config', args=[v.pk])
+        response = self.client.get(path, {'key': 'wrong'})
+        self.assertEqual(response.status_code, 403)
+        self._check_header(response)
+
+    def test_vpn_download_config_405(self):
+        v = self._create_vpn()
+        response = self.client.post(reverse('controller:vpn_download_config', args=[v.pk]), {'key': v.key})
         self.assertEqual(response.status_code, 405)
 
     def test_register(self, **kwargs):
@@ -245,7 +310,7 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
         self.assertEqual(d.key, TEST_CONSISTENT_KEY)
         self.assertIsNotNone(d.last_ip)
 
-    def test_consistent_registration_existing(self):
+    def test_device_consistent_registration_existing(self):
         d = self._create_device_config()
         d.key = TEST_CONSISTENT_KEY
         d.save()
@@ -268,7 +333,7 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
         count = Device.objects.filter(pk=uuid, key=key, name=hostname).count()
         self.assertEqual(count, 1)
 
-    def test_consistent_registration_exists_no_config(self):
+    def test_device_consistent_registration_exists_no_config(self):
         d = self._create_device()
         d.key = TEST_CONSISTENT_KEY
         d.save()
@@ -293,83 +358,107 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase):
         d.refresh_from_db()
         self.assertIsNotNone(d.config)
 
-    def test_report_status_running(self):
+    def test_device_registration_update_hw_info(self):
+        d = self._create_device_config()
+        d.key = TEST_CONSISTENT_KEY
+        d.save()
+        params = {
+            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+            'name': TEST_MACADDR,
+            'mac_address': TEST_MACADDR,
+            'key': TEST_CONSISTENT_KEY,
+            'backend': 'netjsonconfig.OpenWrt',
+            'model': 'TP-Link TL-WDR4300 v2',
+            'os': 'OpenWrt 18.06-SNAPSHOT r7312-e60be11330',
+            'system': 'Atheros AR9344 rev 3'
+        }
+        self.assertNotEqual(d.os, params['os'])
+        self.assertNotEqual(d.system, params['system'])
+        self.assertNotEqual(d.model, params['model'])
+        response = self.client.post(REGISTER_URL, params)
+        self.assertEqual(response.status_code, 201)
+        d.refresh_from_db()
+        self.assertEqual(d.os, params['os'])
+        self.assertEqual(d.system, params['system'])
+        self.assertEqual(d.model, params['model'])
+
+    def test_device_report_status_running(self):
         """
         maintained for backward compatibility
         # TODO: remove in stable version 1.0
         """
         d = self._create_device_config()
-        response = self.client.post(reverse('controller:report_status', args=[d.pk]),
+        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
                                     {'key': d.key, 'status': 'running'})
         self._check_header(response)
         d.config.refresh_from_db()
         self.assertEqual(d.config.status, 'applied')
 
-    def test_report_status_applied(self):
+    def test_device_report_status_applied(self):
         d = self._create_device_config()
-        response = self.client.post(reverse('controller:report_status', args=[d.pk]),
+        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
                                     {'key': d.key, 'status': 'applied'})
         self._check_header(response)
         d.config.refresh_from_db()
         self.assertEqual(d.config.status, 'applied')
 
-    def test_report_status_error(self):
+    def test_device_report_status_error(self):
         d = self._create_device_config()
-        response = self.client.post(reverse('controller:report_status', args=[d.pk]),
+        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
                                     {'key': d.key, 'status': 'error'})
         self._check_header(response)
         d.config.refresh_from_db()
         self.assertEqual(d.config.status, 'error')
 
-    def test_report_status_bad_uuid(self):
+    def test_device_report_status_bad_uuid(self):
         d = self._create_device_config()
         pk = '{}-wrong'.format(d.pk)
-        response = self.client.post(reverse('controller:report_status', args=[pk]), {'key': d.key})
+        response = self.client.post(reverse('controller:device_report_status', args=[pk]), {'key': d.key})
         self.assertEqual(response.status_code, 404)
 
-    def test_report_status_400(self):
+    def test_device_report_status_400(self):
         d = self._create_device_config()
-        response = self.client.post(reverse('controller:report_status', args=[d.pk]))
+        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]))
         self.assertEqual(response.status_code, 400)
         self._check_header(response)
-        response = self.client.post(reverse('controller:report_status', args=[d.pk]),
+        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
                                     {'key': d.key})
         self.assertEqual(response.status_code, 400)
         self._check_header(response)
-        response = self.client.post(reverse('controller:report_status', args=[d.pk]),
+        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
                                     {'key': d.key})
         self.assertEqual(response.status_code, 400)
         self._check_header(response)
 
-    def test_report_status_403(self):
+    def test_device_report_status_403(self):
         d = self._create_device_config()
-        response = self.client.post(reverse('controller:report_status', args=[d.pk]), {'key': 'wrong'})
+        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]), {'key': 'wrong'})
         self.assertEqual(response.status_code, 403)
         self._check_header(response)
-        response = self.client.post(reverse('controller:report_status', args=[d.pk]),
+        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
                                     {'key': d.key, 'status': 'madeup'})
         self.assertEqual(response.status_code, 403)
         self._check_header(response)
 
-    def test_report_status_405(self):
+    def test_device_report_status_405(self):
         d = self._create_device_config()
-        response = self.client.get(reverse('controller:report_status', args=[d.pk]),
+        response = self.client.get(reverse('controller:device_report_status', args=[d.pk]),
                                    {'key': d.key, 'status': 'running'})
         self.assertEqual(response.status_code, 405)
 
-    def test_checksum_no_config(self):
+    def test_device_checksum_no_config(self):
         d = self._create_device()
-        response = self.client.get(reverse('controller:checksum', args=[d.pk]), {'key': d.key})
+        response = self.client.get(reverse('controller:device_checksum', args=[d.pk]), {'key': d.key})
         self.assertEqual(response.status_code, 404)
 
-    def test_download_no_config(self):
+    def test_device_download_no_config(self):
         d = self._create_device()
-        response = self.client.get(reverse('controller:download_config', args=[d.pk]), {'key': d.key})
+        response = self.client.get(reverse('controller:device_download_config', args=[d.pk]), {'key': d.key})
         self.assertEqual(response.status_code, 404)
 
-    def test_report_status_no_config(self):
+    def test_device_report_status_no_config(self):
         d = self._create_device()
-        response = self.client.post(reverse('controller:report_status', args=[d.pk]),
+        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
                                     {'key': d.key, 'status': 'running'})
         self.assertEqual(response.status_code, 404)
 
