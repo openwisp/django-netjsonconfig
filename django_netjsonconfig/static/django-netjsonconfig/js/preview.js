@@ -38,10 +38,11 @@ django.jQuery(function($) {
                 closePreview();
             });
         })
-        .error(function(xhr){
+        .fail (function(xhr){
             // if validation error, show it on page
             if (xhr.status == 400) {
-                $('#content-main form').trigger('submit');
+                alert('There was an issue while generating the preview \n' +
+                      'Details: ' + xhr.responseText);
             }
             // 500 internal server error
             // rare case, leaving it untranslated for simplicity
