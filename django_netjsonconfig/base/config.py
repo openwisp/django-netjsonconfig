@@ -49,7 +49,7 @@ class AbstractConfig(BaseConfig):
         if self._state.adding:
             return
         current = self.__class__.objects.get(pk=self.pk)
-        for attr in ['backend', 'config']:
+        for attr in ['backend', 'config', 'context']:
             if getattr(self, attr) != getattr(current, attr):
                 self.set_status_modified(save=False)
                 break
