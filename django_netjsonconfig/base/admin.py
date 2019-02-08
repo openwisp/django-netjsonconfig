@@ -123,6 +123,9 @@ class BaseConfigAdmin(BaseAdmin):
             # put regular field values in kwargs dict
             else:
                 kwargs[key] = value
+        # default context to None to avoid exception
+        if 'context' in kwargs:
+            kwargs['context'] = kwargs['context'] or None
         # this object is instanciated only to generate the preview
         # it won't be saved to the database
         instance = config_model(**kwargs)

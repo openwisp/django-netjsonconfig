@@ -117,6 +117,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
             'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': config,
+            'context': '',
             'csrfmiddlewaretoken': 'test',
             'templates': ','.join([str(t.pk) for t in templates])
         }
