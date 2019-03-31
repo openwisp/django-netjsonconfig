@@ -103,12 +103,15 @@ class AbstractDevice(BaseModel):
         if self._has_config():
             c = self.config
         else:
-            c = self.get_config_model()()
+            c = self.get_temp_config_instance()
         return c.get_default_templates()
 
     @classmethod
     def get_config_model(cls):
         return cls._meta.get_field('config').related_model
+
+    def get_temp_config_instance(self, **options):
+        return self.get_config_model()(**options)
 
 
 # Create a copy of the validators

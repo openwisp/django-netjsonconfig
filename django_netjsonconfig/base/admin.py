@@ -217,6 +217,9 @@ class BaseForm(forms.ModelForm):
 
 
 class AbstractConfigForm(BaseForm):
+    def get_temp_model_instance(self, **options):
+        return self.Meta.model(**options)
+
     def clean_templates(self):
         config_model = self.Meta.model
         # copy cleaned_data to avoid tampering with it
@@ -225,7 +228,7 @@ class AbstractConfigForm(BaseForm):
         if self.instance._state.adding:
             # when adding self.instance is empty, we need to create a
             # temporary instance that we'll use just for validation
-            config = config_model(**data)
+            config = self.get_temp_model_instance(**data)
         else:
             config = self.instance
         if config.backend and templates:
