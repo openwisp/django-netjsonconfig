@@ -39,7 +39,8 @@ class BaseConfigAdmin(BaseAdmin):
     class Media:
         css = {'all': (static('{0}css/admin.css'.format(prefix)),)}
         js = [static('{0}js/{1}'.format(prefix, f))
-              for f in ('preview.js',
+              for f in ('tabs.js',
+                        'preview.js',
                         'unsaved_changes.js',
                         'uuid.js',
                         'switcher.js')]
