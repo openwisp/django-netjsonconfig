@@ -7,7 +7,9 @@ django.jQuery(function($) {
         var selectors = 'input[type=text], input[type=hidden], select, textarea',
             fields = $(selectors, '#content-main form').not('#id_config_jsoneditor *'),
             $id = $('#id_id'),
-            data = {};
+            data = {},
+            loadingOverlay = $('#loading-overlay');
+        loadingOverlay.show();
         // add id to POST data
         // note: may be overridden by fields of OneToOne relation
         if ($id.length) { data['id'] = $id.val(); }
@@ -37,6 +39,7 @@ django.jQuery(function($) {
                 e.preventDefault();
                 closePreview();
             });
+            loadingOverlay.fadeOut(250);
         })
         .fail (function(xhr){
             // if validation error, show it on page
