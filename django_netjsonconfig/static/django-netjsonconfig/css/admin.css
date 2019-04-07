@@ -54,9 +54,8 @@ input.readonly{
 }
 
 .djnjc-overlay.loading{
-  display: block;
-  background: rgba(255, 255, 255, 0.98);
   display: flex;
+  background: rgba(255, 255, 255, 0.98);
   align-items: center;
 }
 .spinner {
