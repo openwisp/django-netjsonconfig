@@ -1,6 +1,6 @@
 django.jQuery(function ($) {
   'use strict';
-  if ($('.add-device').length) {
+  if ($('.add-form').length || !$('#device_form').length) {
     return;
   }
 

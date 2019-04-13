@@ -67,6 +67,10 @@ input.readonly{
   -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
   animation: sk-scaleout 1.0s infinite ease-in-out;
 }
+#loading-overlay,
+#tabs-container { display: none }
+#device_form #loading-overlay { display: flex }
+#device_form #tabs-container { display: block }
 
 @-webkit-keyframes sk-scaleout {
   0% { -webkit-transform: scale(0) }
@@ -155,15 +159,20 @@ input.readonly{
   color: #777;
 }
 
-.change-device #device_form div.inline-group.tab-content > fieldset.module > h2,
-.change-device #device_form div.inline-group.tab-content > fieldset.module > div.inline-related > h3,
-.change-device #device_form div.inline-group.tab-content > .tabular > fieldset.module > h2,
-.change-device #device_form > div > fieldset.module.aligned,
-.change-device #device_form > div > div.inline-group{
+.change-form #device_form div.inline-group.tab-content > fieldset.module > h2,
+.change-form #device_form div.inline-group.tab-content > .tabular > fieldset.module > h2,
+.change-form #device_form > div > fieldset.module.aligned,
+.change-form #device_form > div > div.inline-group{
   display: none;
 }
 
-.change-device #device_form div.inline-group.tab-content > .tabular{
+.change-form #device_form div.inline-group.tab-content > fieldset.module > div.inline-related > h3{
+  margin-top: -1em;
+  border-top: 0 none;
+  padding: 1em;
+}
+
+.change-form #device_form div.inline-group.tab-content > .tabular{
   margin-top: -1em;
 }
 
@@ -191,11 +200,11 @@ ul.tabs a:focus{
 ul.tabs a:hover,
 ul.tabs a:focus{
     color: #000;
-    background: #ededed;
+    background: #cdcdcd;
 }
 
 ul.tabs a.current{
-    background: #fff;
+    background: #f8f8f8;
     color: #666;
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-bottom: 0 none;

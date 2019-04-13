@@ -39,8 +39,7 @@ class BaseConfigAdmin(BaseAdmin):
     class Media:
         css = {'all': (static('{0}css/admin.css'.format(prefix)),)}
         js = [static('{0}js/{1}'.format(prefix, f))
-              for f in ('tabs.js',
-                        'preview.js',
+              for f in ('preview.js',
                         'unsaved_changes.js',
                         'uuid.js',
                         'switcher.js')]
@@ -285,6 +284,9 @@ class AbstractDeviceAdmin(BaseConfigAdmin):
         list_display.insert(0, 'hardware_id')
         search_fields.insert(1, 'hardware_id')
         fields.insert(0, 'hardware_id')
+
+    class Media(BaseConfigAdmin.Media):
+        js = BaseConfigAdmin.Media.js + ['{0}js/tabs.js'.format(prefix)]
 
     def id_hex(self, obj):
         return obj.pk.hex
