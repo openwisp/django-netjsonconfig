@@ -440,14 +440,16 @@ This feature is disabled by default.
 +--------------+--------------------------------------------------------+
 | **type**:    | ``dict``                                               |
 +--------------+--------------------------------------------------------+
-| **default**: | ``{                                                    |
+| **default**: | .. code-block:: python                                 |
+|              |                                                        |
+|              |    {                                                   |
 |              |        'blank': not NETJSONCONFIG_HARDWARE_ID_ENABLED, |
 |              |        'null': True,                                   |
 |              |        'max_length': 32,                               |
 |              |        'unique': True,                                 |
 |              |        'verbose_name': _('Serial number'),             |
 |              |        'help_text': _('Serial number of this device')  |
-|              |    }``                                                 |
+|              |    }                                                   |
 +--------------+--------------------------------------------------------+
 
 Options for the model field ``hardware_id``.
