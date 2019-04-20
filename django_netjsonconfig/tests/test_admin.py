@@ -29,6 +29,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
     def _get_device_params(self):
         return {
             'name': '',
+            'hardware_id': '1234',
             'mac_address': self.TEST_MAC_ADDRESS,
             'key': self.TEST_KEY,
             'model': '',
@@ -116,6 +117,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
             'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': config,
+            'context': '',
             'csrfmiddlewaretoken': 'test',
             'templates': ','.join([str(t.pk) for t in templates])
         }
@@ -358,3 +360,43 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         path = reverse('admin:django_netjsonconfig_device_change', args=[d.pk])
         response = self.client.get(path)
         self.assertContains(response, 'last_ip')
+
+    def test_hardware_id_in_change_device(self):
+        d = self._create_device()
+        t = Template.objects.first()
+        self._create_config(device=d, backend=t.backend, config=t.config)
+        path = reverse('admin:django_netjsonconfig_device_change', args=[d.pk])
+        response = self.client.get(path)
+        self.assertContains(response, 'hardware_id')
+
+    def test_error_if_download_config(self):
+        d = self._create_device()
+        res = self.client.get(reverse('admin:django_netjsonconfig_device_change', args=[d.pk]))
+        self.assertNotContains(res, 'Download configuration')
+
+    def test_preview_device_with_context(self):
+        path = reverse('admin:django_netjsonconfig_device_preview')
+        config = json.dumps({
+            'openwisp': [
+                {
+                    "config_name": "controller",
+                    "config_value": "http",
+                    "url": "http://controller.examplewifiservice.com",
+                    "interval": "{{ interval }}",
+                    "verify_ssl": "1",
+                    "uuid": "UUID",
+                    "key": self.TEST_KEY
+                }
+            ]
+        })
+        data = {
+            'id': 'd60ecd62-5d00-4e7b-bd16-6fc64a95e60c',
+            'name': 'test-asd',
+            'mac_address': self.TEST_MAC_ADDRESS,
+            'backend': 'netjsonconfig.OpenWrt',
+            'config': config,
+            'csrfmiddlewaretoken': 'test',
+            'context': '{"interval": "60"}'
+        }
+        response = self.client.post(path, data)
+        self.assertContains(response, "option interval &#39;60&#39;")

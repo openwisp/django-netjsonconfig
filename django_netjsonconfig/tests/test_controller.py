@@ -172,6 +172,7 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
             'mac_address': TEST_MACADDR,
+            'hardware_id': '1234',
             'backend': 'netjsonconfig.OpenWrt'
         }
         options.update(kwargs)
@@ -295,6 +296,7 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
             'name': TEST_MACADDR,
             'key': TEST_CONSISTENT_KEY,
             'mac_address': TEST_MACADDR,
+            'hardware_id': '1234',
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertEqual(response.status_code, 201)
@@ -480,6 +482,7 @@ class TestConsistentRegistrationDisabled(TestCase):
             'name': TEST_MACADDR,
             'key': TEST_CONSISTENT_KEY,
             'mac_address': TEST_MACADDR,
+            'hardware_id': '1234',
             'backend': 'netjsonconfig.OpenWrt'
         })
         self.assertEqual(response.status_code, 201)

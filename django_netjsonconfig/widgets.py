@@ -24,7 +24,7 @@ class JsonSchemaWidget(AdminTextareaWidget):
                                  'lib/advanced-mode.css')]}
         return forms.Media(js=js, css=css)
 
-    def render(self, name, value, attrs={}):
+    def render(self, name, value, attrs={}, renderer=None):
         attrs['class'] = 'vLargeTextField jsoneditor-raw'
         html = """
 <input class="button json-editor-btn-edit advanced-mode" type="button" value="{0}">
@@ -37,5 +37,5 @@ class JsonSchemaWidget(AdminTextareaWidget):
 """
         html = html.format(_('Advanced mode (raw JSON)'),
                            reverse('netjsonconfig:schema'))
-        html += super(JsonSchemaWidget, self).render(name, value, attrs)
+        html += super(JsonSchemaWidget, self).render(name, value, attrs, renderer)
         return html

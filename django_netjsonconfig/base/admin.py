@@ -60,6 +60,8 @@ class BaseConfigAdmin(BaseAdmin):
         }
         if pk:
             ctx['download_url'] = reverse('{0}_download'.format(prefix), args=[pk])
+            if self.model.__name__ == 'Device' and not self.model.objects.get(pk=pk)._has_config():
+                ctx['download_url'] = None
         return ctx
 
     def add_view(self, request, form_url='', extra_context=None):
@@ -121,6 +123,9 @@ class BaseConfigAdmin(BaseAdmin):
             # put regular field values in kwargs dict
             else:
                 kwargs[key] = value
+        # default context to None to avoid exception
+        if 'context' in kwargs:
+            kwargs['context'] = kwargs['context'] or None
         # this object is instanciated only to generate the preview
         # it won't be saved to the database
         instance = config_model(**kwargs)
@@ -219,6 +224,9 @@ class BaseForm(forms.ModelForm):
 
 
 class AbstractConfigForm(BaseForm):
+    def get_temp_model_instance(self, **options):
+        return self.Meta.model(**options)
+
     def clean_templates(self):
         config_model = self.Meta.model
         # copy cleaned_data to avoid tampering with it
@@ -227,7 +235,7 @@ class AbstractConfigForm(BaseForm):
         if self.instance._state.adding:
             # when adding self.instance is empty, we need to create a
             # temporary instance that we'll use just for validation
-            config = config_model(**data)
+            config = self.get_temp_model_instance(**data)
         else:
             config = self.instance
         if config.backend and templates:
@@ -246,6 +254,7 @@ class AbstractConfigInline(TimeReadonlyAdminMixin, admin.StackedInline):
     fields = ['backend',
               'status',
               'templates',
+              'context',
               'config',
               'created',
               'modified']
@@ -278,10 +287,16 @@ class AbstractDeviceAdmin(BaseConfigAdmin, UUIDFieldMixin):
               'notes',
               'created',
               'modified']
+    if app_settings.HARDWARE_ID_ENABLED:
+        list_display.insert(0, 'hardware_id')
+        search_fields.insert(1, 'hardware_id')
+        fields.insert(0, 'hardware_id')
+
+    class Media(BaseConfigAdmin.Media):
+        js = BaseConfigAdmin.Media.js + ['{0}js/tabs.js'.format(prefix)]
 
     def ip(self, obj):
-        mngmt_ip = obj.management_ip if app_settings.MANAGEMENT_IP_DEVICE_LIST \
-                                     else None
+        mngmt_ip = obj.management_ip if app_settings.MANAGEMENT_IP_DEVICE_LIST else None
         return mngmt_ip or obj.last_ip
 
     ip.short_description = _('IP address')

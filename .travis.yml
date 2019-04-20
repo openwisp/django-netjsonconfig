@@ -3,17 +3,17 @@ sudo: false
 cache: pip
 
 python:
-  - "3.4"
+  - "3.5"
   - "2.7"
 
 env:
   - DJANGO="django>=1.11,<1.12"
-  - DJANGO="django>=2.0,<2.1"
+  - DJANGO="django>=2.0,<2.2"
 
 matrix:
   exclude:
    - python: "2.7"
-     env: DJANGO="django>=2.0,<2.1"
+     env: DJANGO="django>=2.0,<2.2"
 
 branches:
   only:
@@ -22,7 +22,7 @@ branches:
 before_install:
   - pip install -U pip wheel setuptools
   - pip install --no-cache-dir -U -r requirements-test.txt
-  - ./runflake8
+  - flake8
   - ./runisort
   - npm install -g jslint
   - jslint django_netjsonconfig/static/django-netjsonconfig/js/*.js
@@ -33,7 +33,16 @@ install:
 
 script:
   - coverage run --source=django_netjsonconfig runtests.py
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.4 ]]; then ./tests/manage.py makemigrations --dry-run | grep "No changes detected"; fi
+  - ./runcheckmigration
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then ./tests/manage.py makemigrations --dry-run | grep "No changes detected"; fi
+  - |
+    if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+      # gets commit message of last commit before pull request merge
+      COMMIT_MESSAGE=$(git log $TRAVIS_PULL_REQUEST_SHA --format=%B -n 1)
+      printf "Checking commit message:\n\n"
+      printf "$COMMIT_MESSAGE\n\n"
+      checkcommit --message "$COMMIT_MESSAGE"
+    fi
 
 after_success:
   coveralls

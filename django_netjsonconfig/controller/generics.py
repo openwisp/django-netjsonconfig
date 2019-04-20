@@ -112,6 +112,8 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
     """
     registers new Config objects
     """
+    UPDATABLE_FIELDS = ['os', 'model', 'system']
+
     def init_object(self, **kwargs):
         """
         initializes Config object with incoming POST data
@@ -132,6 +134,8 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
         if 'key' in options and (settings.CONSISTENT_REGISTRATION is False
                                  or options['key'] is None):
             del options['key']
+        if 'hardware_id' in options and options['hardware_id'] == "":
+            options['hardware_id'] = None
         return config_model(device=device_model(**options),
                             backend=kwargs['backend'])
 
@@ -203,6 +207,10 @@ class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
         try:
             device = self.model.objects.get(key=key)
             config = device.config
+            # update hw info
+            for attr in self.UPDATABLE_FIELDS:
+                if attr in request.POST:
+                    setattr(device, attr, request.POST.get(attr))
         # if get queryset fails, instantiate a new Device and Config
         except self.model.DoesNotExist:
             new = True

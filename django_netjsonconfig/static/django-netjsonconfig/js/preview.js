@@ -7,7 +7,9 @@ django.jQuery(function($) {
         var selectors = 'input[type=text], input[type=hidden], select, textarea',
             fields = $(selectors, '#content-main form').not('#id_config_jsoneditor *'),
             $id = $('#id_id'),
-            data = {};
+            data = {},
+            loadingOverlay = $('#loading-overlay');
+        loadingOverlay.show();
         // add id to POST data
         // note: may be overridden by fields of OneToOne relation
         if ($id.length) { data['id'] = $id.val(); }
@@ -37,11 +39,13 @@ django.jQuery(function($) {
                 e.preventDefault();
                 closePreview();
             });
+            loadingOverlay.fadeOut(250);
         })
-        .error(function(xhr){
+        .fail (function(xhr){
             // if validation error, show it on page
             if (xhr.status == 400) {
-                $('#content-main form').trigger('submit');
+                alert('There was an issue while generating the preview \n' +
+                      'Details: ' + xhr.responseText);
             }
             // 500 internal server error
             // rare case, leaving it untranslated for simplicity

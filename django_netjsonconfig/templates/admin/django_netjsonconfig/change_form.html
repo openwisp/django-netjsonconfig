@@ -3,7 +3,9 @@
 
 {% block object-tools-items %}
 <li>
-    <a href="{{ download_url }}" class="downloadlink">{% trans "Download configuration" %}</a>
+    {% if download_url %}
+      <a href="{{ download_url }}" class="downloadlink">{% trans "Download configuration" %}</a>
+    {% endif %}
 </li>
 {{ block.super }}
 {% endblock %}
@@ -11,7 +13,28 @@
 {% block submit_buttons_top %}{% submit_row %}{% endblock %}
 {% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
 
+{% block field_sets %}
+{% if not add %}
+<div id="loading-overlay"
+     class="djnjc-overlay loading">
+    <div class="spinner"></div>
+</div>
+
+<div id="tabs-container">
+  <ul class="tabs">
+    <li>
+      <a class="button" href="#overview-group">
+        {% trans 'Overview' %}
+      </a>
+    </li></ul>
+  <div class="tabs-divider"></div>
+</div>
+{% endif %}
+{{ block.super }}
+{% endblock %}
+
 {% block content %}
+<div class="{% if not add %}change-form{% else %}add-form{% endif %}">
 {{ block.super }}
 <div class="djnjc-overlay">
     <div class="inner"></div>
@@ -27,4 +50,5 @@
 </script>
 {% endif %}
 {% endblock %}
+</div>
 {% endblock %}

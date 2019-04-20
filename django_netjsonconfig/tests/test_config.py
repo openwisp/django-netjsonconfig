@@ -180,6 +180,15 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         c.refresh_from_db()
         self.assertEqual(c.status, 'modified')
 
+    def test_status_modified_after_context_changed(self):
+        c = self._create_config(status='applied')
+        self.assertEqual(c.status, 'applied')
+        c.refresh_from_db()
+        c.context = {'lan_ipv4': '192.168.40.1'}
+        c.full_clean()
+        c.save()
+        self.assertEqual(c.status, 'modified')
+
     def test_auto_hostname(self):
         c = self._create_config(device=self._create_device(name='automate-me'))
         expected = {'general': {'hostname': 'automate-me'}}
