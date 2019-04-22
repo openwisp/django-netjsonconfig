@@ -10,9 +10,8 @@ django.jQuery(function ($) {
     var resizeEvent = window.document.createEvent('UIEvents');
     resizeEvent.initUIEvent('resize', true, false, window, 0);
     window.dispatchEvent(resizeEvent);
-  }
-
-  var showTab = function(menuLink){
+  },
+  showTab = function(menuLink){
     var tabId = menuLink.attr('href');
     $('ul.tabs a').removeClass('current');
     $('.tab-content').removeClass('current');
