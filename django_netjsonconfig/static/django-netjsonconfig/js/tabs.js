@@ -58,14 +58,12 @@ django.jQuery(function ($) {
     showFragment(window.location.hash);
   });
 
-  $(window).on('load', function () {
-    // open fragment on page opening if present
-    if (window.location.hash) {
-      showFragment(window.location.hash);
-    } else {
-      $('ul.tabs li:first-child a').addClass('current');
-      overview.addClass('current');
-    }
-    $('#loading-overlay').fadeOut(400);
-  });
+  // open fragment on page opening if present
+  if (window.location.hash) {
+    showFragment(window.location.hash);
+  } else {
+    $('ul.tabs li:first-child a').addClass('current');
+    overview.addClass('current');
+  }
+  $('#loading-overlay').fadeOut(400);
 });
