@@ -4,12 +4,21 @@ django.jQuery(function ($) {
     return;
   }
 
+  // trigger window resize event
+  // workaround that fixes problems with leafelet maps
+  var triggerResize = function () {
+    var resizeEvent = window.document.createEvent('UIEvents');
+    resizeEvent.initUIEvent('resize', true, false, window, 0);
+    window.dispatchEvent(resizeEvent);
+  }
+
   var showTab = function(menuLink){
     var tabId = menuLink.attr('href');
     $('ul.tabs a').removeClass('current');
     $('.tab-content').removeClass('current');
     menuLink.addClass('current');
     $(tabId).addClass('current');
+    triggerResize();
     $.event.trigger({
       type: 'tabshown',
       tabId: tabId,
