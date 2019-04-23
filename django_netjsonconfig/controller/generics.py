@@ -7,7 +7,8 @@ from django.views.generic.base import View
 from django.views.generic.detail import SingleObjectMixin
 
 from .. import settings
-from ..utils import ControllerResponse, forbid_unallowed, get_object_or_404, send_config, update_last_ip
+from ..utils import (ControllerResponse, forbid_unallowed, get_object_or_404, send_device_config,
+                     send_vpn_config, update_last_ip)
 
 
 class BaseConfigView(SingleObjectMixin, View):
@@ -34,9 +35,9 @@ class UpdateLastIpMixin(object):
         update_last_ip(device, request)
 
 
-class BaseChecksumView(UpdateLastIpMixin, BaseConfigView):
+class BaseDeviceChecksumView(UpdateLastIpMixin, BaseConfigView):
     """
-    returns configuration checksum
+    returns device's configuration checksum
     """
     def get(self, request, *args, **kwargs):
         device = self.get_object(*args, **kwargs)
@@ -47,17 +48,39 @@ class BaseChecksumView(UpdateLastIpMixin, BaseConfigView):
         return ControllerResponse(device.config.checksum, content_type='text/plain')
 
 
-class BaseDownloadConfigView(BaseConfigView):
+class BaseVpnChecksumView(BaseConfigView):
+    """
+    returns vpn's configuration checksum
+    """
+    def get(self, request, *args, **kwargs):
+        vpn = self.get_object(*args, **kwargs)
+        bad_request = forbid_unallowed(request, 'GET', 'key', vpn.key)
+        if bad_request:
+            return bad_request
+        return ControllerResponse(vpn.checksum, content_type='text/plain')
+
+
+class BaseDeviceDownloadConfigView(BaseConfigView):
     """
     returns configuration archive as attachment
     """
     def get(self, request, *args, **kwargs):
         device = self.get_object(*args, **kwargs)
         return (forbid_unallowed(request, 'GET', 'key', device.key) or
-                send_config(device.config, request))
+                send_device_config(device.config, request))
 
 
-class BaseReportStatusView(CsrfExtemptMixin, BaseConfigView):
+class BaseVpnDownloadConfigView(BaseConfigView):
+    """
+    returns configuration archive as attachment
+    """
+    def get(self, request, *args, **kwargs):
+        vpn = self.get_object(*args, **kwargs)
+        return (forbid_unallowed(request, 'GET', 'key', vpn.key) or
+                send_vpn_config(vpn, request))
+
+
+class BaseDeviceReportStatusView(CsrfExtemptMixin, BaseConfigView):
     """
     updates status of config objects
     """
@@ -85,7 +108,7 @@ class BaseReportStatusView(CsrfExtemptMixin, BaseConfigView):
                                   content_type='text/plain')
 
 
-class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
+class BaseDeviceRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
     """
     registers new Config objects
     """

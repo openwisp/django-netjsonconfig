@@ -198,6 +198,13 @@ class BaseConfigAdmin(BaseAdmin):
                          contents=config_archive.getvalue())
 
 
+class UUIDFieldMixin(object):
+    def id_hex(self, obj):
+        return obj.pk.hex
+
+    id_hex.short_description = 'UUID'
+
+
 class BaseForm(forms.ModelForm):
     """
     Adds support for ``NETJSONCONFIG_DEFAULT_BACKEND``
@@ -258,7 +265,7 @@ class AbstractConfigInline(TimeReadonlyAdminMixin, admin.StackedInline):
         return qs.select_related(*self.change_select_related)
 
 
-class AbstractDeviceAdmin(BaseConfigAdmin):
+class AbstractDeviceAdmin(BaseConfigAdmin, UUIDFieldMixin):
     list_display = ['name', 'backend', 'config_status',
                     'ip', 'created', 'modified']
     search_fields = ['id', 'name', 'mac_address', 'key', 'model', 'os', 'system']
@@ -287,11 +294,6 @@ class AbstractDeviceAdmin(BaseConfigAdmin):
 
     class Media(BaseConfigAdmin.Media):
         js = BaseConfigAdmin.Media.js + ['{0}js/tabs.js'.format(prefix)]
-
-    def id_hex(self, obj):
-        return obj.pk.hex
-
-    id_hex.short_description = 'UUID'
 
     def ip(self, obj):
         mngmt_ip = obj.management_ip if app_settings.MANAGEMENT_IP_DEVICE_LIST else None
@@ -370,12 +372,15 @@ class AbstractVpnForm(forms.ModelForm):
         exclude = []
 
 
-class AbstractVpnAdmin(BaseConfigAdmin):
+class AbstractVpnAdmin(BaseConfigAdmin, UUIDFieldMixin):
     list_display = ['name', 'backend', 'created', 'modified']
     list_filter = ['backend', 'ca', 'created']
-    search_fields = ['id', 'name', 'host']
+    search_fields = ['id', 'name', 'host', 'key']
+    readonly_fields = ['id_hex']
     fields = ['name',
               'host',
+              'id_hex',
+              'key',
               'ca',
               'cert',
               'backend',

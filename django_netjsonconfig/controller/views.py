@@ -1,24 +1,35 @@
-from ..models import Device
-from .generics import BaseChecksumView, BaseDownloadConfigView, BaseRegisterView, BaseReportStatusView
+from ..models import Device, Vpn
+from .generics import (BaseDeviceChecksumView, BaseDeviceDownloadConfigView, BaseDeviceRegisterView,
+                       BaseDeviceReportStatusView, BaseVpnChecksumView, BaseVpnDownloadConfigView)
 
 
-class ChecksumView(BaseChecksumView):
+class DeviceChecksumView(BaseDeviceChecksumView):
     model = Device
 
 
-class DownloadConfigView(BaseDownloadConfigView):
+class DeviceDownloadConfigView(BaseDeviceDownloadConfigView):
     model = Device
 
 
-class ReportStatusView(BaseReportStatusView):
+class DeviceReportStatusView(BaseDeviceReportStatusView):
     model = Device
 
 
-class RegisterView(BaseRegisterView):
+class DeviceRegisterView(BaseDeviceRegisterView):
     model = Device
 
 
-checksum = ChecksumView.as_view()
-download_config = DownloadConfigView.as_view()
-report_status = ReportStatusView.as_view()
-register = RegisterView.as_view()
+class VpnChecksumView(BaseVpnChecksumView):
+    model = Vpn
+
+
+class VpnDownloadConfigView(BaseVpnDownloadConfigView):
+    model = Vpn
+
+
+device_checksum = DeviceChecksumView.as_view()
+device_download_config = DeviceDownloadConfigView.as_view()
+device_report_status = DeviceReportStatusView.as_view()
+device_register = DeviceRegisterView.as_view()
+vpn_checksum = VpnChecksumView.as_view()
+vpn_download_config = VpnDownloadConfigView.as_view()

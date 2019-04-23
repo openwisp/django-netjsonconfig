@@ -39,7 +39,7 @@ def send_file(filename, contents):
     return response
 
 
-def send_config(config, request):
+def send_device_config(config, request):
     """
     calls ``update_last_ip`` and returns a ``ControllerResponse``
     which includes the configuration tar.gz as attachment
@@ -47,6 +47,15 @@ def send_config(config, request):
     update_last_ip(config.device, request)
     return send_file(filename='{0}.tar.gz'.format(config.name),
                      contents=config.generate().getvalue())
+
+
+def send_vpn_config(vpn, request):
+    """
+    returns a ``ControllerResponse``which includes the configuration
+    tar.gz as attachment
+    """
+    return send_file(filename='{0}.tar.gz'.format(vpn.name),
+                     contents=vpn.generate().getvalue())
 
 
 def update_last_ip(device, request):
@@ -99,18 +108,24 @@ def get_controller_urls(views_module):
     used by third party apps to reduce boilerplate
     """
     urls = [
-        url(r'^controller/checksum/(?P<pk>[^/]+)/$',
-            views_module.checksum,
-            name='checksum'),
-        url(r'^controller/download-config/(?P<pk>[^/]+)/$',
-            views_module.download_config,
-            name='download_config'),
-        url(r'^controller/report-status/(?P<pk>[^/]+)/$',
-            views_module.report_status,
-            name='report_status'),
-        url(r'^controller/register/$',
-            views_module.register,
-            name='register'),
+        url(r'^controller/device/checksum/(?P<pk>[^/]+)/$',
+            views_module.device_checksum,
+            name='device_checksum'),
+        url(r'^controller/device/download-config/(?P<pk>[^/]+)/$',
+            views_module.device_download_config,
+            name='device_download_config'),
+        url(r'^controller/device/report-status/(?P<pk>[^/]+)/$',
+            views_module.device_report_status,
+            name='device_report_status'),
+        url(r'^controller/device/register/$',
+            views_module.device_register,
+            name='device_register'),
+        url(r'^controller/vpn/checksum/(?P<pk>[^/]+)/$',
+            views_module.vpn_checksum,
+            name='vpn_checksum'),
+        url(r'^controller/vpn/download-config/(?P<pk>[^/]+)/$',
+            views_module.vpn_download_config,
+            name='vpn_download_config'),
     ]
     return urls
 

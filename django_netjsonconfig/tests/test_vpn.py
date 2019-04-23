@@ -226,3 +226,17 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
     def test_context_empty(self):
         v = Vpn()
         self.assertEqual(v.get_context(), {})
+
+    def test_key_validator(self):
+        v = self._create_vpn()
+        v.key = 'key/key'
+        with self.assertRaises(ValidationError):
+            v.full_clean()
+        v.key = 'key.key'
+        with self.assertRaises(ValidationError):
+            v.full_clean()
+        v.key = 'key key'
+        with self.assertRaises(ValidationError):
+            v.full_clean()
+        v.key = self.TEST_KEY
+        v.full_clean()
