@@ -673,31 +673,31 @@ to try to reuse the controller views:
 
     # your_config_app.controller.views
     from ..models import Device, Vpn
-    from .generics import (BaseRegisterView, BaseReportStatusView, DeviceChecksumView, DeviceDownloadConfigView,
-                        VpnChecksumView, VpnDownloadConfigView)
+    from django_netjsonconfig.controller.generics import (BaseDeviceChecksumView, BaseDeviceDownloadConfigView,
+                                                          BaseDeviceRegisterView, BaseDeviceReportStatusView,
+                                                          BaseVpnChecksumView, BaseVpnDownloadConfigView)
 
-
-    class DeviceChecksumView(DeviceChecksumView):
+    class DeviceChecksumView(BaseDeviceChecksumView):
         model = Device
 
 
-    class DeviceDownloadConfigView(DeviceDownloadConfigView):
+    class DeviceDownloadConfigView(BaseDeviceDownloadConfigView):
         model = Device
 
 
-    class DeviceReportStatusView(BaseReportStatusView):
+    class DeviceReportStatusView(BaseDeviceReportStatusView):
         model = Device
 
 
-    class DeviceRegisterView(BaseRegisterView):
+    class DeviceRegisterView(BaseDeviceRegisterView):
         model = Device
 
 
-    class VpnChecksumView(VpnChecksumView):
+    class VpnChecksumView(BaseVpnChecksumView):
         model = Vpn
 
 
-    class VpnDownloadConfigView(VpnDownloadConfigView):
+    class VpnDownloadConfigView(BaseVpnDownloadConfigView):
         model = Vpn
 
 
