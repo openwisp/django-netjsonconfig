@@ -35,7 +35,7 @@ class UpdateLastIpMixin(object):
         update_last_ip(device, request)
 
 
-class DeviceChecksumView(UpdateLastIpMixin, BaseConfigView):
+class BaseDeviceChecksumView(UpdateLastIpMixin, BaseConfigView):
     """
     returns device's configuration checksum
     """
@@ -48,7 +48,7 @@ class DeviceChecksumView(UpdateLastIpMixin, BaseConfigView):
         return ControllerResponse(device.config.checksum, content_type='text/plain')
 
 
-class VpnChecksumView(BaseConfigView):
+class BaseVpnChecksumView(BaseConfigView):
     """
     returns vpn's configuration checksum
     """
@@ -60,7 +60,7 @@ class VpnChecksumView(BaseConfigView):
         return ControllerResponse(vpn.checksum, content_type='text/plain')
 
 
-class DeviceDownloadConfigView(BaseConfigView):
+class BaseDeviceDownloadConfigView(BaseConfigView):
     """
     returns configuration archive as attachment
     """
@@ -70,7 +70,7 @@ class DeviceDownloadConfigView(BaseConfigView):
                 send_device_config(device.config, request))
 
 
-class VpnDownloadConfigView(BaseConfigView):
+class BaseVpnDownloadConfigView(BaseConfigView):
     """
     returns configuration archive as attachment
     """
@@ -80,7 +80,7 @@ class VpnDownloadConfigView(BaseConfigView):
                 send_vpn_config(vpn, request))
 
 
-class BaseReportStatusView(CsrfExtemptMixin, BaseConfigView):
+class BaseDeviceReportStatusView(CsrfExtemptMixin, BaseConfigView):
     """
     updates status of config objects
     """
@@ -108,7 +108,7 @@ class BaseReportStatusView(CsrfExtemptMixin, BaseConfigView):
                                   content_type='text/plain')
 
 
-class BaseRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
+class BaseDeviceRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
     """
     registers new Config objects
     """

@@ -20,8 +20,7 @@ class AbstractVpn(BaseConfig):
     key = models.CharField(max_length=64,
                            db_index=True,
                            default=get_random_key,
-                           validators=[key_validator],
-                           help_text=_('unique VPN key'))
+                           validators=[key_validator])
     cert = models.ForeignKey('django_x509.Cert',
                              verbose_name=_('x509 Certificate'),
                              help_text=_('leave blank to create automatically'),

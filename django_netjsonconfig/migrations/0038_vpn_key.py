@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='vpn',
             name='key',
-            field=models.CharField(db_index=True, default=django_netjsonconfig.utils.get_random_key, help_text='unique VPN key', max_length=64, validators=[django.core.validators.RegexValidator(re.compile('^[^\\s/\\.]+$'), code='invalid', message='Key must not contain spaces, dots or slashes.')]),
+            field=models.CharField(db_index=True, default=django_netjsonconfig.utils.get_random_key, max_length=64, validators=[django.core.validators.RegexValidator(re.compile('^[^\\s/\\.]+$'), code='invalid', message='Key must not contain spaces, dots or slashes.')]),
         ),
     ]
