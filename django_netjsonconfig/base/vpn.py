@@ -69,7 +69,7 @@ class AbstractVpn(BaseConfig):
         Returns an automatically generated set of DH parameters in PEM
         """
         return subprocess.check_output('openssl dhparam {0} 2> /dev/null'.format(length),
-                                       shell=True)
+                                       shell=True).decode('utf-8')
 
     def _auto_create_cert(self):
         """
