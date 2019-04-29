@@ -126,6 +126,19 @@ def get_controller_urls(views_module):
         url(r'^controller/vpn/download-config/(?P<pk>[^/]+)/$',
             views_module.vpn_download_config,
             name='vpn_download_config'),
+        # legacy URLs
+        url(r'^controller/checksum/(?P<pk>[^/]+)/$',
+            views_module.device_checksum,
+            name='checksum_legacy'),
+        url(r'^controller/download-config/(?P<pk>[^/]+)/$',
+            views_module.device_download_config,
+            name='download_config_legacy'),
+        url(r'^controller/report-status/(?P<pk>[^/]+)/$',
+            views_module.device_report_status,
+            name='report_status_legacy'),
+        url(r'^controller/register/$',
+            views_module.device_register,
+            name='register_legacy'),
     ]
     return urls
 
