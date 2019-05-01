@@ -219,9 +219,9 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
         v.dh = None
         v.save()
         self.assertIsNotNone(v.dh)
-        self.assertNotEqual(v.dh.decode('utf8'), '')
-        self.assertIn('-----BEGIN DH PARAMETERS-----', v.dh.decode('utf8'))
-        self.assertIn('-----END DH PARAMETERS-----', v.dh.decode('utf8'))
+        self.assertNotEqual(v.dh, '')
+        self.assertTrue(v.dh.startswith('-----BEGIN DH PARAMETERS-----'))
+        self.assertTrue(v.dh.endswith('-----END DH PARAMETERS-----\n'))
 
     def test_context_empty(self):
         v = Vpn()
