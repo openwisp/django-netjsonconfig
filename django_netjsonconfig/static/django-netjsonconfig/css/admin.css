@@ -159,10 +159,10 @@ input.readonly{
   color: #777;
 }
 
-.change-form #device_form div.inline-group.tab-content > fieldset.module > h2,
-.change-form #device_form div.inline-group.tab-content > .tabular > fieldset.module > h2,
-.change-form #device_form > div > fieldset.module.aligned,
-.change-form #device_form > div > div.inline-group{
+div.change-form #device_form div.inline-group.tab-content > fieldset.module > h2,
+div.change-form #device_form div.inline-group.tab-content > .tabular > fieldset.module > h2,
+div.change-form #device_form > div > fieldset.module.aligned,
+div.change-form #device_form > div > div.inline-group{
   display: none;
 }
 
