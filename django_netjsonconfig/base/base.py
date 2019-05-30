@@ -135,15 +135,21 @@ class BaseConfig(BaseModel):
         """
         backend = self.backend_class
         kwargs = {'config': self.get_config()}
+        default_values = {}
         # determine if we can pass templates
         # expecting a many2many relationship
         if hasattr(self, 'templates'):
             if template_instances is None:
                 template_instances = self.templates.all()
-            kwargs['templates'] = [t.config for t in template_instances]
+            templates_list = list()
+            for t in template_instances:
+                templates_list.append(t.config)
+                default_values.update(t.default_values)
+            kwargs['templates'] = templates_list
         # pass context to backend if get_context method is defined
         if hasattr(self, 'get_context'):
-            kwargs['context'] = self.get_context()
+            default_values.update(self.get_context())
+            kwargs['context'] = default_values
         return backend(**kwargs)
 
     def generate(self):

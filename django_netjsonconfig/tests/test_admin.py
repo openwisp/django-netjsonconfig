@@ -5,11 +5,11 @@ from django.test import TestCase
 from django.urls import reverse
 from django_x509.models import Ca
 
-from . import CreateConfigMixin, TestVpnX509Mixin
+from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 from ..models import Config, Device, Template, Vpn
 
 
-class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
+class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCase):
     """
     tests for Config model
     """
@@ -19,6 +19,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
     config_model = Config
     device_model = Device
     vpn_model = Vpn
+    template_model = Template
 
     def setUp(self):
         User.objects.create_superuser(username='admin',
@@ -127,6 +128,39 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         self.assertContains(response, 'eth0')
         self.assertContains(response, 'dhcp')
         self.assertContains(response, 'radio0')
+
+    def test_variable_usage(self):
+        config = {
+            'interfaces': [
+                {
+                    'name': 'lo0',
+                    'type': 'loopback',
+                    'mac_address': '{{ mac }}',
+                    'addresses': [
+                        {
+                            'family': 'ipv4',
+                            'proto': 'static',
+                            'address': '{{ ip }}',
+                            'mask': 8
+                        }
+                    ]
+                }
+            ]
+        }
+        default_values = {
+            'ip': '192.168.56.2',
+            'mac': '08:00:27:06:72:88'
+        }
+        t = self._create_template(config=config, default_values=default_values)
+        path = reverse('admin:django_netjsonconfig_device_add')
+        params = self._get_device_params()
+        params.update({
+            'name': 'test-device',
+            'config-0-templates': str(t.pk)
+        })
+        response = self.client.post(path, params)
+        self.assertNotContains(response, 'errors field-templates', status_code=302)
+        self.assertEqual(Device.objects.filter(name='test-device').count(), 1)
 
     def test_preview_device_config_empty_id(self):
         path = reverse('admin:django_netjsonconfig_device_preview')
