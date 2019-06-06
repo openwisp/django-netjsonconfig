@@ -64,7 +64,7 @@ class AbstractTemplate(BaseConfig):
                                                 'be automatically managed behind the scenes '
                                                 'for each configuration using this template, '
                                                 'valid only for the VPN type'))
-    sharing = models.CharField(_('Sharing'),
+    sharing = models.CharField(_('Sharing settings'),
                                choices=SHARING_CHOICES,
                                default='private',
                                max_length=16,
@@ -73,30 +73,34 @@ class AbstractTemplate(BaseConfig):
                                            'share it privately using a secret key or import its '
                                            'contents from another source'))
     key = models.CharField(max_length=64,
-                           unique=True,
+                           null=True,
+                           blank=True,
                            default=get_random_key,
                            validators=[key_validator],
-                           help_text=_('share template key'))
+                           verbose_name=_('Secret key'),
+                           help_text=_('Secret key needed to import the template'))
     description = models.TextField(_('Description'),
                                    blank=True,
                                    null=True,
-                                   help_text=_('Enter public description of this template'))
+                                   help_text=_('Public description of this template'))
     notes = models.TextField(_('Notes'),
                              blank=True,
                              null=True,
-                             help_text=_('Enter internal notes for the administrators'))
+                             help_text=_('Internal notes for administrators'))
     default_values = JSONField(_('Default Values'),
                                default=dict,
                                blank=True,
-                               help_text=_('Enter some default values for the variables '
-                                           'used by this template'),
+                               help_text=_('A dictionary containing the default '
+                                           'values for the variables used by this '
+                                           'template; these default variables will '
+                                           'be used during schema validation.'),
                                load_kwargs={'object_pairs_hook': OrderedDict},
                                dump_kwargs={'indent': 4})
     url = models.URLField(_('Import URL'),
                           max_length=200,
                           null=True,
                           blank=True,
-                          help_text=_('URL from which the template will be imported from'))
+                          help_text=_('URL from which the template will be imported'))
     __template__ = True
 
     class Meta:
@@ -135,7 +139,10 @@ class AbstractTemplate(BaseConfig):
         """
         if self.sharing == 'public' or self.sharing == 'secret_key':
             if not self.description:
-                raise ValidationError({'description': _('Please enter a description of the shared template')})
+                raise ValidationError(
+                    {'description': _('Please enter a description of the shared template')})
+        if self.sharing != 'secret_key':
+            self.key = None
         if self.type == 'vpn' and not self.vpn:
             raise ValidationError({
                 'vpn': _('A VPN must be selected when template type is "VPN"')

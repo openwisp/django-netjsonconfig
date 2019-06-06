@@ -200,3 +200,25 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         t.full_clean()
         t2 = self.template_model(**options2)
         t2.full_clean()
+
+    def test_none_secret_key(self):
+        options1 = {
+            "name": "test-public",
+            "sharing": "public",
+            "backend": "netjsonconfig.OpenWrt",
+            "description": "some description"
+        }
+        options2 = {
+            "name": "test-secret",
+            "sharing": "secret_key",
+            "backend": "netjsonconfig.OpenWrt",
+            "description": "some description"
+        }
+        t = self.template_model(**options1)
+        t1 = self.template_model(**options2)
+        t.full_clean()
+        t1.full_clean()
+        t1.save()
+        t.save()
+        self.assertEqual(t.key, None)
+        self.assertNotEqual(t1.key, None)

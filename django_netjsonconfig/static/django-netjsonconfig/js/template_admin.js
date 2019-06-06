@@ -23,7 +23,7 @@ django.jQuery(function ($) {
             allFields.hide();
             publicFields.show();
         }
-        if (value === 'secret_key'){
+        if (value === 'secret_key') {
             allFields.hide();
             shareFields.show();
         }
@@ -31,7 +31,7 @@ django.jQuery(function ($) {
             allFields.hide();
             importFields.show();
         }
-        if (value === 'import'){
+        if (value === 'import') {
             $('.jsoneditor-wrapper').hide();
         }
         else{
