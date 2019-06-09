@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'sortedm2m',
     'reversion',
+    'rest_framework',
     'django_x509'
 ]
 

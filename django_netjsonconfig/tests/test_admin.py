@@ -318,6 +318,27 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
         response = self.client.get(path, {'q': 'ZERO-RESULTS-PLEASE'})
         self.assertNotContains(response, 'admin-search-test')
 
+    def test_api_template_search(self):
+        self._create_template(sharing='public',
+                              name='test1',
+                              description='test1 description')
+        self._create_template(sharing='public',
+                              name='test2',
+                              description='test2 description')
+        self._create_template(name='test3')
+        path = '/api/v1/search/'
+        response = self.client.get(path, {'name': 'test'})
+        self.assertContains(response, 'test1')
+        self.assertContains(response, 'test2')
+        response = self.client.get(path, {'des': 'cript'})
+        self.assertContains(response, 'test1 description')
+        self.assertContains(response, 'test2 description')
+        response = self.client.get(path, {'des': 'test2 desc', 'name': 'test'})
+        self.assertContains(response, 'test2')
+        self.assertNotContains(response, 'test1')
+        response = self.client.get(path, {'name': 'test3'})
+        self.assertNotContains(response, 'test3')
+
     def test_default_template_backend(self):
         path = reverse('admin:django_netjsonconfig_template_add')
         response = self.client.get(path)
