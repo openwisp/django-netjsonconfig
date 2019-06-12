@@ -140,3 +140,85 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         output = c.backend_instance.render()
         vpnserver1 = settings.NETJSONCONFIG_CONTEXT['vpnserver1']
         self.assertIn(vpnserver1, output)
+
+    def test_sharable_template_description(self):
+        options1 = {
+            "name": "test1",
+            "sharing": "public",
+            "backend": "netjsonconfig.OpenWrt",
+            "notes": "some admininstrative notes",
+        }
+        options2 = {
+            "name": "test2",
+            "sharing": "secret_key",
+            "backend": "netjsonconfig.OpenWrt",
+            "notes": "some admininstrative notes",
+        }
+        with self.assertRaises(ValidationError):
+            t = self.template_model(**options1)
+            t.full_clean()
+        with self.assertRaises(ValidationError):
+            t2 = self.template_model(**options2)
+            t2.full_clean()
+
+    def test_variable_substition(self):
+        config = {
+            "dns_servers": ["{{dns}}"]
+        }
+        default_values = {
+            "dns": "4.4.4.4"
+        }
+        options = {
+            "name": "test1",
+            "sharing": "public",
+            "backend": "netjsonconfig.OpenWrt",
+            "notes": "some admininstrative notes",
+            "description": "Some desciption notes",
+            "config": config,
+            "default_values": default_values
+        }
+        temp = self.template_model(**options)
+        temp.full_clean()
+        temp.save()
+
+    def test_sharable_template_default_values_required(self):
+        options1 = {
+            "name": "test1",
+            "sharing": "public",
+            "backend": "netjsonconfig.OpenWrt",
+            "notes": "some admininstrative notes",
+            "description": "Some desciption notes"
+        }
+        options2 = {
+            "name": "test2",
+            "sharing": "secret_key",
+            "backend": "netjsonconfig.OpenWrt",
+            "notes": "some admininstrative notes",
+            "description": "Some desciption notes"
+        }
+        t = self.template_model(**options1)
+        t.full_clean()
+        t2 = self.template_model(**options2)
+        t2.full_clean()
+
+    def test_none_secret_key(self):
+        options1 = {
+            "name": "test-public",
+            "sharing": "public",
+            "backend": "netjsonconfig.OpenWrt",
+            "description": "some description"
+        }
+        options2 = {
+            "name": "test-secret",
+            "sharing": "secret_key",
+            "backend": "netjsonconfig.OpenWrt",
+            "description": "some description"
+        }
+        t = self.template_model(**options1)
+        t1 = self.template_model(**options2)
+        t.full_clean()
+        t1.full_clean()
+        t1.save()
+        t.save()
+        self.assertEqual(t.key, None)
+        self.assertNotEqual(t1.key, None)

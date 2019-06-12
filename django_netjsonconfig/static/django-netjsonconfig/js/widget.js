@@ -67,13 +67,44 @@
         return editor;
     };
 
+    var evaluateVars = function(data, context){
+        var pattern = new RegExp('\{\{.*?\}\}');
+        if (typeof data === 'object'){
+            for (var [key, value] of Object.entries(data)){
+                data[key] = evaluateVars(value, context);
+            }
+        }
+        if (typeof data === 'string') {
+            var found_vars = data.match(pattern);
+            if (found_vars != null){
+                found_vars.forEach(function(element) {
+                    element = element.replace(/^\{\{\s+|\s+\}\}$|^\{\{|\}\}$/g, '');
+                    if (element in context){
+                        data = data.replace(pattern, context[element]);
+                    }
+                });
+            }
+        }
+        return data;
+    };
+
     // returns true if JSON is well formed
     // and valid according to its schema
     var isValidJson = function(advanced){
-        var valid;
-        try{
-            valid = advanced.validateSchema(advanced.get());
-        }catch (e){
+        var valid,
+            context = {},
+            data,
+            cleanedData;
+        try {
+            try {
+                context = JSON.parse($('#id_default_values').val());
+            } catch(e) {
+                context = JSON.parse($('#id_config-0-context').val());
+            }
+            data = advanced.get();
+            cleanedData = evaluateVars(data, context);
+            valid = advanced.validateSchema(cleanedData);
+        } catch (e) {
             valid = false;
         }
         return valid;
