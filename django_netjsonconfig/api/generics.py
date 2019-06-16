@@ -10,7 +10,7 @@ class BaseSearchTemplate(ListAPIView):
     def get_queryset(self):
         name = self.request.GET.get('name', None)
         des = self.request.GET.get('des', None)
-        temp = self.template_model.filter(sharing='public')
+        temp = self.template_model.objects.filter(sharing='public')
         if name and des is None:
             temp = temp.filter(name__icontains=name)
         elif des and name is None:
