@@ -18,6 +18,7 @@ matrix:
 branches:
   only:
     - master
+    - gsoc2019
 
 before_install:
   - pip install -U pip wheel setuptools

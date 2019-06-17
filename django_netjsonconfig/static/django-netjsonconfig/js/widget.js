@@ -68,18 +68,18 @@
     };
 
     var evaluateVars = function(data, context){
-        var pattern = new RegExp('\{\{.*?\}\}');
+        var pattern = /^\{\{\s*(\w*)\s*\}\}$/g;
         if (typeof data === 'object'){
-            for (var [key, value] of Object.entries(data)){
-                data[key] = evaluateVars(value, context);
-            }
+            Object.keys(data).forEach(function(key) {
+                data[key] = evaluateVars(data[key], context);
+            });
         }
         if (typeof data === 'string') {
             var found_vars = data.match(pattern);
-            if (found_vars != null){
+            if (found_vars !== null){
                 found_vars.forEach(function(element) {
                     element = element.replace(/^\{\{\s+|\s+\}\}$|^\{\{|\}\}$/g, '');
-                    if (element in context){
+                    if (context.hasOwnProperty(element)){
                         data = data.replace(pattern, context[element]);
                     }
                 });
