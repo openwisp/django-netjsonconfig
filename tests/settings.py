@@ -27,7 +27,8 @@ INSTALLED_APPS = [
     'sortedm2m',
     'reversion',
     'rest_framework',
-    'django_x509'
+    'django_x509',
+    'taggit_serializer'
 ]
 
 MIDDLEWARE = [

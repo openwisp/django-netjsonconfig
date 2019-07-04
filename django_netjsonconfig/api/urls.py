@@ -1,9 +1,7 @@
-from django.conf.urls import url
+from django_netjsonconfig.utils import get_api_urls
 
 from . import views
 
-urlpatterns = [
-    url(r'^search/$',
-        views.search_template,
-        name='search_template')
-]
+app_name = 'django_netjsonconfig'
+
+urlpatterns = get_api_urls(views)
