@@ -1,7 +1,8 @@
-from django_netjsonconfig.models import Template, Vpn
+from django_netjsonconfig.models import Template, TemplateSubscription, Vpn
 from django_x509.models import Ca, Cert
 
-from .generics import BaseListTemplateView, BaseTemplateDetailView
+from .generics import (BaseListTemplateView, BaseTemplateDetailView, BaseTemplateSubscriptionView,
+                       BaseTemplateSynchronizationView)
 from .serializers import (CaSerializer, CertSerializer, ListTemplateSerializer, TemplateDetailSerializer,
                           VpnSerializer)
 
@@ -32,5 +33,16 @@ class ListTemplateView(BaseListTemplateView):
     list_serializer = ListTemplateSerializer
 
 
+class TemplateSubscriptionView(BaseTemplateSubscriptionView):
+    template_subscribe_model = TemplateSubscription
+    template_model = Template
+
+
+class TemplateSynchronizationView(BaseTemplateSynchronizationView):
+    template_model = Template
+
+
 template_detail = TemplateDetailView.as_view()
 list_template = ListTemplateView.as_view()
+notify_template = TemplateSubscriptionView.as_view()
+synchronize_template = TemplateSynchronizationView.as_view()

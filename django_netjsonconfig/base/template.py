@@ -191,16 +191,28 @@ class AbstractTemplate(BaseConfig):
             self.tags.add(t)
         if data['type'] == 'vpn':
             vpn_ca = self.ca_model(**data['vpn']['ca'])
-            vpn_ca.full_clean()
+            try:
+                vpn_ca.full_clean()
+            except ValidationError:
+                self.ca_model.objects.filter(pk=vpn_ca.pk).update(**data['vpn']['ca'])
+                vpn_ca = self.ca_model.objects.get(pk=vpn_ca.pk)
             vpn_ca.save()
             data['vpn']['cert']['ca'] = vpn_ca
             vpn_cert = self.cert_model(**data['vpn']['cert'])
-            vpn_cert.full_clean()
+            try:
+                vpn_cert.full_clean()
+            except ValidationError:
+                self.cert_model.objects.filter(pk=vpn_cert.pk).update(**data['vpn']['cert'])
+                vpn_cert = self.cert_model.objects.get(pk=vpn_cert.pk)
             vpn_cert.save()
             data['vpn']['ca'] = vpn_ca
             data['vpn']['cert'] = vpn_cert
             vpn = self.vpn_model(**data['vpn'])
-            vpn.full_clean()
+            try:
+                vpn.full_clean()
+            except ValidationError:
+                self.vpn_model.objects.filter(name=vpn.name).update(**data['vpn'])
+                vpn = self.vpn_model.objects.get(name=vpn.name)
             vpn.save()
             self.vpn = vpn
         self.type = data['type']

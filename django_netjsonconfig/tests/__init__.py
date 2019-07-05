@@ -49,6 +49,84 @@ class CreateConfigMixin(CreateDeviceMixin):
 
 
 class CreateTemplateMixin(object):
+    _import_template_data = {
+        "id": "915db519-9bd1-4172-a866-c94f93eddd73",
+        "vpn": {
+            "id": "f770fbb8-46ff-4fb6-a9e4-a955e1fe659b",
+            "ca": {
+                "id": 1,
+                "name": "cred1",
+                "notes": "asdasd",
+            },
+            "cert": {
+                "id": 1,
+                "name": "cert",
+                "ca": 1
+            },
+            "config": {
+                "openvpn": [
+                    {
+                        "name": "vpn1",
+                        "mode": "server",
+                        "proto": "udp",
+                        "port": 1194,
+                        "dev_type": "tun",
+                        "dev": "vvvv",
+                        "comp_lzo": "adaptive",
+                        "auth": "SHA1",
+                        "cipher": "BF-CBC",
+                        "ca": "ca.pem",
+                        "cert": "cert.pem",
+                        "key": "key.pem",
+                        "status_version": 1,
+                        "reneg_sec": 3600,
+                        "tls_timeout": 2,
+                        "verb": 1,
+                        "topology": "subnet"
+                    }
+                ]
+            },
+            "name": "vpn1",
+            "host": "localhost",
+            "backend": "django_netjsonconfig.vpn_backends.OpenVpn",
+        },
+        "tags": [
+            "WDS",
+            "4G",
+            "VPN",
+            "mesh"
+        ],
+        "config": {
+            "interfaces": [
+                {
+                    "type": "ethernet",
+                    "name": "eth7",
+                    "mac": "{{ mac }}",
+                    "addresses": [
+                            {
+                                "proto": "static",
+                                "family": "ipv4",
+                                "address": "{{ ip }}",
+                                "mask": 24,
+                                "gateway": ""
+                            }
+                    ]
+                }
+            ]
+        },
+        "default_values": {
+            "mac": "00-87-AB-DE-43-23",
+            "ip": "1.1.1.1"
+        },
+        "name": "public",
+        "backend": "netjsonconfig.OpenWrt",
+        "type": "vpn",
+        "sharing": "public",
+        "key": None,
+        "auto_cert": False,
+        "description": "some description",
+    }
+
     def _create_template(self, **kwargs):
         model_kwargs = {
             "name": "test-template",
@@ -67,6 +145,20 @@ class CreateTemplateMixin(object):
         t.full_clean()
         t.save()
         return t
+
+
+class CreateTemplateSubscriptionMixin(object):
+    def _create_subscription(self, **kwargs):
+        model_kwargs = {
+            'template': self._create_template(),
+            'subscriber': 'http://test.com',
+            'subscribe': True
+        }
+        model_kwargs.update(kwargs)
+        s = self.subscription_model(**model_kwargs)
+        s.full_clean()
+        s.save()
+        return s
 
 
 class CreateVpnMixin(object):

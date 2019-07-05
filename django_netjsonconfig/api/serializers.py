@@ -1,4 +1,3 @@
-from django_x509.models import Ca, Cert
 from rest_framework import serializers
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 

@@ -1,5 +1,7 @@
-from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_404
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.response import Response
+
+from ..tasks import subscribe
 
 
 class BaseTemplateDetailView(RetrieveAPIView):
@@ -53,3 +55,58 @@ class BaseListTemplateView(ListAPIView):
         self.list_serializer.Meta.model = self.template_model
         serializer = self.list_serializer(data, many=True)
         return Response(serializer.data)
+
+
+class BaseTemplateSubscriptionView(CreateAPIView):
+    """
+    Base view to handle template notification
+    of templates
+    """
+
+    def post(self, request, *args, **kwargs):
+        """
+        create new notification record if this doesn't exist
+        else update the is_subscribe field of the existing
+        one accordingly
+        """
+        subscribe = request.POST.get('subscribe', False)
+        template_pk = request.POST.get('template', None)
+        template = self.template_model.objects.get(pk=template_pk)
+        options = {
+            'template': template,
+            'subscriber': request.POST.get('subscriber', None)
+        }
+        try:
+            # update TemplateSubscription for unsubscription
+            # and re-subscription
+
+            notification = self.template_subscribe_model.objects.get(**options)
+            notification.subscribe = subscribe
+            notification.save()
+        except self.template_subscribe_model.DoesNotExist:
+            # create a new record for new subscription
+            options.update({
+                'subscribe': subscribe
+            })
+            notify = self.template_subscribe_model(**options)
+            notify.full_clean()
+            notify.save()
+        return Response(status=200)
+
+
+class BaseTemplateSynchronizationView(CreateAPIView):
+    """
+    synchronize external templates and update last
+    sync date
+    """
+
+    def post(self, request, *args, **kwargs):
+        template_id = request.POST.get('template_id', None)
+        subscriber_url = '{0}://{1}'.format(request.META.get('wsgi.url_scheme'),
+                                            request.get_host())
+        template = self.template_model.objects.get(pk=template_id)
+        template.full_clean()
+        template.save()
+        subscribe.delay(template_id, template.url, subscriber_url,
+                        subscribe=True)
+        return Response(status=200)

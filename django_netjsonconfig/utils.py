@@ -146,6 +146,12 @@ def get_controller_urls(views_module):
 
 def get_api_urls(views_module):
     urls = [
+        url(r'^api/v1/templates/subscribe/$',
+            views_module.notify_template,
+            name='notify_template'),
+        url(r'^api/v1/templates/synchronize/$',
+            views_module.synchronize_template,
+            name='synchronize_template'),
         url(r'^api/v1/templates/(?P<uuid>[^/]+)/$',
             views_module.template_detail,
             name='template_detail'),

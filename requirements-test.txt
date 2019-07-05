@@ -1,4 +1,6 @@
 coverage
 coveralls
+celery
 openwisp-utils[qa]>=0.2.1
 mock
+packaging

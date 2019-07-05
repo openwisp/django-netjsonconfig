@@ -4,6 +4,7 @@ from django import forms
 from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin
+from django.contrib.admin.actions import delete_selected as delete_selected_
 from django.contrib.admin.templatetags.admin_static import static
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.http import Http404, HttpResponse
@@ -15,6 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 from openwisp_utils.admin import TimeReadonlyAdminMixin
 
 from .. import settings as app_settings
+from ..tasks import subscribe
 from ..utils import send_file
 from ..widgets import JsonSchemaWidget
 
@@ -339,9 +341,10 @@ if not app_settings.BACKEND_DEVICE_LIST:  # pragma: nocover
 
 
 class AbstractTemplateAdmin(BaseConfigAdmin):
-    list_display = ['name', 'type', 'backend', 'sharing', 'default', 'created', 'modified']
+    list_display = ['name', 'type', 'backend', 'subscribers', 'sharing', 'default', 'created', 'modified']
     list_filter = ['backend', 'type', 'default', 'created']
     search_fields = ['name']
+    actions = ['delete_selected']
     fields = ['sharing',
               'name',
               'url',
@@ -361,6 +364,62 @@ class AbstractTemplateAdmin(BaseConfigAdmin):
 
     class Media(BaseConfigAdmin.Media):
         js = BaseConfigAdmin.Media.js + [static('{0}js/{1}'.format(prefix, 'template_admin.js'))]
+
+    def delete_view(self, request, object_id, extra_context=None):
+        """
+        send unsubscription notifications to template designer
+        when deleted from the detail page.
+        """
+        if request.POST:
+            template = self.model.objects.get(pk=object_id)
+            subscriber_url = '{0}://{1}'.format(request.META.get('wsgi.url_scheme'),
+                                                request.get_host())
+            subscribe.delay(template.id, template.url, subscriber_url, subscribe=False)
+            self._delete_vpn(template.vpn_id)
+        return super(AbstractTemplateAdmin, self).delete_view(request, object_id, extra_context)
+
+    def subscribers(self, obj=None):
+        count = 0
+        if obj and obj.sharing == 'public' or obj.sharing == 'secret_key':
+            count = self.template_subscribe_model.objects.filter(subscribe=True, template=obj).count()
+        return count
+    subscribers.short_description = _('Number of Subscribers')
+
+    def save_model(self, request, obj, form, change):
+        """
+        Send notifications to template designers
+        for subscription.
+        """
+        super(AbstractTemplateAdmin, self).save_model(request, obj, form, change)
+        if not change and obj.sharing == 'import':
+            subscriber_url = '{0}://{1}'.format(request.META.get('wsgi.url_scheme'),
+                                                request.get_host())
+            subscribe.delay(obj.pk, obj.url, subscriber_url, subscribe=True)
+
+    def delete_selected(self, request, queryset):
+        """
+        send unsubscription notification to template designer
+        when template is deleted from the change list.
+        """
+        if request.POST.get('post'):
+            for template in queryset:
+                if template.sharing == 'import':
+                    subscriber_url = '{0}://{1}'.format(request.META.get('wsgi.url_scheme'),
+                                                        request.get_host())
+                    subscribe.delay(template.id, template.url, subscriber_url, subscribe=False)
+                    self._delete_vpn(template.vpn_id)
+        return delete_selected_(self, request, queryset)
+
+    delete_selected.short_description = _('Delete selected templates')
+
+    def _delete_vpn(self, vpn_id):
+        """
+        Delete vpn and Cas associate with this template
+        During unsubscription
+        """
+        if vpn_id:
+            vpn = self.vpn_model.objects.get(pk=vpn_id)
+            vpn.ca.delete()
 
 
 class AbstractVpnForm(forms.ModelForm):
@@ -398,3 +457,18 @@ class AbstractVpnAdmin(BaseConfigAdmin, UUIDFieldMixin):
               'config',
               'created',
               'modified']
+
+
+class AbstractTemplateSubscriptionAdmin(BaseAdmin):
+    list_display = ['template', 'subscriber', 'created', 'modified', 'subscribe']
+    list_filter = ['template', 'created', 'modified', 'subscribe']
+    search_fields = ['template']
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

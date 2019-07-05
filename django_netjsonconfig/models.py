@@ -1,10 +1,14 @@
+from celery.decorators import periodic_task
+from celery.schedules import crontab
 from django_x509.models import Ca, Cert
 
 from .base.config import AbstractConfig, TemplatesVpnMixin
 from .base.device import AbstractDevice
+from .base.subscription import AbstractTemplateSubscription
 from .base.tag import AbstractTaggedTemplate, AbstractTemplateTag
 from .base.template import AbstractTemplate
 from .base.vpn import AbstractVpn, AbstractVpnClient
+from .tasks import base_sync_template_content
 
 
 class Config(TemplatesVpnMixin, AbstractConfig):
@@ -73,3 +77,18 @@ class VpnClient(AbstractVpnClient):
     """
     class Meta(AbstractVpnClient.Meta):
         abstract = False
+
+
+class TemplateSubscription(AbstractTemplateSubscription):
+    """
+    Concrete Template Subscription model
+    """
+    class Meta(AbstractTemplateSubscription.Meta):
+        abstract = False
+
+
+@periodic_task(run_every=crontab(minute='0', hour='0'))
+def sync_template_content():
+    template_subscribers = TemplateSubscription.objects.filter(subscribe=True)
+    for subscription in template_subscribers:
+        base_sync_template_content(subscription.subscriber, subscription.template.pk)
