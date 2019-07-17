@@ -1,3 +1,5 @@
+from django_x509.models import Ca, Cert
+
 from .base.config import AbstractConfig, TemplatesVpnMixin
 from .base.device import AbstractDevice
 from .base.tag import AbstractTaggedTemplate, AbstractTemplateTag
@@ -37,6 +39,14 @@ class TaggedTemplate(AbstractTaggedTemplate):
         abstract = False
 
 
+class Vpn(AbstractVpn):
+    """
+    Concrete VPN model
+    """
+    class Meta(AbstractVpn.Meta):
+        abstract = False
+
+
 class Template(AbstractTemplate):
     """
     Concrete Template model
@@ -44,18 +54,22 @@ class Template(AbstractTemplate):
     class Meta(AbstractTemplate.Meta):
         abstract = False
 
+    # Define django_x509 concret model which will be
+    # use at the abstract model.
+    vpn_model = Vpn
+    ca_model = Ca
+    cert_model = Cert
+
+    def clean(self):
+        if self.sharing == 'import':
+            data = self._get_remote_template_data()
+            self._set_field_values(data)
+        super(Template, self).clean()
+
 
 class VpnClient(AbstractVpnClient):
     """
     Concrete VpnClient model
     """
     class Meta(AbstractVpnClient.Meta):
-        abstract = False
-
-
-class Vpn(AbstractVpn):
-    """
-    Concrete VPN model
-    """
-    class Meta(AbstractVpn.Meta):
         abstract = False
