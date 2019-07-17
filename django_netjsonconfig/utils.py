@@ -25,6 +25,7 @@ class ControllerResponse(HttpResponse):
     """
     extends ``django.http.HttpResponse`` by adding a custom HTTP header
     """
+
     def __init__(self, *args, **kwargs):
         super(ControllerResponse, self).__init__(*args, **kwargs)
         self['X-Openwisp-Controller'] = 'true'
@@ -139,6 +140,18 @@ def get_controller_urls(views_module):
         url(r'^controller/register/$',
             views_module.device_register,
             name='register_legacy'),
+    ]
+    return urls
+
+
+def get_api_urls(views_module):
+    urls = [
+        url(r'^api/v1/templates/(?P<uuid>[^/]+)/$',
+            views_module.template_detail,
+            name='template_detail'),
+        url(r'^api/v1/templates/$',
+            views_module.list_template,
+            name='list_template')
     ]
     return urls
 

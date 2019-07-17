@@ -3,7 +3,7 @@ import json
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
-from django_x509.models import Ca
+from django_x509.models import Ca, Cert
 
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 from ..models import Config, Device, Template, Vpn
@@ -16,6 +16,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
     fixtures = ['test_templates']
     maxDiff = None
     ca_model = Ca
+    cert_model = Cert
     config_model = Config
     device_model = Device
     vpn_model = Vpn
@@ -67,6 +68,31 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
         params['config-0-templates'] = ''
         response = self.client.post(path, params)
         self.assertNotContains(response, 'errors field-templates', status_code=302)
+
+    def test_import_api(self):
+        ca = self._create_ca()
+        cert = self._create_cert(ca=ca)
+        vpn = self._create_vpn(ca=ca, cert=cert)
+        temp1 = self._create_template(name='test1',
+                                      sharing='public',
+                                      description='some text',
+                                      type='vpn',
+                                      vpn=vpn)
+        temp2 = self._create_template(name='test2',
+                                      sharing='secret_key',
+                                      description='some text')
+        temp3 = self._create_template(name='test3')
+        path = '/api/v1/templates'
+        path1 = '{0}/{1}/'.format(path, temp1.pk)
+        path2 = '{0}/{1}/'.format(path, temp2.pk)
+        path2 = '{0}?key={1}'.format(path2, temp2.key)
+        path3 = '{0}/{1}/'.format(path, temp3.pk)
+        response1 = self.client.get(path1)
+        response2 = self.client.get(path2)
+        response3 = self.client.get(path3)
+        self.assertContains(response1, temp1.pk)
+        self.assertContains(response2, temp2.key)
+        self.assertContains(response3, '{"detail":"Not found."}', status_code=404)
 
     def test_add_device(self):
         t = Template.objects.first()
@@ -326,7 +352,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
                               name='test2',
                               description='test2 description')
         self._create_template(name='test3')
-        path = '/api/v1/search/'
+        path = '/api/v1/templates/'
         response = self.client.get(path, {'name': 'test'})
         self.assertContains(response, 'test1')
         self.assertContains(response, 'test2')

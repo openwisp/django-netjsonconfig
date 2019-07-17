@@ -8,4 +8,5 @@ django-reversion>=2.0.6,<3.1.0
 django-x509>=0.4.0,<0.5.0
 django-taggit>=0.23.0,<0.24.0
 openwisp-utils>=0.2,<0.3
-djangorestframework>=3.0,<=3.9.4
+djangorestframework>=3.0,<=3.9.
+django-taggit-serializer>=0.1.7
