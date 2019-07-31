@@ -1,9 +1,7 @@
-from django.conf.urls import url
+'''
+There are no urls in this file. It has no functional use.
+This file exists only to maintain backward compatibility.
+'''
 
-from . import views
-
-app_name = 'django_netjsonconfig'
-
-urlpatterns = [
-    url(r'^netjsonconfig/schema\.json$', views.schema, name='schema'),
-]
+app_name = 'django_netjsonconfig'  # pragma: no cover
+urlpatterns = []  # pragma: no cover

@@ -16,6 +16,7 @@ from openwisp_utils.admin import TimeReadonlyAdminMixin
 
 from .. import settings as app_settings
 from ..utils import send_file
+from ..views import schema
 from ..widgets import JsonSchemaWidget
 
 logger = logging.getLogger(__name__)
@@ -87,7 +88,8 @@ class BaseConfigAdmin(BaseAdmin):
                 name='{0}_download'.format(url_prefix)),
             url(r'^preview/$',
                 self.admin_site.admin_view(self.preview_view),
-                name='{0}_preview'.format(url_prefix))
+                name='{0}_preview'.format(url_prefix)),
+            url(r'^netjsonconfig/schema\.json$', schema, name='schema'),
         ] + super(BaseConfigAdmin, self).get_urls()
 
     def _get_config_model(self):

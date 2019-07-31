@@ -144,6 +144,7 @@ class TemplatesThrough(object):
     """
     Improves string representation of m2m relationship objects
     """
+
     def __str__(self):
         return _('Relationship with {0}').format(self.template.name)
 
