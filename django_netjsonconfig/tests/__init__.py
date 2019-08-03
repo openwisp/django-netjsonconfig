@@ -49,7 +49,7 @@ class CreateConfigMixin(CreateDeviceMixin):
 
 
 class CreateTemplateMixin(object):
-    _import_template_data = {
+    _vpn_template_data = {
         "id": "915db519-9bd1-4172-a866-c94f93eddd73",
         "vpn": {
             "id": "f770fbb8-46ff-4fb6-a9e4-a955e1fe659b",
@@ -57,10 +57,12 @@ class CreateTemplateMixin(object):
                 "id": 1,
                 "name": "cred1",
                 "notes": "asdasd",
+                "serial_number": "295441539147748938643079305821649318579",
             },
             "cert": {
                 "id": 1,
                 "name": "cert",
+                "serial_number": "295441539147748938643079305821649318574",
                 "ca": 1
             },
             "config": {
@@ -118,13 +120,27 @@ class CreateTemplateMixin(object):
             "mac": "00-87-AB-DE-43-23",
             "ip": "1.1.1.1"
         },
-        "name": "public",
+        "name": "import-template",
         "backend": "netjsonconfig.OpenWrt",
         "type": "vpn",
         "sharing": "public",
         "key": None,
         "auto_cert": False,
         "description": "some description",
+    }
+    _generic_template_data = {
+        "id": "89ae1f69-412d-49af-bf76-5d9cf7918f19",
+        "vpn": None,
+        "config": {},
+        "default_values": None,
+        "name": "generic-temp",
+        "backend": "netjsonconfig.OpenWrt",
+        "type": "generic",
+        "default": False,
+        "auto_cert": False,
+        "sharing": "public",
+        "key": None,
+        "description": "some description"
     }
 
     def _create_template(self, **kwargs):
@@ -152,7 +168,7 @@ class CreateTemplateSubscriptionMixin(object):
         model_kwargs = {
             'template': self._create_template(),
             'subscriber': 'http://test.com',
-            'subscribe': True
+            'is_subscription': True
         }
         model_kwargs.update(kwargs)
         s = self.subscription_model(**model_kwargs)

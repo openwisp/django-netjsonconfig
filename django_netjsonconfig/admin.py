@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .base.admin import (AbstractConfigForm, AbstractConfigInline, AbstractDeviceAdmin, AbstractTemplateAdmin,
-                         AbstractTemplateSubscriptionAdmin, AbstractVpnAdmin, AbstractVpnForm, BaseForm)
+                         AbstractVpnAdmin, AbstractVpnForm, BaseForm)
 from .models import Config, Device, Template, TemplateSubscription, Vpn
 
 
@@ -22,7 +22,7 @@ class TemplateAdmin(AbstractTemplateAdmin):
     # during unsubscription.
     # Template Subscription model is used to get number of
     # of subscribers for list_display
-    template_subscribe_model = TemplateSubscription
+    template_subscription_model = TemplateSubscription
     vpn_model = Vpn
 
 
@@ -45,11 +45,6 @@ class DeviceAdmin(AbstractDeviceAdmin):
     inlines = [ConfigInline]
 
 
-class TemplateSubscriptionAdmin(AbstractTemplateSubscriptionAdmin):
-    pass
-
-
 admin.site.register(Device, DeviceAdmin)
 admin.site.register(Template, TemplateAdmin)
 admin.site.register(Vpn, VpnAdmin)
-admin.site.register(TemplateSubscription, TemplateSubscriptionAdmin)

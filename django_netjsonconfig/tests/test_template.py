@@ -237,7 +237,7 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         }
         response = Mock()
         response.status_code = 200
-        response.json.return_value = copy.deepcopy(self._import_template_data)
+        response.json.return_value = copy.deepcopy(self._vpn_template_data)
         mocked.return_value = response
         t = self.template_model(**options)
         t.full_clean()

@@ -1,13 +1,12 @@
 import copy
 import json
 
-from django import __version__ as django_version
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 from django_x509.models import Ca, Cert
 from mock import Mock, patch
-from packaging import version
 
 from . import CreateConfigMixin, CreateTemplateMixin, CreateTemplateSubscriptionMixin, TestVpnX509Mixin
 from ..models import Config, Device, Template, TemplateSubscription, Vpn
@@ -75,62 +74,43 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateSubscriptionM
         response = self.client.post(path, params)
         self.assertNotContains(response, 'errors field-templates', status_code=302)
 
+    def test_url_required_import_template(self):
+        with self.assertRaises(ValidationError):
+            self._create_template(sharing='import')
+
+    def test_view_template_subscription_count(self):
+        self._create_template(sharing='public', description='some description')
+        response = self.client.get(reverse('admin:django_netjsonconfig_template_changelist'))
+        self.assertContains(response, 'subscribers')
+
     def test_subscription_api(self):
         template = self._create_template()
         data = {
             'template': template.pk,
             'subscriber': 'http://testsubscriber.com',
-            'subscribe': True
+            'is_subscription': True
         }
-        path = reverse('api:notify_template')
+        path = reverse('api:subscribe_template')
         response = self.client.post(path, data=data)
         subscriber = self.subscription_model.objects.get(template=template)
-        self.assertEqual(subscriber.subscribe, True)
+        self.assertEqual(subscriber.is_subscription, True)
         self.assertEqual(response.status_code, 200)
         data.update({
-            'subscribe': False
+            'is_subscription': False
         })
         response = self.client.post(path, data=data)
         subscriber = self.subscription_model.objects.get(template=template)
-        self.assertEqual(subscriber.subscribe, False)
+        self.assertEqual(subscriber.is_subscription, False)
         self.assertEqual(response.status_code, 200)
 
-    def test_delete_subscriber(self):
-        subscriber = self._create_subscription()
-        path = reverse('admin:django_netjsonconfig_templatesubscription_delete', args=[subscriber.pk])
-        response = self.client.get(path, follow=True)
-        self.assertEqual(response.status_code, 403)
-
-    def test_add_subscriber(self):
-        path = reverse('admin:django_netjsonconfig_templatesubscription_add')
-        response = self.client.get(path)
-        self.assertEqual(response.status_code, 403)
-
-    def test_change_subscriber(self):
-        subscriber = self._create_subscription()
-        path = reverse('admin:django_netjsonconfig_templatesubscription_change', args=[subscriber.pk])
-        response = self.client.get(path, follow=True)
-        # With django versions >= 2.1, response have a status code of 200
-        # Where as in versions < 2.1, response have a status code of 403
-        # Thus, we have to ensure the required test is carried out in each case
-        if version.parse(django_version) >= version.parse('2.1'):
-            self.assertContains(response, 'readonly">test-template')
-        else:
-            self.assertEqual(response.status_code, 403)
-
-    def test_delete_template_with_subscription(self):
-        template = self._create_template(name='test-delete')
-        self._create_subscription(template=template)
-        path = reverse('admin:django_netjsonconfig_template_delete', args=[template.pk])
-        response = self.client.post(path, follow=True)
-        # With django versions >= 2.1, response have a status code of 200
-        # Where as in versions < 2.1, response have a status code of 403
-        # Thus, we have to ensure the required test is carried out in each case
-        if version.parse(django_version) >= version.parse('2.1'):
-            self.assertContains(response, "doesn\'t have permission to delete")
-        else:
-            queryset = self.template_model.objects.filter(pk=template.pk)
-            self.assertEqual(queryset.count(), 1)
+    def test_subscription_count(self):
+        template = self._create_template(name='test-sub')
+        self._create_subscription(template=template,
+                                  subscriber='http://test1.com',
+                                  is_subscription=True)
+        path = reverse('api:subscription_count')
+        response = self.client.get(path, data={'template': template.pk, 'status': True})
+        self.assertContains(response, "1")
 
     @patch('requests.get')
     @patch('requests.post')
@@ -147,7 +127,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateSubscriptionM
         celery_response = Mock()
         celery_response.status_code = 200
         import_response.status_code = 200
-        import_response.json.return_value = copy.deepcopy(self._import_template_data)
+        import_response.json.return_value = copy.deepcopy(self._vpn_template_data)
         mocked_post.return_value = celery_response
         mocked_get.return_value = import_response
         response = self.client.post(path, data, follow=True)
@@ -191,11 +171,11 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateSubscriptionM
         celery_response = Mock()
         celery_response.status_code = 200
         import_response.status_code = 200
-        import_response.json.return_value = copy.deepcopy(self._import_template_data)
+        import_response.json.return_value = copy.deepcopy(self._vpn_template_data)
         mocked_post.return_value = celery_response
         mocked_get.return_value = import_response
         response = self.client.post(path, data, follow=True)
-        template = self.template_model.objects.get(name='import-template', sharing='import')
+        template = self.template_model.objects.get(name='import-template')
         mocked_post.assert_called_once()
         mocked_get.assert_called_once()
         self.assertEqual(response.status_code, 200)
@@ -227,7 +207,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateSubscriptionM
         celery_response = Mock()
         celery_response.status_code = 200
         import_response.status_code = 200
-        import_response.json.return_value = copy.deepcopy(self._import_template_data)
+        import_response.json.return_value = copy.deepcopy(self._vpn_template_data)
         mocked_post.return_value = celery_response
         mocked_get.return_value = import_response
         response = self.client.post(path, data, follow=True)
@@ -237,8 +217,8 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateSubscriptionM
         syn_path = reverse('api:synchronize_template')
         import_response.reset_mock(return_value=True)
         import_response.status_code = 200
-        import_response.json.return_value = copy.deepcopy(self._import_template_data)
-        response = self.client.post(syn_path, data={'template_id': template.pk}, follow=True)
+        import_response.json.return_value = copy.deepcopy(self._vpn_template_data)
+        response = self.client.post(syn_path, data={'template': template.pk}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(mocked_get.call_count, 2)
         self.assertEqual(mocked_post.call_count, 2)

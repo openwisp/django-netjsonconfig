@@ -1,5 +1,4 @@
-from celery.decorators import periodic_task
-from celery.schedules import crontab
+from django.core.exceptions import ValidationError
 from django_x509.models import Ca, Cert
 
 from .base.config import AbstractConfig, TemplatesVpnMixin
@@ -8,7 +7,7 @@ from .base.subscription import AbstractTemplateSubscription
 from .base.tag import AbstractTaggedTemplate, AbstractTemplateTag
 from .base.template import AbstractTemplate
 from .base.vpn import AbstractVpn, AbstractVpnClient
-from .tasks import base_sync_template_content
+from .utils import get_remote_template_data
 
 
 class Config(TemplatesVpnMixin, AbstractConfig):
@@ -65,9 +64,12 @@ class Template(AbstractTemplate):
     cert_model = Cert
 
     def clean(self):
-        if self.sharing == 'import':
-            data = self._get_remote_template_data()
-            self._set_field_values(data)
+        if self.sharing == 'import' or self.url:
+            if not self.url:
+                raise ValidationError({'url': 'URL is required for import of templates'})
+            else:
+                data = get_remote_template_data(self.url)
+                self._set_field_values(data)
         super(Template, self).clean()
 
 
@@ -85,10 +87,3 @@ class TemplateSubscription(AbstractTemplateSubscription):
     """
     class Meta(AbstractTemplateSubscription.Meta):
         abstract = False
-
-
-@periodic_task(run_every=crontab(minute='0', hour='0'))
-def sync_template_content():
-    template_subscribers = TemplateSubscription.objects.filter(subscribe=True)
-    for subscription in template_subscribers:
-        base_sync_template_content(subscription.subscriber, subscription.template.pk)
