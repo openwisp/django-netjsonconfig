@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_x509.models import Ca
 from mock import Mock, patch
+from requests.exceptions import ConnectionError
 
 from netjsonconfig import OpenWrt
 
@@ -320,17 +321,19 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
             t.full_clean()
         mocked.assert_called_once()
 
-    def test_template_import_connection_error(self):
+    @patch("requests.get")
+    def test_template_import_connection_error(self, mocked_get):
         options = {
             "sharing": "import",
-            "url": "http://localhost:8000/test/url/",
+            "url": "http://test/url/",
             "name": "invalid-url",
             "backend": "netjsonconfig.OpenWrt"
         }
+        mocked_get.side_effect = ConnectionError
         with self.assertRaises(ValidationError):
             t = self.template_model(**options)
             t.full_clean()
-            t.save()
+        mocked_get.assert_called_once()
 
     @patch('requests.get')
     def test_import_template_invalid_data(self, mocked):

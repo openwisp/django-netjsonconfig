@@ -120,6 +120,14 @@ class CreateTemplateMixin(object):
             "mac": "00-87-AB-DE-43-23",
             "ip": "1.1.1.1"
         },
+        "organization": {
+            "name": "testorg",
+            "is_active": True,
+            "slug": "testorg",
+            "description": "some description",
+            "email": "testorg@gmail.com",
+            "url": "http://testorg.com"
+        },
         "name": "import-template",
         "backend": "netjsonconfig.OpenWrt",
         "type": "vpn",
@@ -140,7 +148,15 @@ class CreateTemplateMixin(object):
         "auto_cert": False,
         "sharing": "public",
         "key": None,
-        "description": "some description"
+        "description": "some description",
+        "organization": {
+            "name": "testorg",
+            "is_active": True,
+            "slug": "testorg",
+            "description": "some description",
+            "email": "testorg@gmail.com",
+            "url": "http://testorg.com"
+        }
     }
 
     def _create_template(self, **kwargs):

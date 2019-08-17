@@ -7,9 +7,11 @@ from django.test import TestCase
 from django.urls import reverse
 from django_x509.models import Ca, Cert
 from mock import Mock, patch
+from requests.exceptions import ConnectionError
 
 from . import CreateConfigMixin, CreateTemplateMixin, CreateTemplateSubscriptionMixin, TestVpnX509Mixin
 from ..models import Config, Device, Template, TemplateSubscription, Vpn
+from ..tasks import synchronize_templates
 
 
 class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateSubscriptionMixin,
@@ -151,6 +153,22 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateSubscriptionM
         self.assertEqual(queryset.count(), 0)
         self.assertEqual(mocked_post.call_count, 2)
         self.assertEqual(response.status_code, 200)
+
+    @patch('requests.post')
+    def test_synchronize_template(self, mocked_post):
+        self._create_subscription()
+        celery_response = Mock()
+        celery_response.status_code = 200
+        mocked_post.return_value = celery_response
+        synchronize_templates()
+        mocked_post.assert_called_once()
+
+    @patch("requests.post")
+    def test_synchronize_template_connection_error(self, mocked_post):
+        self._create_subscription()
+        mocked_post.side_effect = ConnectionError
+        synchronize_templates()
+        mocked_post.assert_called_once()
 
     @patch('requests.get')
     @patch('requests.post')

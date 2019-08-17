@@ -1,12 +1,15 @@
+import logging
+
 import requests
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from requests.exceptions import ConnectionError
 
 from openwisp_utils.base import TimeStampedEditableModel
 
 from ..tasks import subscribe_template
+
+logger = logging.getLogger(__name__)
 
 
 class AbstractTemplateSubscription(TimeStampedEditableModel):
@@ -50,5 +53,10 @@ class AbstractTemplateSubscription(TimeStampedEditableModel):
             path = '{0}{1}'.format(subscription.subscriber, reverse('api:synchronize_template'))
             try:
                 requests.post(path, data={'template': subscription.template.pk})
-            except ConnectionError:
-                pass
+            except Exception as e:
+                logger.exception(
+                    'Got exception {} while sending '
+                    'updates to {}, for template with name {}'.format(
+                        type(e), subscription.subscriber, subscription.template.name
+                    )
+                )
