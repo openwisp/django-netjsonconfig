@@ -1,9 +1,10 @@
-from django_netjsonconfig.models import Template, Vpn
+from django_netjsonconfig.models import Template, TemplateSubscription, Vpn
 from django_x509.models import Ca, Cert
 
-from .generics import BaseListTemplateView, BaseTemplateDetailView
-from .serializers import (CaSerializer, CertSerializer, ListTemplateSerializer, TemplateDetailSerializer,
-                          VpnSerializer)
+from .generics import (BaseListTemplateView, BaseSubscriptionCountView, BaseTemplateDetailView,
+                       BaseTemplateSubscriptionView, BaseTemplateSynchronizationView)
+from .serializers import (CaSerializer, CertSerializer, ListSubscriptionCountSerializer,
+                          ListTemplateSerializer, TemplateDetailSerializer, VpnSerializer)
 
 
 class TemplateDetailView(BaseTemplateDetailView):
@@ -23,14 +24,40 @@ class TemplateDetailView(BaseTemplateDetailView):
     ca_serializer = CaSerializer
     cert_serializer = CertSerializer
     vpn_serializer = VpnSerializer
-    queryset = Template.objects.none()
+    queryset = Template.objects.all()
 
 
 class ListTemplateView(BaseListTemplateView):
     queryset = Template.objects.all()
     template_model = Template
-    list_serializer = ListTemplateSerializer
+    template_subscription_model = TemplateSubscription
+    vpn_model = Vpn
+    ca_model = Ca
+    cert_model = Cert
+    ca_serializer = CaSerializer
+    cert_serializer = CertSerializer
+    vpn_serializer = VpnSerializer
+    template_serializer = TemplateDetailSerializer
+    list_template_serializer = ListTemplateSerializer
+
+
+class TemplateSubscriptionView(BaseTemplateSubscriptionView):
+    template_subscription_model = TemplateSubscription
+    template_model = Template
+
+
+class TemplateSynchronizationView(BaseTemplateSynchronizationView):
+    template_model = Template
+    template_subscription_model = TemplateSubscription
+
+
+class SubscriptionCountView(BaseSubscriptionCountView):
+    template_subscription_model = TemplateSubscription
+    subscription_serializer = ListSubscriptionCountSerializer
 
 
 template_detail = TemplateDetailView.as_view()
 list_template = ListTemplateView.as_view()
+subscribe_template = TemplateSubscriptionView.as_view()
+synchronize_template = TemplateSynchronizationView.as_view()
+subscription_count = SubscriptionCountView.as_view()

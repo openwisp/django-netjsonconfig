@@ -169,6 +169,11 @@ Install test requirements:
 
     pip install -r requirements-test.txt
 
+Start celery tasks:
+
+.. code-block:: shell
+    celery -A django_netjsonconfig worker -l info -B
+
 Create database:
 
 .. code-block:: shell

@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .base.admin import (AbstractConfigForm, AbstractConfigInline, AbstractDeviceAdmin, AbstractTemplateAdmin,
                          AbstractVpnAdmin, AbstractVpnForm, BaseForm)
-from .models import Config, Device, Template, Vpn
+from .models import Config, Device, Template, TemplateSubscription, Vpn
 
 
 class ConfigForm(AbstractConfigForm):
@@ -17,6 +17,13 @@ class TemplateForm(BaseForm):
 
 class TemplateAdmin(AbstractTemplateAdmin):
     form = TemplateForm
+    # Vpn model will be used to delete any Vpn and Ca
+    # which wwere associated with this Template
+    # during unsubscription.
+    # Template Subscription model is used to get number of
+    # of subscribers for list_display
+    template_subscription_model = TemplateSubscription
+    vpn_model = Vpn
 
 
 class VpnForm(AbstractVpnForm):

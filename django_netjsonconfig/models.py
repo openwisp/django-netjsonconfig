@@ -1,10 +1,13 @@
+from django.core.exceptions import ValidationError
 from django_x509.models import Ca, Cert
 
 from .base.config import AbstractConfig, TemplatesVpnMixin
 from .base.device import AbstractDevice
+from .base.subscription import AbstractTemplateSubscription
 from .base.tag import AbstractTaggedTemplate, AbstractTemplateTag
 from .base.template import AbstractTemplate
 from .base.vpn import AbstractVpn, AbstractVpnClient
+from .utils import get_remote_template_data
 
 
 class Config(TemplatesVpnMixin, AbstractConfig):
@@ -61,9 +64,12 @@ class Template(AbstractTemplate):
     cert_model = Cert
 
     def clean(self):
-        if self.sharing == 'import':
-            data = self._get_remote_template_data()
-            self._set_field_values(data)
+        if self.sharing == 'import' or self.url:
+            if not self.url:
+                raise ValidationError({'url': 'URL is required for import of templates'})
+            else:
+                data = get_remote_template_data(self.url)
+                self._set_field_values(data)
         super(Template, self).clean()
 
 
@@ -72,4 +78,12 @@ class VpnClient(AbstractVpnClient):
     Concrete VpnClient model
     """
     class Meta(AbstractVpnClient.Meta):
+        abstract = False
+
+
+class TemplateSubscription(AbstractTemplateSubscription):
+    """
+    Concrete Template Subscription model
+    """
+    class Meta(AbstractTemplateSubscription.Meta):
         abstract = False

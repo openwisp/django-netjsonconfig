@@ -2,3 +2,4 @@ coverage
 coveralls
 openwisp-utils[qa]>=0.2.1
 mock
+celery>=4.3.0

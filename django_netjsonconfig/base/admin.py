@@ -4,6 +4,7 @@ from django import forms
 from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin
+from django.contrib.admin.actions import delete_selected as delete_selected_
 from django.contrib.admin.templatetags.admin_static import static
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.http import Http404, HttpResponse
@@ -339,9 +340,10 @@ if not app_settings.BACKEND_DEVICE_LIST:  # pragma: nocover
 
 
 class AbstractTemplateAdmin(BaseConfigAdmin):
-    list_display = ['name', 'type', 'backend', 'sharing', 'default', 'created', 'modified']
+    list_display = ['name', 'type', 'backend', 'subscribers', 'sharing', 'default', 'created', 'modified']
     list_filter = ['backend', 'type', 'default', 'created']
     search_fields = ['name']
+    actions = ['delete_selected']
     fields = ['sharing',
               'name',
               'url',
@@ -361,6 +363,50 @@ class AbstractTemplateAdmin(BaseConfigAdmin):
 
     class Media(BaseConfigAdmin.Media):
         js = BaseConfigAdmin.Media.js + [static('{0}js/{1}'.format(prefix, 'template_admin.js'))]
+
+    def delete_view(self, request, object_id, extra_context=None):
+        """
+        send unsubscription notifications to template designer
+        when deleted from the detail page.
+        """
+        template = self.model.objects.get(pk=object_id)
+        result = super(AbstractTemplateAdmin, self).delete_view(request, object_id, extra_context)
+        if request.POST and template.sharing == 'import':
+            self.template_subscription_model.unsubscribe(request, template)
+            self.model.delete_imported_vpn(template.vpn_id)
+        return result
+
+    def subscribers(self, obj=None):
+        count = 0
+        if obj and obj.sharing == 'public' or obj.sharing == 'secret_key':
+            count = self.template_subscription_model.subscription_count(obj)
+        return count
+    subscribers.short_description = _('Number of Subscribers')
+
+    def save_model(self, request, obj, form, change):
+        """
+        Send notifications to template designers
+        for subscription.
+        """
+        super(AbstractTemplateAdmin, self).save_model(request, obj, form, change)
+        if not change and obj.sharing == 'import':
+            self.template_subscription_model.subscribe(request, obj)
+
+    def delete_selected(self, request, queryset):
+        """
+        send unsubscription notification to template designer
+        when template is deleted from the change list.
+        """
+        templates = list(queryset)
+        result = delete_selected_(self, request, queryset)
+        if request.POST.get('post'):
+            for template in templates:
+                if template.sharing == 'import':
+                    self.template_subscription_model.unsubscribe(request, template)
+                    self.model.delete_imported_vpn(template.vpn_id)
+        return result
+
+    delete_selected.short_description = _('Delete selected templates')
 
 
 class AbstractVpnForm(forms.ModelForm):

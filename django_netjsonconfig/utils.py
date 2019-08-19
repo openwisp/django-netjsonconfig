@@ -1,10 +1,13 @@
 import logging
 
+import requests
 from django.conf.urls import url
 from django.core.exceptions import ValidationError
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404 as base_get_object_or_404
 from django.utils.crypto import get_random_string
+from django.utils.translation import gettext_lazy as _
+from requests.exceptions import ConnectionError
 
 logger = logging.getLogger(__name__)
 
@@ -146,12 +149,21 @@ def get_controller_urls(views_module):
 
 def get_api_urls(views_module):
     urls = [
-        url(r'^api/v1/templates/(?P<uuid>[^/]+)/$',
+        url(r'^api/v1/templates/subscribe/$',
+            views_module.subscribe_template,
+            name='subscribe_template'),
+        url(r'^api/v1/templates/synchronize/$',
+            views_module.synchronize_template,
+            name='synchronize_template'),
+        url(r'^api/v1/templates/(?P<pk>[^/]+)/$',
             views_module.template_detail,
             name='template_detail'),
         url(r'^api/v1/templates/$',
             views_module.list_template,
-            name='list_template')
+            name='list_template'),
+        url(r'^api/v1/subscription/$',
+            views_module.subscription_count,
+            name='subscription_count'),
     ]
     return urls
 
@@ -161,3 +173,33 @@ def get_random_key():
     generates a device key of 32 characters
     """
     return get_random_string(length=32)
+
+
+def get_remote_template_data(remote_url):
+    """
+    Gets the template data from the
+    remote serialization API
+    """
+    try:
+        response = requests.get(remote_url)
+    except ConnectionError:
+        raise ValidationError({'url': 'Connections to the server with this URL has issues'})
+    if response.status_code != 200:
+        raise ValidationError({'url': _(response.reason)})
+    else:
+        try:
+            data = response.json()
+        except ValueError:
+            raise ValidationError({'url': _('the JSON response could not be decoded successfully')})
+        return data
+
+
+def create_update_object(model, data):
+    try:
+        obj = model.objects.get(name=data['name'])
+        model.objects.filter(pk=obj.pk).update(**data)
+    except model.DoesNotExist:
+        obj = model(**data)
+        obj.full_clean()
+        obj.save()
+    return obj

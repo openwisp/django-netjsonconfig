@@ -1,5 +1,7 @@
 import os
+import sys
 
+TESTING = sys.argv[1:2] == ['test']
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 DEBUG = True
@@ -41,7 +43,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'tests.urls'
 
 TIME_ZONE = 'Europe/Rome'
 LANGUAGE_CODE = 'en-gb'
@@ -66,6 +68,20 @@ TEMPLATES = [
         },
     },
 ]
+
+
+if not TESTING:
+    CELERY_BROKER_URL = 'redis://localhost/1'
+else:
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_EAGER_PROPAGATES = True
+    CELERY_BROKER_URL = 'memory://'
+CELERYBEAT_SCHEDULE = {
+    'synchronize_templates': {
+        'task': 'django_netjsonconfig.tasks.synchronize_templates',
+        'schedule': 10,
+    },
+}
 
 NETJSONCONFIG_SHARED_SECRET = 't3st1ng'
 NETJSONCONFIG_CONTEXT = {

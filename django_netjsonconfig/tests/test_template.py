@@ -1,8 +1,11 @@
-import mock
+import copy
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_x509.models import Ca
+from mock import Mock, patch
+from requests.exceptions import ConnectionError
 
 from netjsonconfig import OpenWrt
 
@@ -224,104 +227,29 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         self.assertEqual(t.key, None)
         self.assertNotEqual(t1.key, None)
 
-    def test_template_vpn_import(self):
-        data = {
-            "id": "915db519-9bd1-4172-a866-c94f93eddd73",
-            "vpn": {
-                "id": "f770fbb8-46ff-4fb6-a9e4-a955e1fe659b",
-                "ca": {
-                    "id": 1,
-                    "name": "cred1",
-                    "notes": "asdasd",
-                },
-                "cert": {
-                    "id": 1,
-                    "name": "cert",
-                    "ca": 1
-                },
-                "config": {
-                    "openvpn": [
-                        {
-                            "name": "vpn1",
-                            "mode": "server",
-                            "proto": "udp",
-                            "port": 1194,
-                            "dev_type": "tun",
-                            "dev": "vvvv",
-                            "comp_lzo": "adaptive",
-                            "auth": "SHA1",
-                            "cipher": "BF-CBC",
-                            "ca": "ca.pem",
-                            "cert": "cert.pem",
-                            "key": "key.pem",
-                            "status_version": 1,
-                            "reneg_sec": 3600,
-                            "tls_timeout": 2,
-                            "verb": 1,
-                            "topology": "subnet"
-                        }
-                    ]
-                },
-                "name": "vpn1",
-                "host": "localhost",
-                "backend": "django_netjsonconfig.vpn_backends.OpenVpn",
-            },
-            "tags": [
-                "WDS",
-                "4G",
-                "VPN",
-                "mesh"
-            ],
-            "config": {
-                "interfaces": [
-                    {
-                        "type": "ethernet",
-                        "name": "eth7",
-                        "mac": "{{ mac }}",
-                        "addresses": [
-                                {
-                                    "proto": "static",
-                                    "family": "ipv4",
-                                    "address": "{{ ip }}",
-                                    "mask": 24,
-                                    "gateway": ""
-                                }
-                        ]
-                    }
-                ]
-            },
-            "default_values": {
-                "mac": "00-87-AB-DE-43-23",
-                "ip": "1.1.1.1"
-            },
-            "name": "public2",
-            "backend": "netjsonconfig.OpenWrt",
-            "type": "vpn",
-            "sharing": "public",
-            "key": None,
-            "auto_cert": False,
-            "description": "some description",
-        }
+    @patch('requests.get')
+    def test_template_vpn_import(self, mocked):
         options = {
             "sharing": "import",
             "url": "http://localhost:8000/test/url/",
             "backend": "netjsonconfig.OpenWrt",
-            "name": "import-template"
+            "name": "import-template",
+            "type": "vpn"
         }
-        response = mock.Mock()
+        response = Mock()
         response.status_code = 200
-        response.json.return_value = data
-        with mock.patch('requests.get') as mocked:
-            mocked.return_value = response
-            t = self.template_model(**options)
-            t.full_clean()
-            t.save()
-            mocked.assert_called_once()
+        response.json.return_value = copy.deepcopy(self._vpn_template_data)
+        mocked.return_value = response
+        t = self.template_model(**options)
+        t.full_clean()
+        t.save()
+        mocked.assert_called_once()
         queryset = self.template_model.objects.get(name='import-template')
         self.assertEqual(queryset.name, 'import-template')
         self.assertEqual(queryset.vpn.name, 'vpn1')
 
-    def test_template_generic_import(self):
+    @patch('requests.get')
+    def test_template_generic_import(self, mocked):
         data = {
             "id": "915db519-9bd1-4172-a866-c94f93eddd73",
             "tags": [
@@ -366,60 +294,61 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
             "backend": "netjsonconfig.OpenWrt",
             "name": "import-generic-template"
         }
-        response = mock.Mock()
+        response = Mock()
         response.status_code = 200
         response.json.return_value = data
-        with mock.patch('requests.get') as mocked:
-            mocked.return_value = response
-            t = self.template_model(**options)
-            t.full_clean()
-            t.save()
-            mocked.assert_called_once()
+        mocked.return_value = response
+        t = self.template_model(**options)
+        t.full_clean()
+        t.save()
+        mocked.assert_called_once()
         queryset = self.template_model.objects.get(name='import-generic-template')
         self.assertEqual(queryset.name, 'import-generic-template')
 
-    def test_template_import_url_not_found(self):
+    @patch('requests.get')
+    def test_template_import_url_not_found(self, mocked):
         options = {
             "sharing": "import",
             "url": "http://localhost:8000/test/url/",
             "name": "invalid-url",
             "backend": "netjsonconfig.OpenWrt"
         }
-        response = mock.Mock()
+        response = Mock()
         response.status_code = 404
-        with mock.patch('requests.get') as mocked:
-            mocked.return_value = response
-            with self.assertRaises(ValidationError):
-                t = self.template_model(**options)
-                t.full_clean()
-            mocked.assert_called_once()
-
-    def test_template_import_connection_error(self):
-        options = {
-            "sharing": "import",
-            "url": "http://localhost:8000/test/url/",
-            "name": "invalid-url",
-            "backend": "netjsonconfig.OpenWrt"
-        }
+        mocked.return_value = response
         with self.assertRaises(ValidationError):
             t = self.template_model(**options)
             t.full_clean()
-            t.save()
+        mocked.assert_called_once()
 
-    def test_import_template_invalid_data(self):
+    @patch("requests.get")
+    def test_template_import_connection_error(self, mocked_get):
+        options = {
+            "sharing": "import",
+            "url": "http://test/url/",
+            "name": "invalid-url",
+            "backend": "netjsonconfig.OpenWrt"
+        }
+        mocked_get.side_effect = ConnectionError
+        with self.assertRaises(ValidationError):
+            t = self.template_model(**options)
+            t.full_clean()
+        mocked_get.assert_called_once()
+
+    @patch('requests.get')
+    def test_import_template_invalid_data(self, mocked):
         options = {
             "sharing": "import",
             "url": "http://localhost:8000/test/url/",
             "name": "invalid-content",
             "backend": "netjsonconfig.OpenWrt",
         }
-        response = mock.Mock()
+        response = Mock()
         response.status_code = 200
         response.json.side_effect = ValueError
-        with mock.patch('requests.get') as mocked:
-            mocked.return_value = response
-            with self.assertRaises(ValidationError):
-                t = self.template_model(**options)
-                t.full_clean()
-                t.save()
-            mocked.assert_called_once()
+        mocked.return_value = response
+        with self.assertRaises(ValidationError):
+            t = self.template_model(**options)
+            t.full_clean()
+            t.save()
+        mocked.assert_called_once()
