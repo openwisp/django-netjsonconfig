@@ -59,7 +59,7 @@ class AbstractDevice(BaseModel):
         modifies related config status if name
         attribute is changed (queries the database)
         """
-        super(AbstractDevice, self).clean()
+        super().clean()
         if self._state.adding:
             return
         current = self.__class__.objects.get(pk=self.pk)

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
-import six
 from django.db import migrations, models
 
 
@@ -22,7 +20,7 @@ def forward(apps, schema_editor):
                     v['name'] = v['config_value']
                     del v['config_value']
                 v['enabled'] = True
-                if 'remote' in v and isinstance(v['remote'], six.string_types):
+                if 'remote' in v and isinstance(v['remote'], str):
                     parts = v['remote'].split()
                     v['remote'] = [{'host': parts[0], 'port': int(parts[1])}]
                 if 'mode' not in v:

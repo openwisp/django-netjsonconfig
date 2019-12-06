@@ -47,7 +47,7 @@ class AbstractVpn(BaseConfig):
         """
         * ensure certificate matches CA
         """
-        super(AbstractVpn, self).clean(*args, **kwargs)
+        super().clean(*args, **kwargs)
         # certificate must be related to CA
         if self.cert and self.cert.ca.pk != self.ca.pk:
             msg = _('The selected certificate must match the selected CA.')
@@ -61,7 +61,7 @@ class AbstractVpn(BaseConfig):
             self.cert = self._auto_create_cert()
         if not self.dh:
             self.dh = self.dhparam(1024)
-        super(AbstractVpn, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @classmethod
     def dhparam(cls, length):
@@ -122,7 +122,7 @@ class AbstractVpn(BaseConfig):
             })
         if self.dh:
             c.update({'dh': self.dh})
-        c.update(super(AbstractVpn, self).get_context())
+        c.update(super().get_context())
         return c
 
     def _get_auto_context_keys(self):
@@ -202,7 +202,7 @@ class AbstractVpnClient(models.Model):
             cn = self._get_common_name()
             self._auto_create_cert(name=self.config.device.name,
                                    common_name=cn)
-        super(AbstractVpnClient, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def _get_common_name(self):
         """

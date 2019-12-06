@@ -1,5 +1,5 @@
-from . import views
 from ..utils import get_controller_urls
+from . import views
 
 app_name = 'django_netjsonconfig'
 

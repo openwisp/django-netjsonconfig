@@ -1,8 +1,6 @@
-from __future__ import absolute_import, unicode_literals
-
 from django import forms
-from django.contrib.admin.templatetags.admin_static import static
 from django.contrib.admin.widgets import AdminTextareaWidget
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -37,5 +35,5 @@ class JsonSchemaWidget(AdminTextareaWidget):
 """
         html = html.format(_('Advanced mode (raw JSON)'),
                            reverse('admin:schema'))
-        html += super(JsonSchemaWidget, self).render(name, value, attrs, renderer)
+        html += super().render(name, value, attrs, renderer)
         return html

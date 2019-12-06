@@ -6,8 +6,8 @@ from django_x509.models import Ca
 
 from netjsonconfig import OpenWrt
 
-from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 from ..models import Config, Device, Template, Vpn
+from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 
 
 class TestTemplate(CreateConfigMixin, CreateTemplateMixin,

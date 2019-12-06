@@ -1,3 +1,5 @@
+import collections
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -28,7 +30,9 @@ class AbstractConfig(BaseConfig):
                         help_text=_('Additional '
                                     '<a href="http://netjsonconfig.openwisp.org/'
                                     'en/stable/general/basics.html#context" target="_blank">'
-                                    'context (configuration variables)</a> in JSON format'))
+                                    'context (configuration variables)</a> in JSON format'),
+                        load_kwargs={'object_pairs_hook': collections.OrderedDict},
+                        dump_kwargs={'indent': 4})
 
     class Meta:
         abstract = True
@@ -45,7 +49,7 @@ class AbstractConfig(BaseConfig):
         modifies status if key attributes of the configuration
         have changed (queries the database)
         """
-        super(AbstractConfig, self).clean()
+        super().clean()
         if self._state.adding:
             return
         current = self.__class__.objects.get(pk=self.pk)
@@ -55,7 +59,7 @@ class AbstractConfig(BaseConfig):
                 break
 
     def save(self, *args, **kwargs):
-        result = super(AbstractConfig, self).save(*args, **kwargs)
+        result = super().save(*args, **kwargs)
         if not self._state.adding and getattr(self, '_send_config_modified_after_save', False):
             self._send_config_modified_signal()
         return result
@@ -105,7 +109,7 @@ class AbstractConfig(BaseConfig):
             })
             if self.context:
                 c.update(self.context)
-        c.update(super(AbstractConfig, self).get_context())
+        c.update(super().get_context())
         if app_settings.HARDWARE_ID_ENABLED and self._has_device():
             c.update({'hardware_id': self.device.hardware_id})
         return c
@@ -169,7 +173,7 @@ class TemplatesVpnMixin(models.Model):
 
     def save(self, *args, **kwargs):
         created = self._state.adding
-        super(TemplatesVpnMixin, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         if created:
             default_templates = self.get_default_templates()
             if default_templates:
@@ -279,7 +283,7 @@ class TemplatesVpnMixin(models.Model):
         """
         adds VPN client certificates to configuration context
         """
-        c = super(TemplatesVpnMixin, self).get_context()
+        c = super().get_context()
         for vpnclient in self.vpnclient_set.all().select_related('vpn', 'cert'):
             vpn = vpnclient.vpn
             vpn_id = vpn.pk.hex

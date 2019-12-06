@@ -3,9 +3,9 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_x509.models import Ca, Cert
 
-from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 from ..models import Config, Device, Template, Vpn, VpnClient
 from ..vpn_backends import OpenVpn
+from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 
 
 class TestVpn(TestVpnX509Mixin, CreateConfigMixin,

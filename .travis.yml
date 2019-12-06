@@ -3,20 +3,12 @@ sudo: false
 cache: pip
 
 python:
-  - "3.5"
-  - "2.7"
+  - "3.6"
+  - "3.7"
 
 env:
-  - DJANGO="django>=1.11,<1.12"
-  - DJANGO="django>=2.0,<2.2"
   - DJANGO="django>=2.2,<3.0"
-
-matrix:
-  exclude:
-   - python: "2.7"
-     env: DJANGO="django>=2.0,<2.2"
-   - python: "2.7"
-     env: DJANGO="django>=2.2,<3.0"
+  - DJANGO="django>=3.0,<3.1"
 
 branches:
   only:
@@ -39,7 +31,6 @@ script:
         --migration-path ./django_netjsonconfig/migrations/ \
         --skip-checkmakemigrations
   - |
-    if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then
       openwisp-utils-qa-checks \
         --skip-isort \
         --skip-flake8 \
@@ -47,7 +38,6 @@ script:
         --skip-checkendline \
         --skip-checkcommit \
         --migration-module django_netjsonconfig
-    fi
   - coverage run --source=django_netjsonconfig runtests.py
 
 after_success:

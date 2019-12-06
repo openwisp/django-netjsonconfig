@@ -28,7 +28,7 @@ class CsrfExtemptMixin(object):
     """
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
-        return super(CsrfExtemptMixin, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
 
 class UpdateLastIpMixin(object):

@@ -1,7 +1,8 @@
-import django.core.validators
-from django.db import migrations, models
-import django_netjsonconfig.utils
 import re
+
+import django.core.validators
+import django_netjsonconfig.utils
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):

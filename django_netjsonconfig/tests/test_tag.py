@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from . import CreateTemplateMixin
 from ..models import Template
+from . import CreateTemplateMixin
 
 
 class TestTag(CreateTemplateMixin, TestCase):

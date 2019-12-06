@@ -26,7 +26,7 @@ class ControllerResponse(HttpResponse):
     extends ``django.http.HttpResponse`` by adding a custom HTTP header
     """
     def __init__(self, *args, **kwargs):
-        super(ControllerResponse, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self['X-Openwisp-Controller'] = 'true'
 
 

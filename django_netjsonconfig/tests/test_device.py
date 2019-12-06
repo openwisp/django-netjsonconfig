@@ -1,9 +1,9 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from . import CreateConfigMixin
 from ..models import Config, Device
 from ..validators import device_name_validator, mac_address_validator
+from . import CreateConfigMixin
 
 
 class TestDevice(CreateConfigMixin, TestCase):

@@ -69,7 +69,7 @@ An automated installer is available at `ansible-openwisp2 <https://github.com/op
 Dependencies
 ------------
 
-* Python 2.7 or Python >= 3.5
+* Python >=3.6
 * OpenSSL
 
 Install stable version from pypi

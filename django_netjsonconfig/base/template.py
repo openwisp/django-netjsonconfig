@@ -77,7 +77,7 @@ class AbstractTemplate(BaseConfig):
                     update_related_config_status = True
                     break
         # save current changes
-        super(AbstractTemplate, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         # update relations
         if update_related_config_status:
             self._update_related_config_status()
@@ -93,7 +93,7 @@ class AbstractTemplate(BaseConfig):
         * clears VPN specific fields if type is not VPN
         * automatically determines configuration if necessary
         """
-        super(AbstractTemplate, self).clean(*args, **kwargs)
+        super().clean(*args, **kwargs)
         if self.type == 'vpn' and not self.vpn:
             raise ValidationError({
                 'vpn': _('A VPN must be selected when template type is "VPN"')
@@ -109,7 +109,7 @@ class AbstractTemplate(BaseConfig):
             'id': str(self.id),
             'name': self.name,
         }
-        c.update(super(AbstractTemplate, self).get_context())
+        c.update(super().get_context())
         return c
 
     def clone(self, user):

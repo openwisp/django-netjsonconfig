@@ -5,11 +5,11 @@ from django import forms
 from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin, messages
-from django.contrib.admin.templatetags.admin_static import static
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -75,11 +75,11 @@ class BaseConfigAdmin(BaseAdmin):
             templates = instance.get_default_templates()
             templates = [str(t.id) for t in templates]
             extra_context.update({'default_templates': templates})
-        return super(BaseConfigAdmin, self).add_view(request, form_url, extra_context)
+        return super().add_view(request, form_url, extra_context)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = self.get_extra_context(object_id)
-        return super(BaseConfigAdmin, self).change_view(request, object_id, form_url, extra_context)
+        return super().change_view(request, object_id, form_url, extra_context)
 
     def get_urls(self):
         options = getattr(self.model, '_meta')
@@ -95,7 +95,7 @@ class BaseConfigAdmin(BaseAdmin):
                 self.admin_site.admin_view(self.context_view),
                 name='{0}_context'.format(url_prefix)),
             url(r'^netjsonconfig/schema\.json$', schema, name='schema'),
-        ] + super(BaseConfigAdmin, self).get_urls()
+        ] + super().get_urls()
 
     def _get_config_model(self):
         model = self.model
@@ -228,7 +228,7 @@ class BaseForm(forms.ModelForm):
             if 'instance' not in kwargs:
                 kwargs.setdefault('initial', {})
                 kwargs['initial'].update({'backend': app_settings.DEFAULT_BACKEND})
-            super(BaseForm, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
 
     class Meta:
         exclude = []
@@ -273,7 +273,7 @@ class AbstractConfigInline(TimeReadonlyAdminMixin, admin.StackedInline):
     change_select_related = ('device',)
 
     def get_queryset(self, request):
-        qs = super(AbstractConfigInline, self).get_queryset(request)
+        qs = super().get_queryset(request)
         return qs.select_related(*self.change_select_related)
 
 
@@ -337,7 +337,7 @@ class AbstractDeviceAdmin(BaseConfigAdmin, UUIDFieldMixin):
         return self._get_fields(self.readonly_fields, request, obj)
 
     def _get_preview_instance(self, request):
-        c = super(AbstractDeviceAdmin, self)._get_preview_instance(request)
+        c = super()._get_preview_instance(request)
         c.device = self.model(id=request.POST.get('id'),
                               name=request.POST.get('name'),
                               mac_address=request.POST.get('mac_address'),
@@ -381,7 +381,7 @@ class AbstractVpnForm(forms.ModelForm):
         def __init__(self, *args, **kwargs):
             if 'initial' in kwargs:
                 kwargs['initial'].update({'backend': app_settings.DEFAULT_VPN_BACKEND})
-            super(AbstractVpnForm, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
 
     class Meta:
         widgets = {
