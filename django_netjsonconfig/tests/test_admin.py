@@ -5,11 +5,11 @@ from django.test import TestCase
 from django.urls import reverse
 from django_x509.models import Ca
 
-from . import CreateConfigMixin, TestVpnX509Mixin
+from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 from ..models import Config, Device, Template, Vpn
 
 
-class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
+class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCase):
     """
     tests for Config model
     """
@@ -18,6 +18,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
     ca_model = Ca
     config_model = Config
     device_model = Device
+    template_model = Template
     vpn_model = Vpn
 
     def setUp(self):
@@ -400,3 +401,16 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         }
         response = self.client.post(path, data)
         self.assertContains(response, "option interval &#39;60&#39;")
+
+    def test_clone_template(self):
+        path = reverse('admin:django_netjsonconfig_template_changelist')
+        t = self._create_template()
+        data = {
+            '_selected_action': [t.pk],
+            'action': 'clone_selected_templates',
+            'csrfmiddlewaretoken': 'test',
+        }
+        response = self.client.post(path, data, follow=True)
+        self.assertContains(response, t.name + ' (Clone)')
+        response = self.client.post(path, data, follow=True)
+        self.assertContains(response, t.name + ' (Clone 2)')

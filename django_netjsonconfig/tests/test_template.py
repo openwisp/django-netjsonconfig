@@ -140,3 +140,14 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         output = c.backend_instance.render()
         vpnserver1 = settings.NETJSONCONFIG_CONTEXT['vpnserver1']
         self.assertIn(vpnserver1, output)
+
+    def test_tamplates_clone(self):
+        t = self._create_template()
+        t.save()
+        user = type('user', (object,), dict(id=0))
+        c = t.clone(user)
+        c.full_clean()
+        c.save()
+        self.assertEqual(c.name, t.name + ' (Clone)')
+        self.assertIsNotNone(c.pk)
+        self.assertNotEqual(c.pk, t.pk)

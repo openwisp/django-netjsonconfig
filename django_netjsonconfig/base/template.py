@@ -1,3 +1,7 @@
+from copy import copy
+
+from django.contrib.admin.models import ADDITION, LogEntry
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -99,6 +103,31 @@ class AbstractTemplate(BaseConfig):
             self.auto_cert = False
         if self.type == 'vpn' and not self.config:
             self.config = self.vpn.auto_client(auto_cert=self.auto_cert)
+
+    def clone(self, user):
+        def find_name():
+            name = self.name + ' (Clone)'
+            index = 2
+            while self.__class__.objects.filter(name=name).count() != 0:
+                name = self.name + ' (Clone ' + str(index) + ')'
+                index += 1
+            return name
+
+        clone = copy(self)
+        clone.name = find_name()
+        clone._state.adding = True
+        clone.pk = None
+        clone.full_clean()
+        clone.save()
+        ct = ContentType.objects.get(model='template')
+        LogEntry.objects.log_action(
+            user_id=user.id,
+            content_type_id=ct.pk,
+            object_id=clone.pk,
+            object_repr=clone.name,
+            action_flag=ADDITION
+        )
+        return clone
 
 
 AbstractTemplate._meta.get_field('config').blank = True
