@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_x509.models import Ca, Cert
@@ -212,6 +213,7 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
             'key': v.cert.private_key,
             'dh': v.dh
         }
+        expected.update(settings.NETJSONCONFIG_CONTEXT)
         self.assertEqual(v.get_context(), expected)
 
     def test_dh(self):
@@ -223,9 +225,9 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
         self.assertTrue(v.dh.startswith('-----BEGIN DH PARAMETERS-----'))
         self.assertTrue(v.dh.endswith('-----END DH PARAMETERS-----\n'))
 
-    def test_context_empty(self):
+    def test_get_context_empty_vpn(self):
         v = Vpn()
-        self.assertEqual(v.get_context(), {})
+        self.assertEqual(v.get_context(), settings.NETJSONCONFIG_CONTEXT)
 
     def test_key_validator(self):
         v = self._create_vpn()

@@ -122,6 +122,7 @@ class AbstractVpn(BaseConfig):
             })
         if self.dh:
             c.update({'dh': self.dh})
+        c.update(super(AbstractVpn, self).get_context())
         return c
 
     def _get_auto_context_keys(self):

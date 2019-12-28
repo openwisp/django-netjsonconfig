@@ -86,6 +86,9 @@ class BaseConfig(BaseModel):
             c['general']['hostname'] = self.name.replace(':', '-')
         return c
 
+    def get_context(self):
+        return app_settings.CONTEXT
+
     @classmethod
     def validate_netjsonconfig_backend(self, backend):
         """

@@ -140,3 +140,12 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         output = c.backend_instance.render()
         vpnserver1 = settings.NETJSONCONFIG_CONTEXT['vpnserver1']
         self.assertIn(vpnserver1, output)
+
+    def test_get_context(self):
+        t = self._create_template()
+        expected = {
+            'id': str(t.id),
+            'name': t.name,
+        }
+        expected.update(settings.NETJSONCONFIG_CONTEXT)
+        self.assertEqual(t.get_context(), expected)

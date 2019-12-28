@@ -100,5 +100,13 @@ class AbstractTemplate(BaseConfig):
         if self.type == 'vpn' and not self.config:
             self.config = self.vpn.auto_client(auto_cert=self.auto_cert)
 
+    def get_context(self):
+        c = {
+            'id': str(self.id),
+            'name': self.name,
+        }
+        c.update(super(AbstractTemplate, self).get_context())
+        return c
+
 
 AbstractTemplate._meta.get_field('config').blank = True
