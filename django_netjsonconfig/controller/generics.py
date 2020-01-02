@@ -1,6 +1,7 @@
 import json
 
 from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.db import transaction
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
@@ -225,10 +226,11 @@ class BaseDeviceRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
         device.last_ip = request.META.get('REMOTE_ADDR')
         # validate and save everything or fail otherwise
         try:
-            device.full_clean()
-            device.save()
-            config.full_clean()
-            config.save()
+            with transaction.atomic():
+                device.full_clean()
+                device.save()
+                config.full_clean()
+                config.save()
         except ValidationError as e:
             # dump message_dict as JSON,
             # this should make it easy to debug

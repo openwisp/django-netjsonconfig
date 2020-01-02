@@ -1,6 +1,8 @@
 from hashlib import md5
+from unittest.mock import patch
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 from django_x509.models import Ca
@@ -463,6 +465,20 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
         response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
                                     {'key': d.key, 'status': 'running'})
         self.assertEqual(response.status_code, 404)
+
+    def test_register_failed_rollback(self):
+        with patch('django_netjsonconfig.models.Config.full_clean') as a:
+            a.side_effect = ValidationError(dict())
+            options = {
+                'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+                'name': TEST_MACADDR,
+                'mac_address': TEST_MACADDR,
+                'hardware_id': '1234',
+                'backend': 'netjsonconfig.OpenWrt'
+            }
+            response = self.client.post(REGISTER_URL, options)
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(self.device_model.objects.count(), 0)
 
 
 class TestConsistentRegistrationDisabled(TestCase):
