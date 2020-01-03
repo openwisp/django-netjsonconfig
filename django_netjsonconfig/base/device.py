@@ -79,6 +79,13 @@ class AbstractDevice(BaseModel):
         attr = getattr(self.config, attr)
         return attr() if callable(attr) else attr
 
+    def get_context(self):
+        if self._has_config():
+            config = self.config
+        else:
+            config = self.get_config_model()(device=self)
+        return config.get_context()
+
     @property
     def backend(self):
         """

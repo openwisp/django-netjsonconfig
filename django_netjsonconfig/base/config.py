@@ -105,7 +105,7 @@ class AbstractConfig(BaseConfig):
             })
             if self.context:
                 c.update(self.context)
-        c.update(app_settings.CONTEXT)
+        c.update(super(AbstractConfig, self).get_context())
         if app_settings.HARDWARE_ID_ENABLED and self._has_device():
             c.update({'hardware_id': self.device.hardware_id})
         return c

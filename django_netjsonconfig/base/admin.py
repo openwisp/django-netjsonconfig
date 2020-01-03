@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django import forms
@@ -90,6 +91,9 @@ class BaseConfigAdmin(BaseAdmin):
             url(r'^preview/$',
                 self.admin_site.admin_view(self.preview_view),
                 name='{0}_preview'.format(url_prefix)),
+            url(r'^(?P<pk>[^/]+)/context\.json$',
+                self.admin_site.admin_view(self.context_view),
+                name='{0}_context'.format(url_prefix)),
             url(r'^netjsonconfig/schema\.json$', schema, name='schema'),
         ] + super(BaseConfigAdmin, self).get_urls()
 
@@ -199,6 +203,11 @@ class BaseConfigAdmin(BaseAdmin):
         config_archive = config.generate()
         return send_file(filename='{0}.tar.gz'.format(config.name),
                          contents=config_archive.getvalue())
+
+    def context_view(self, request, pk):
+        instance = get_object_or_404(self.model, pk=pk)
+        context = json.dumps(instance.get_context())
+        return HttpResponse(context, content_type='application/json')
 
 
 class UUIDFieldMixin(object):

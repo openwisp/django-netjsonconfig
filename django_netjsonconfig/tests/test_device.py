@@ -129,3 +129,12 @@ class TestDevice(CreateConfigMixin, TestCase):
         })
         self.assertEqual(c.json(dict=True)['openwisp'][0]['interval'],
                          '60')
+
+    def test_get_context_with_config(self):
+        d = self._create_device()
+        c = self._create_config(device=d)
+        self.assertEqual(d.get_context(), c.get_context())
+
+    def test_get_context_without_config(self):
+        d = self._create_device()
+        self.assertEqual(d.get_context(), Config(device=d).get_context())

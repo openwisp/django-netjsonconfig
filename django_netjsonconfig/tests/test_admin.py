@@ -5,11 +5,11 @@ from django.test import TestCase
 from django.urls import reverse
 from django_x509.models import Ca
 
-from . import CreateConfigMixin, TestVpnX509Mixin
+from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 from ..models import Config, Device, Template, Vpn
 
 
-class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
+class TestAdmin(TestVpnX509Mixin, CreateTemplateMixin, CreateConfigMixin, TestCase):
     """
     tests for Config model
     """
@@ -19,6 +19,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
     config_model = Config
     device_model = Device
     vpn_model = Vpn
+    template_model = Template
 
     def setUp(self):
         User.objects.create_superuser(username='admin',
@@ -400,3 +401,32 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, TestCase):
         }
         response = self.client.post(path, data)
         self.assertContains(response, "option interval &#39;60&#39;")
+
+    def test_context_device(self):
+        device = self._create_device()
+        url = reverse('admin:django_netjsonconfig_device_context', args=[device.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.json(), device.get_context())
+        self.assertEqual(response.status_code, 200)
+
+    def test_context_user_not_authenticated(self):
+        self.client.logout()
+        device = self._create_device()
+        url = reverse('admin:django_netjsonconfig_device_context', args=[device.pk])
+        response = self.client.get(url)
+        expected_url = '{}?next={}'.format(reverse('admin:login'), url)
+        self.assertRedirects(response, expected_url)
+
+    def test_context_vpn(self):
+        vpn = self._create_vpn()
+        url = reverse('admin:django_netjsonconfig_vpn_context', args=[vpn.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.json(), vpn.get_context())
+        self.assertEqual(response.status_code, 200)
+
+    def test_context_template(self):
+        template = self._create_template()
+        url = reverse('admin:django_netjsonconfig_template_context', args=[template.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.json(), template.get_context())
+        self.assertEqual(response.status_code, 200)
