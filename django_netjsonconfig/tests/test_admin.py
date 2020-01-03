@@ -9,7 +9,7 @@ from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 from ..models import Config, Device, Template, Vpn
 
 
-class TestAdmin(TestVpnX509Mixin, CreateTemplateMixin, CreateConfigMixin, TestCase):
+class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCase):
     """
     tests for Config model
     """
@@ -18,6 +18,7 @@ class TestAdmin(TestVpnX509Mixin, CreateTemplateMixin, CreateConfigMixin, TestCa
     ca_model = Ca
     config_model = Config
     device_model = Device
+    template_model = Template
     vpn_model = Vpn
     template_model = Template
 
@@ -430,3 +431,18 @@ class TestAdmin(TestVpnX509Mixin, CreateTemplateMixin, CreateConfigMixin, TestCa
         response = self.client.get(url)
         self.assertEqual(response.json(), template.get_context())
         self.assertEqual(response.status_code, 200)
+
+    def test_clone_template(self):
+        path = reverse('admin:django_netjsonconfig_template_changelist')
+        t = self._create_template()
+        data = {
+            '_selected_action': [t.pk],
+            'action': 'clone_selected_templates',
+            'csrfmiddlewaretoken': 'test',
+        }
+        response = self.client.post(path, data, follow=True)
+        self.assertContains(response, '{} (Clone)'.format(t.name))
+        response = self.client.post(path, data, follow=True)
+        self.assertContains(response, '{} (Clone 2)'.format(t.name))
+        response = self.client.post(path, data, follow=True)
+        self.assertContains(response, '{} (Clone 3)'.format(t.name))
