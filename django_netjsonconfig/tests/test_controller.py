@@ -1,11 +1,11 @@
 from hashlib import md5
-from unittest.mock import patch
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 from django_x509.models import Ca
+from mock import patch
 
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 from .. import settings as app_settings
@@ -467,7 +467,7 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
         self.assertEqual(response.status_code, 404)
 
     def test_register_failed_rollback(self):
-        with patch('django_netjsonconfig.models.Config.full_clean') as a:
+        with patch('django_netjsonconfig.base.config.AbstractConfig.full_clean') as a:
             a.side_effect = ValidationError(dict())
             options = {
                 'secret': settings.NETJSONCONFIG_SHARED_SECRET,
