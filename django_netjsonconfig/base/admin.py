@@ -4,7 +4,7 @@ import logging
 from django import forms
 from django.conf import settings
 from django.conf.urls import url
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.admin.templatetags.admin_static import static
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.http import Http404, HttpResponse
@@ -364,6 +364,13 @@ class AbstractTemplateAdmin(BaseConfigAdmin):
               'config',
               'created',
               'modified']
+
+    def clone_selected_templates(self, request, queryset):
+        for templates in queryset:
+            templates.clone(request.user)
+        self.message_user(request, _('Successfully cloned selected templates.'), messages.SUCCESS)
+
+    actions = ['clone_selected_templates']
 
 
 class AbstractVpnForm(forms.ModelForm):

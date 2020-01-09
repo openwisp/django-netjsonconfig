@@ -1,3 +1,7 @@
+from copy import copy
+
+from django.contrib.admin.models import ADDITION, LogEntry
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -107,6 +111,35 @@ class AbstractTemplate(BaseConfig):
         }
         c.update(super(AbstractTemplate, self).get_context())
         return c
+
+    def clone(self, user):
+        clone = copy(self)
+        clone.name = self.__get_clone_name()
+        clone._state.adding = True
+        clone.pk = None
+        # avoid cloned templates to be flagged as default
+        # to avoid potential unwanted duplications in
+        # newly registrated devices
+        clone.default = False
+        clone.full_clean()
+        clone.save()
+        ct = ContentType.objects.get(model='template')
+        LogEntry.objects.log_action(
+            user_id=user.id,
+            content_type_id=ct.pk,
+            object_id=clone.pk,
+            object_repr=clone.name,
+            action_flag=ADDITION
+        )
+        return clone
+
+    def __get_clone_name(self):
+        name = '{} (Clone)'.format(self.name)
+        index = 2
+        while self.__class__.objects.filter(name=name).count():
+            name = '{} (Clone {})'.format(self.name, index)
+            index += 1
+        return name
 
 
 AbstractTemplate._meta.get_field('config').blank = True

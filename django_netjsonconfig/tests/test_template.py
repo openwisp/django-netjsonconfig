@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_x509.models import Ca
@@ -149,3 +150,17 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         }
         expected.update(settings.NETJSONCONFIG_CONTEXT)
         self.assertEqual(t.get_context(), expected)
+
+    def test_tamplates_clone(self):
+        t = self._create_template(default=True)
+        t.save()
+        user = User.objects.create_superuser(username='admin',
+                                             password='tester',
+                                             email='admin@admin.com')
+        c = t.clone(user)
+        c.full_clean()
+        c.save()
+        self.assertEqual(c.name, '{} (Clone)'.format(t.name))
+        self.assertIsNotNone(c.pk)
+        self.assertNotEqual(c.pk, t.pk)
+        self.assertFalse(c.default)
