@@ -26,8 +26,6 @@ branches:
 before_install:
   - pip install -U pip wheel setuptools
   - pip install --no-cache-dir -U -r requirements-test.txt
-  - flake8
-  - ./runisort
   - npm install -g jslint
   - jslint django_netjsonconfig/static/django-netjsonconfig/js/*.js
 
@@ -36,17 +34,21 @@ install:
   - python setup.py -q develop
 
 script:
-  - coverage run --source=django_netjsonconfig runtests.py
-  - ./runcheckmigration
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then ./tests/manage.py makemigrations --dry-run | grep "No changes detected"; fi
   - |
-    if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
-      # gets commit message of last commit before pull request merge
-      COMMIT_MESSAGE=$(git log $TRAVIS_PULL_REQUEST_SHA --format=%B -n 1)
-      printf "Checking commit message:\n\n"
-      printf "$COMMIT_MESSAGE\n\n"
-      checkcommit --message "$COMMIT_MESSAGE"
+      openwisp-utils-qa-checks \
+        --migration-path ./django_netjsonconfig/migrations/ \
+        --skip-checkmakemigrations
+  - |
+    if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then
+      openwisp-utils-qa-checks \
+        --skip-isort \
+        --skip-flake8 \
+        --skip-checkmigrations \
+        --skip-checkendline \
+        --skip-checkcommit \
+        --migration-module django_netjsonconfig
     fi
+  - coverage run --source=django_netjsonconfig runtests.py
 
 after_success:
   coveralls
