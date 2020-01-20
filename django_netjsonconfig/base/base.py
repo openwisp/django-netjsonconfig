@@ -57,6 +57,8 @@ class BaseConfig(BaseModel):
         """
         if self.config is None:
             self.config = {}
+        if not isinstance(self.config, dict):
+            raise ValidationError({'config': _('Unexpected configuration format.')})
         # perform validation only if backend is defined, otherwise
         # django will take care of notifying blank field error
         if not self.backend:

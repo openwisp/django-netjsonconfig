@@ -319,9 +319,28 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
             'templates': ','.join([str(t.pk) for t in templates])
         }
         response = self.client.post(path, data)
-        self.assertContains(response, "cid &#39;{0}&#39;".format(str(d.id)))
-        self.assertContains(response, "ckey &#39;{0}&#39;".format(d.key))
-        self.assertContains(response, "cname &#39;{0}&#39;".format(d.name))
+        response_html = response.content.decode('utf8')
+        self.assertTrue(
+            any([
+                "cid &#39;{0}&#39;".format(str(d.id)) in response_html,
+                # django >= 3.0
+                "cid &#x27;{0}&#x27;".format(str(d.id)) in response_html,
+            ])
+        )
+        self.assertTrue(
+            any([
+                "ckey &#39;{0}&#39;".format(str(d.key)) in response_html,
+                # django >= 3.0
+                "ckey &#x27;{0}&#x27;".format(str(d.key)) in response_html,
+            ])
+        )
+        self.assertTrue(
+            any([
+                "cname &#39;{0}&#39;".format(str(d.name)) in response_html,
+                # django >= 3.0
+                "cname &#x27;{0}&#x27;".format(str(d.name)) in response_html,
+            ])
+        )
 
     def test_download_vpn_config(self):
         v = self._create_vpn()
@@ -401,7 +420,14 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
             'context': '{"interval": "60"}'
         }
         response = self.client.post(path, data)
-        self.assertContains(response, "option interval &#39;60&#39;")
+        response_html = response.content.decode('utf8')
+        self.assertTrue(
+            any([
+                "option interval &#39;60&#39;" in response_html,
+                # django >= 3.0
+                "option interval &#x27;60&#x27;" in response_html
+            ])
+        )
 
     def test_context_device(self):
         device = self._create_device()

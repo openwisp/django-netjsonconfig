@@ -1,5 +1,4 @@
 language: python
-sudo: false
 cache: pip
 
 python:
@@ -29,14 +28,6 @@ script:
   - |
       openwisp-utils-qa-checks \
         --migration-path ./django_netjsonconfig/migrations/ \
-        --skip-checkmakemigrations
-  - |
-      openwisp-utils-qa-checks \
-        --skip-isort \
-        --skip-flake8 \
-        --skip-checkmigrations \
-        --skip-checkendline \
-        --skip-checkcommit \
         --migration-module django_netjsonconfig
   - coverage run --source=django_netjsonconfig runtests.py
 

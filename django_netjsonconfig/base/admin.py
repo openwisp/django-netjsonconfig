@@ -162,8 +162,8 @@ class BaseConfigAdmin(BaseAdmin):
         template_ids = request.POST.get('templates')
         if template_ids:
             template_model = config_model.get_template_model()
-            templates = template_model.objects.filter(pk__in=template_ids.split(','))
             try:
+                templates = template_model.objects.filter(pk__in=template_ids.split(','))
                 templates = list(templates)  # evaluating queryset performs query
             except ValidationError as e:
                 logger.exception(error_msg, extra={'request': request})
