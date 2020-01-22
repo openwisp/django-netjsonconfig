@@ -1,8 +1,9 @@
 import re
 
 import django.core.validators
-import django_netjsonconfig.utils
 from django.db import migrations, models
+import openwisp_utils.base
+import openwisp_utils.utils
 
 
 class Migration(migrations.Migration):
@@ -15,6 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='vpn',
             name='key',
-            field=models.CharField(db_index=True, default=django_netjsonconfig.utils.get_random_key, max_length=64, validators=[django.core.validators.RegexValidator(re.compile('^[^\\s/\\.]+$'), code='invalid', message='Key must not contain spaces, dots or slashes.')]),
+            field=openwisp_utils.base.KeyField(db_index=True, default=openwisp_utils.utils.get_random_key, help_text=None, max_length=64, validators=[django.core.validators.RegexValidator(re.compile('^[^\\s/\\.]+$'), code='invalid', message='This value must not contain spaces, dots or slashes.')]),
         ),
     ]
