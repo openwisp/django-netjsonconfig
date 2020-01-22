@@ -1,9 +1,10 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from openwisp_utils.base import KeyField
+
 from .. import settings as app_settings
-from ..utils import get_random_key
-from ..validators import device_name_validator, key_validator, mac_address_validator
+from ..validators import device_name_validator, mac_address_validator
 from .base import BaseModel
 
 
@@ -18,12 +19,9 @@ class AbstractDevice(BaseModel):
                                    db_index=True,
                                    validators=[mac_address_validator],
                                    help_text=_('primary mac address'))
-    key = models.CharField(max_length=64,
-                           unique=True,
-                           db_index=True,
-                           default=get_random_key,
-                           validators=[key_validator],
-                           help_text=_('unique device key'))
+    key = KeyField(unique=True,
+                   db_index=True,
+                   help_text=_('unique device key'))
     model = models.CharField(max_length=64,
                              blank=True,
                              db_index=True,

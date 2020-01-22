@@ -1,13 +1,11 @@
-import uuid
-
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from taggit.models import GenericUUIDTaggedItemBase, TagBase, TaggedItemBase
 
+from openwisp_utils.base import UUIDModel
 
-class AbstractTemplateTag(TagBase):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
+class AbstractTemplateTag(TagBase, UUIDModel):
     class Meta:
         abstract = True
         verbose_name = _('Tag')

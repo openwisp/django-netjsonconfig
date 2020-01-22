@@ -13,6 +13,8 @@ import model_utils.fields
 import sortedm2m.fields
 from django.db import migrations, models
 
+import django_netjsonconfig.base.config
+from openwisp_utils.utils import get_random_key
 
 class Migration(migrations.Migration):
 
@@ -31,7 +33,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=63)),
                 ('backend', models.CharField(choices=[('netjsonconfig.OpenWrt', 'OpenWRT'), ('netjsonconfig.OpenWisp', 'OpenWISP')], help_text='Select netjsonconfig backend', max_length=128, verbose_name='backend')),
                 ('config', jsonfield.fields.JSONField(default=dict, dump_kwargs={'indent': 4}, help_text='configuration in NetJSON DeviceConfiguration format', load_kwargs={'object_pairs_hook': collections.OrderedDict}, verbose_name='configuration')),
-                ('key', models.CharField(db_index=True, default=django_netjsonconfig.utils.get_random_key, help_text='unique key that can be used to download the configuration', max_length=64, unique=True, validators=[django.core.validators.RegexValidator(re.compile('^[^\\s/\\.]+$', 32), code='invalid', message='Key must not contain spaces, dots or slashes.')])),
+                ('key', models.CharField(db_index=True, default=get_random_key, help_text='unique key that can be used to download the configuration', max_length=64, unique=True, validators=[django.core.validators.RegexValidator(re.compile('^[^\\s/\\.]+$', 32), code='invalid', message='Key must not contain spaces, dots or slashes.')])),
             ],
             options={
                 'verbose_name_plural': 'configurations',

@@ -4,7 +4,6 @@ from django.conf.urls import url
 from django.core.exceptions import ValidationError
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404 as base_get_object_or_404
-from django.utils.crypto import get_random_string
 
 logger = logging.getLogger(__name__)
 
@@ -141,10 +140,3 @@ def get_controller_urls(views_module):
             name='register_legacy'),
     ]
     return urls
-
-
-def get_random_key():
-    """
-    generates a device key of 32 characters
-    """
-    return get_random_string(length=32)

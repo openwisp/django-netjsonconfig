@@ -250,7 +250,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
         path = reverse('admin:django_netjsonconfig_device_change', args=[c.device.pk])
         response = self.client.get(path)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'field-id')
+        self.assertContains(response, 'field-uuid')
 
     def test_empty_backend_import_error(self):
         t = Template.objects.first()

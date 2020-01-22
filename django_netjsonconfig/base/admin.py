@@ -13,7 +13,7 @@ from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from openwisp_utils.admin import TimeReadonlyAdminMixin
+from openwisp_utils.admin import TimeReadonlyAdminMixin, UUIDAdmin
 
 from .. import settings as app_settings
 from ..utils import send_file
@@ -40,12 +40,11 @@ class BaseConfigAdmin(BaseAdmin):
 
     class Media:
         css = {'all': (static('{0}css/admin.css'.format(prefix)),)}
-        js = ['admin/js/jquery.init.js'] + \
-             [static('{0}js/{1}'.format(prefix, f))
-              for f in ('preview.js',
-                        'unsaved_changes.js',
-                        'uuid.js',
-                        'switcher.js')]
+        js = list(UUIDAdmin.Media.js) + ['admin/js/jquery.init.js'] + \
+            [static('{0}js/{1}'.format(prefix, f))
+             for f in ('preview.js',
+                       'unsaved_changes.js',
+                       'switcher.js')]
 
     def get_extra_context(self, pk=None):
         prefix = 'admin:{0}_{1}'.format(self.opts.app_label, self.model.__name__.lower())
@@ -210,13 +209,6 @@ class BaseConfigAdmin(BaseAdmin):
         return HttpResponse(context, content_type='application/json')
 
 
-class UUIDFieldMixin(object):
-    def id_hex(self, obj):
-        return obj.pk.hex
-
-    id_hex.short_description = 'UUID'
-
-
 class BaseForm(forms.ModelForm):
     """
     Adds support for ``NETJSONCONFIG_DEFAULT_BACKEND``
@@ -277,7 +269,7 @@ class AbstractConfigInline(TimeReadonlyAdminMixin, admin.StackedInline):
         return qs.select_related(*self.change_select_related)
 
 
-class AbstractDeviceAdmin(BaseConfigAdmin, UUIDFieldMixin):
+class AbstractDeviceAdmin(BaseConfigAdmin, UUIDAdmin):
     list_display = ['name', 'backend', 'config_status',
                     'ip', 'created', 'modified']
     search_fields = ['id', 'name', 'mac_address', 'key', 'model', 'os', 'system']
@@ -286,10 +278,10 @@ class AbstractDeviceAdmin(BaseConfigAdmin, UUIDFieldMixin):
                    'config__status',
                    'created']
     list_select_related = ('config',)
-    readonly_fields = ['id_hex', 'last_ip', 'management_ip']
+    readonly_fields = ['last_ip', 'management_ip', 'uuid']
     fields = ['name',
               'mac_address',
-              'id_hex',
+              'uuid',
               'key',
               'last_ip',
               'management_ip',
@@ -317,24 +309,6 @@ class AbstractDeviceAdmin(BaseConfigAdmin, UUIDFieldMixin):
         return obj.config.status
 
     config_status.short_description = _('config status')
-
-    def _get_fields(self, fields, request, obj=None):
-        """
-        removes readonly_fields in add view
-        """
-        if obj:
-            return fields
-        new_fields = fields[:]
-        for field in self.readonly_fields:
-            if field in new_fields:
-                new_fields.remove(field)
-        return new_fields
-
-    def get_fields(self, request, obj=None):
-        return self._get_fields(self.fields, request, obj)
-
-    def get_readonly_fields(self, request, obj=None):
-        return self._get_fields(self.readonly_fields, request, obj)
 
     def _get_preview_instance(self, request):
         c = super()._get_preview_instance(request)
@@ -391,14 +365,14 @@ class AbstractVpnForm(forms.ModelForm):
         exclude = []
 
 
-class AbstractVpnAdmin(BaseConfigAdmin, UUIDFieldMixin):
+class AbstractVpnAdmin(BaseConfigAdmin, UUIDAdmin):
     list_display = ['name', 'backend', 'created', 'modified']
     list_filter = ['backend', 'ca', 'created']
     search_fields = ['id', 'name', 'host', 'key']
-    readonly_fields = ['id_hex']
+    readonly_fields = ['id', 'uuid']
     fields = ['name',
               'host',
-              'id_hex',
+              'uuid',
               'key',
               'ca',
               'cert',
