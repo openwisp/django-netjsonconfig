@@ -7,21 +7,17 @@ import uuid
 
 import django.core.validators
 import django.utils.timezone
-import django_netjsonconfig.base.config
 import jsonfield.fields
 import model_utils.fields
 import sortedm2m.fields
 from django.db import migrations, models
 
-import django_netjsonconfig.base.config
 from openwisp_utils.utils import get_random_key
 
+
 class Migration(migrations.Migration):
-
     initial = True
-
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
