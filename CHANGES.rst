@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Version 0.10.0 [2020-01-24]
+--------------------------
+
+- Dropped support for python 2 & python<3.6
+- Dropped support for django<2.2
+- Added support for django 3.0
+- Moved from jsonfield to jsonfield2
+- Added support for django-taggit<1.3.0 and dropped django-taggit<0.23.0
+- Dropped support for django-model-utils<4.0, netjsonconfig<0.7.0, django-sortedm2m<3.0.0, django-x509<0.6
+
 Version 0.9.0 [2020-01-09]
 --------------------------
 
