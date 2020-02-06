@@ -1,7 +1,9 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from hashlib import md5
 
 from openwisp_utils.base import KeyField
+from openwisp_utils.utils import get_random_key
 
 from .. import settings as app_settings
 from ..validators import device_name_validator, mac_address_validator
@@ -20,6 +22,8 @@ class AbstractDevice(BaseModel):
                                    validators=[mac_address_validator],
                                    help_text=_('primary mac address'))
     key = KeyField(unique=True,
+                   blank=True,
+                   default=None,
                    db_index=True,
                    help_text=_('unique device key'))
     model = models.CharField(max_length=64,
@@ -83,6 +87,23 @@ class AbstractDevice(BaseModel):
         else:
             config = self.get_config_model()(device=self)
         return config.get_context()
+
+    def generate_key(self, shared_secret):
+        if app_settings.CONSISTENT_REGISTRATION:
+            if app_settings.HARDWARE_ID_ENABLED:
+                keybase = self.hardware_id
+            else:
+                keybase = self.mac_address
+            m = md5()
+            m.update((keybase + "+" + shared_secret).encode('utf-8'))
+            return m.hexdigest()
+        else:
+            return get_random_key()
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_key(app_settings.SHARED_SECRET)
+        super().save(*args, **kwargs)
 
     @property
     def backend(self):
