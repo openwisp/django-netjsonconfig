@@ -19,6 +19,10 @@ django.jQuery(function($) {
             }
             else{
                 vpn_specific.hide();
+                if ($('.autovpn').length > 0) { 
+                    $('.jsoneditor-wrapper').show();
+                    $('.autovpn').hide();
+                }
             }
         };
     type_select.on('change', function(){
