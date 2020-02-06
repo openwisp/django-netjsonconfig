@@ -6,6 +6,7 @@ Version 0.10.1 [2020-02-06]
 
 - Dropped django-x509<0.6.1 support
 - Dropped django-reversion<=3.0.5 support
+- [admin] Fixed minor bug in VPN client template config editor
 
 Version 0.10.0 [2020-01-24]
 ---------------------------
