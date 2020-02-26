@@ -1,6 +1,6 @@
 (function ($) {
     var form = '#content-main form',
-        map_values = function(object) {
+        mapValues = function(object) {
             $('input, select, textarea', form).each(function(i, el){
                 var field = $(el),
                     name = field.attr('name'),
@@ -23,7 +23,7 @@
                 }
                 // convert JSON string to Javascript object in order
                 // to perform object comparison with `objectIsEqual`
-                if (name == 'config' || name == 'config-0-config') {
+                if (name == 'config' || name == 'config-0-config' || name == 'config-0-context') {
                     try{
                         object[name] = JSON.parse(value);
                     }
@@ -35,7 +35,7 @@
     var unsaved_changes = function(e) {
         // get current values
         var current_values = {};
-        map_values(current_values);
+        mapValues(current_values);
         var changed = false,
             message = 'You haven\'t saved your changes yet!',
             initialField, initialValue,
@@ -90,11 +90,11 @@
         return true;
     };
 
-    $(window).on('load', function(){
+    $(function ($) {
         if (!$('.submit-row').length) { return; }
         // populate initial map of form values
         django._njc_initial_values = {};
-        map_values(django._njc_initial_values);
+        mapValues(django._njc_initial_values);
         // do not perform unsaved_changes if submitting form
         $(form).submit(function() {
             $(window).unbind('beforeunload', unsaved_changes);
