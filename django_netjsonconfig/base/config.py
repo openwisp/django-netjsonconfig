@@ -25,8 +25,8 @@ class AbstractConfig(BaseConfig):
         '"applied" means the configuration is applied successfully; \n'
         '"error" means the configuration caused issues and it was rolled back;'
     ))
-    context = JSONField(null=True,
-                        blank=True,
+    context = JSONField(blank=True,
+                        default=dict,
                         help_text=_('Additional '
                                     '<a href="http://netjsonconfig.openwisp.org/'
                                     'en/stable/general/basics.html#context" target="_blank">'
