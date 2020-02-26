@@ -1,9 +1,9 @@
-from django.db import models
-from django.utils.translation import ugettext_lazy as _
 from hashlib import md5
 
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+
 from openwisp_utils.base import KeyField
-from openwisp_utils.utils import get_random_key
 
 from .. import settings as app_settings
 from ..validators import device_name_validator, mac_address_validator
@@ -90,15 +90,11 @@ class AbstractDevice(BaseModel):
 
     def generate_key(self, shared_secret):
         if app_settings.CONSISTENT_REGISTRATION:
-            if app_settings.HARDWARE_ID_ENABLED:
-                keybase = self.hardware_id
-            else:
-                keybase = self.mac_address
-            m = md5()
-            m.update((keybase + "+" + shared_secret).encode('utf-8'))
-            return m.hexdigest()
+            keybase = self.hardware_id if app_settings.HARDWARE_ID_ENABLED else self.mac_address
+            hash = md5('{}+{}'.format(keybase, shared_secret).encode('utf-8'))
+            return hash.hexdigest()
         else:
-            return get_random_key()
+            return KeyField.default_callable()
 
     def save(self, *args, **kwargs):
         if not self.key:
