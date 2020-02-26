@@ -42,6 +42,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
             'config-0-templates': '',
             'config-0-backend': 'netjsonconfig.OpenWrt',
             'config-0-config': json.dumps({}),
+            'config-0-context': '',
             'config-TOTAL_FORMS': 1,
             'config-INITIAL_FORMS': 0,
             'config-MIN_NUM_FORMS': 0,
