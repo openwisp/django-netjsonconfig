@@ -1,4 +1,6 @@
 import json
+import os
+from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -7,6 +9,8 @@ from django_x509.models import Ca
 
 from ..models import Config, Device, Template, Vpn
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
+
+devnull = open(os.devnull, 'w')
 
 
 class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCase):
@@ -158,6 +162,8 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
         response = self.client.post(path, data)
         self.assertContains(response, '<pre class="djnjc-preformatted')
 
+    @patch('sys.stdout', devnull)
+    @patch('sys.stderr', devnull)
     def test_preview_device_valueerror(self):
         path = reverse('admin:django_netjsonconfig_device_preview')
         data = {
@@ -171,6 +177,8 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
         response = self.client.post(path, data)
         self.assertEqual(response.status_code, 400)
 
+    @patch('sys.stdout', devnull)
+    @patch('sys.stderr', devnull)
     def test_preview_device_validationerror(self):
         path = reverse('admin:django_netjsonconfig_device_preview')
         data = {
@@ -183,6 +191,8 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
         response = self.client.post(path, data)
         self.assertEqual(response.status_code, 400)
 
+    @patch('sys.stdout', devnull)
+    @patch('sys.stderr', devnull)
     def test_preview_device_jsonerror(self):
         path = reverse('admin:django_netjsonconfig_device_preview')
         data = {
@@ -216,6 +226,8 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
         # expect duplicate error
         self.assertContains(response, '<pre class="djnjc-preformatted error')
 
+    @patch('sys.stdout', devnull)
+    @patch('sys.stderr', devnull)
     def test_preview_device_405(self):
         path = reverse('admin:django_netjsonconfig_device_preview')
         response = self.client.get(path, {})
@@ -445,6 +457,8 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
         expected_url = '{}?next={}'.format(reverse('admin:login'), url)
         self.assertRedirects(response, expected_url)
 
+    @patch('sys.stdout', devnull)
+    @patch('sys.stderr', devnull)
     def test_context_vpn(self):
         vpn = self._create_vpn()
         url = reverse('admin:django_netjsonconfig_vpn_context', args=[vpn.pk])
@@ -473,3 +487,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
         self.assertContains(response, '{} (Clone 2)'.format(t.name))
         response = self.client.post(path, data, follow=True)
         self.assertContains(response, '{} (Clone 3)'.format(t.name))
+
+    @classmethod
+    def tearDownClass(cls):
+        devnull.close()
