@@ -1,3 +1,5 @@
+from hashlib import md5
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -20,6 +22,8 @@ class AbstractDevice(BaseModel):
                                    validators=[mac_address_validator],
                                    help_text=_('primary mac address'))
     key = KeyField(unique=True,
+                   blank=True,
+                   default=None,
                    db_index=True,
                    help_text=_('unique device key'))
     model = models.CharField(max_length=64,
@@ -83,6 +87,19 @@ class AbstractDevice(BaseModel):
         else:
             config = self.get_config_model()(device=self)
         return config.get_context()
+
+    def generate_key(self, shared_secret):
+        if app_settings.CONSISTENT_REGISTRATION:
+            keybase = self.hardware_id if app_settings.HARDWARE_ID_ENABLED else self.mac_address
+            hash = md5('{}+{}'.format(keybase, shared_secret).encode('utf-8'))
+            return hash.hexdigest()
+        else:
+            return KeyField.default_callable()
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_key(app_settings.SHARED_SECRET)
+        super().save(*args, **kwargs)
 
     @property
     def backend(self):
