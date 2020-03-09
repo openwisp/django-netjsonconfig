@@ -207,11 +207,11 @@ class BaseDeviceRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
         new = False
         try:
             device = self.model.objects.get(key=key)
-            config = device.config
             # update hw info
             for attr in self.UPDATABLE_FIELDS:
                 if attr in request.POST:
                     setattr(device, attr, request.POST.get(attr))
+            config = device.config
         # if get queryset fails, instantiate a new Device and Config
         except self.model.DoesNotExist:
             new = True
