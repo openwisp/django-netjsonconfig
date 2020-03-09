@@ -1,11 +1,11 @@
 from hashlib import md5
+from unittest.mock import patch
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 from django_x509.models import Ca
-from mock import patch
 
 from .. import settings as app_settings
 from ..models import Config, Device, Template, Vpn

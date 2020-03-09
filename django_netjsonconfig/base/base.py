@@ -90,7 +90,7 @@ class BaseConfig(BaseModel):
         return app_settings.CONTEXT
 
     @classmethod
-    def validate_netjsonconfig_backend(self, backend):
+    def validate_netjsonconfig_backend(cls, backend):
         """
         calls ``validate`` method of netjsonconfig backend
         might trigger SchemaError
@@ -102,13 +102,17 @@ class BaseConfig(BaseModel):
         backend.validate()
 
     @classmethod
-    def clean_netjsonconfig_backend(self, backend):
+    def clean_netjsonconfig_backend(cls, backend):
         """
         catches any ``SchemaError`` which will be redirected
         to ``django.core.exceptions.ValdiationError``
         """
+        # Remove duplicate files
+        if "files" in backend.config:
+            backend.config['files'] = \
+                list(cls.remove_duplicate_files(*backend.config['files']))
         try:
-            self.validate_netjsonconfig_backend(backend)
+            cls.validate_netjsonconfig_backend(backend)
         except SchemaError as e:
             path = [str(el) for el in e.details.path]
             trigger = '/'.join(path)
@@ -116,6 +120,18 @@ class BaseConfig(BaseModel):
             message = 'Invalid configuration triggered by "#/{0}", '\
                       'validator says:\n\n{1}'.format(trigger, error)
             raise ValidationError(message)
+
+    @classmethod
+    def remove_duplicate_files(cls, *config):
+        """
+        Takes list of backend config files as
+        input and returns a list of unique files.
+        """
+        keep_files = []
+        for file in config:
+            if file not in keep_files:
+                keep_files.append(file)
+        return keep_files
 
     @cached_property
     def backend_class(self):
