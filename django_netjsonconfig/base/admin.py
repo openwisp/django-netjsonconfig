@@ -292,7 +292,7 @@ class AbstractDeviceAdmin(BaseConfigAdmin, UUIDAdmin):
               'created',
               'modified']
     if app_settings.HARDWARE_ID_ENABLED:
-        list_display.insert(0, 'hardware_id')
+        list_display.insert(1, 'hardware_id')
         search_fields.insert(1, 'hardware_id')
         fields.insert(0, 'hardware_id')
 
