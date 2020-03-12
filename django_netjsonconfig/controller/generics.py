@@ -189,7 +189,7 @@ class BaseDeviceRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
         POST logic
         """
         if not settings.REGISTRATION_ENABLED:
-            return ControllerResponse(status=404)
+            return ControllerResponse('error: registration disabled', status=403)
         # ensure request is valid
         bad_response = self.invalid(request)
         if bad_response:
@@ -214,6 +214,11 @@ class BaseDeviceRegisterView(UpdateLastIpMixin, CsrfExtemptMixin, View):
             config = device.config
         # if get queryset fails, instantiate a new Device and Config
         except self.model.DoesNotExist:
+            if not settings.REGISTRATION_SELF_CREATION:
+                return ControllerResponse(
+                    'Device not found in the system, please create it first.',
+                    status=404
+                )
             new = True
             config = self.init_object(**request.POST.dict())
             device = config.device

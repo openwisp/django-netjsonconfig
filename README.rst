@@ -302,6 +302,21 @@ Autoregistration must be enabled also on the devices in order to work, see `open
 consistent key generation <https://github.com/openwisp/openwisp-config#consistent-key-generation>`_
 for more information.
 
+``NETJSONCONFIG_REGISTRATION_SELF_CREATION``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+-------------+
+| **type**:    | ``bool``    |
++--------------+-------------+
+| **default**: | ``True``    |
++--------------+-------------+
+
+Whether devices that are not already present in the system are allowed to register or not.
+
+Turn this off if you still want to use auto-registration to avoid having to
+manually set the device UUID and key in its configuration file but also want
+to avoid indiscriminate registration of new devices without explicit permission.
+
 ``NETJSONCONFIG_SHARED_SECRET``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

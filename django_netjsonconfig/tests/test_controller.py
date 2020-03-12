@@ -7,7 +7,6 @@ from django.urls import reverse
 from django_x509.models import Ca
 from mock import patch
 
-from .. import settings as app_settings
 from ..models import Config, Device, Template, Vpn
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 
@@ -504,18 +503,7 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
             self.assertEqual(response.status_code, 400)
             self.assertEqual(self.device_model.objects.count(), 0)
 
-
-class TestConsistentRegistrationDisabled(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super(TestConsistentRegistrationDisabled, cls).setUpClass()
-        app_settings.CONSISTENT_REGISTRATION = False
-
-    @classmethod
-    def tearDownClass(cls):
-        super(TestConsistentRegistrationDisabled, cls).tearDownClass()
-        app_settings.CONSISTENT_REGISTRATION = True
-
+    @patch('django_netjsonconfig.settings.CONSISTENT_REGISTRATION', False)
     def test_consistent_registration_disabled(self):
         response = self.client.post(REGISTER_URL, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
@@ -535,23 +523,40 @@ class TestConsistentRegistrationDisabled(TestCase):
         self.assertEqual(Device.objects.filter(key=TEST_CONSISTENT_KEY).count(), 0)
         self.assertEqual(Device.objects.filter(key=key).count(), 1)
 
-
-class TestRegistrationDisabled(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super(TestRegistrationDisabled, cls).setUpClass()
-        app_settings.REGISTRATION_ENABLED = False
-
-    @classmethod
-    def tearDownClass(cls):
-        super(TestRegistrationDisabled, cls).tearDownClass()
-        app_settings.REGISTRATION_ENABLED = True
-
-    def test_register_404(self):
+    @patch('django_netjsonconfig.settings.REGISTRATION_ENABLED', False)
+    def test_registration_disabled(self):
         response = self.client.post(REGISTER_URL, {
             'secret': settings.NETJSONCONFIG_SHARED_SECRET,
             'name': TEST_MACADDR,
             'mac_address': TEST_MACADDR,
             'backend': 'netjsonconfig.OpenWrt'
         })
+        self.assertEqual(response.status_code, 403)
+
+    @patch('django_netjsonconfig.settings.REGISTRATION_SELF_CREATION', False)
+    def test_self_creation_disabled(self):
+        options = {
+            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+            'name': TEST_MACADDR,
+            'mac_address': TEST_MACADDR,
+            'hardware_id': '1234',
+            'backend': 'netjsonconfig.OpenWrt',
+            'key': 'c09164172a9d178735f21d2fd92001fa'
+        }
+        # first attempt fails because device is not present in DB
+        response = self.client.post(REGISTER_URL, options)
         self.assertEqual(response.status_code, 404)
+        # once the device is created, everything works normally
+        device = self._create_device(name=options['name'],
+                                     mac_address=options['mac_address'],
+                                     hardware_id=options['hardware_id'])
+        self.assertEqual(device.key, options['key'])
+        response = self.client.post(REGISTER_URL, options)
+        self.assertEqual(response.status_code, 201)
+        lines = response.content.decode().split('\n')
+        self.assertEqual(lines[0], 'registration-result: success')
+        uuid = lines[1].replace('uuid: ', '')
+        key = lines[2].replace('key: ', '')
+        created = Device.objects.get(pk=uuid)
+        self.assertEqual(created.key, key)
+        self.assertEqual(created.pk, device.pk)
