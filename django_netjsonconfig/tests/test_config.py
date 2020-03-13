@@ -128,9 +128,7 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
             try:
                 c.templates.add(t)
             except ValidationError:
-                pass
-            else:
-                self.fail('ValidationError not raised')
+                self.fail('ValidationError raised!')
         t.config['files'][0]['path'] = '/test2'
         t.full_clean()
         t.save()
@@ -423,3 +421,31 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
 
     def test_get_template_model_bound(self):
         self.assertIs(Config().get_template_model(), Template)
+
+    def test_remove_duplicate_files(self):
+        template1 = self._create_template(name='test-vpn-1',
+                                          config={'files': [
+                                              {
+                                                  'path': '/etc/vpnserver1',
+                                                  'mode': '0644',
+                                                  'contents': '{{ name }}\n{{ vpnserver1 }}\n'
+                                              }
+                                          ]})
+        template2 = self._create_template(name='test-vpn-2',
+                                          config={'files': [
+                                              {
+                                                  'path': '/etc/vpnserver1',
+                                                  'mode': '0644',
+                                                  'contents': '{{ name }}\n{{ vpnserver1 }}\n'
+                                              }
+                                          ]})
+        config = self._create_config()
+        config.templates.add(template1)
+        config.templates.add(template2)
+        # clear cache
+        del config.backend_instance
+        config.clean_netjsonconfig_backend(config.backend_instance)
+        try:
+            config.backend_instance.render()
+        except ValidationError:
+            self.fail("ValidationError raised!")
