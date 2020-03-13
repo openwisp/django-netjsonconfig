@@ -316,6 +316,8 @@ class AbstractDeviceAdmin(BaseConfigAdmin, UUIDAdmin):
                               name=request.POST.get('name'),
                               mac_address=request.POST.get('mac_address'),
                               key=request.POST.get('key'))
+        if 'hardware_id' in request.POST:
+            c.device.hardware_id = request.POST.get('hardware_id')
         return c
 
 

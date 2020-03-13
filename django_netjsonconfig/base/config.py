@@ -111,7 +111,7 @@ class AbstractConfig(BaseConfig):
                 c.update(self.context)
         c.update(super().get_context())
         if app_settings.HARDWARE_ID_ENABLED and self._has_device():
-            c.update({'hardware_id': self.device.hardware_id})
+            c.update({'hardware_id': str(self.device.hardware_id)})
         return c
 
     @property

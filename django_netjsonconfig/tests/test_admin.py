@@ -104,6 +104,9 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
         templates = Template.objects.all()
         path = reverse('admin:django_netjsonconfig_device_preview')
         config = json.dumps({
+            'general': {
+                'description': '{{hardware_id}}'
+            },
             'interfaces': [
                 {
                     'name': 'lo0',
@@ -121,6 +124,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
         })
         data = {
             'name': 'test-device',
+            'hardware_id': 'SERIAL012345',
             'mac_address': self.TEST_MAC_ADDRESS,
             'backend': 'netjsonconfig.OpenWrt',
             'config': config,
@@ -134,6 +138,7 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
         self.assertContains(response, 'eth0')
         self.assertContains(response, 'dhcp')
         self.assertContains(response, 'radio0')
+        self.assertContains(response, 'SERIAL012345')
 
     def test_preview_device_config_empty_id(self):
         path = reverse('admin:django_netjsonconfig_device_preview')
