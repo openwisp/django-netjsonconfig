@@ -164,3 +164,25 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         self.assertIsNotNone(c.pk)
         self.assertNotEqual(c.pk, t.pk)
         self.assertFalse(c.default)
+
+    def test_duplicate_files_in_template(self):
+        try:
+            self._create_template(
+                name='test-vpn-1',
+                config={'files': [
+                    {
+                        'path': '/etc/vpnserver1',
+                        'mode': '0644',
+                        'contents': '{{ name }}\n{{ vpnserver1 }}\n'
+                    },
+                    {
+                        'path': '/etc/vpnserver1',
+                        'mode': '0644',
+                        'contents': '{{ name }}\n{{ vpnserver1 }}\n'
+                    }
+                ]}
+            )
+        except ValidationError as e:
+            self.assertIn('Invalid configuration triggered by "#/files"', str(e))
+        else:
+            self.fail('ValidationError not raised!')

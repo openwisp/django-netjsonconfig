@@ -107,10 +107,6 @@ class BaseConfig(BaseModel):
         catches any ``SchemaError`` which will be redirected
         to ``django.core.exceptions.ValdiationError``
         """
-        # Remove duplicate files
-        if "files" in backend.config:
-            backend.config['files'] = \
-                list(cls.remove_duplicate_files(*backend.config['files']))
         try:
             cls.validate_netjsonconfig_backend(backend)
         except SchemaError as e:
@@ -120,18 +116,6 @@ class BaseConfig(BaseModel):
             message = 'Invalid configuration triggered by "#/{0}", '\
                       'validator says:\n\n{1}'.format(trigger, error)
             raise ValidationError(message)
-
-    @classmethod
-    def remove_duplicate_files(cls, *config):
-        """
-        Takes list of backend config files as
-        input and returns a list of unique files.
-        """
-        keep_files = []
-        for file in config:
-            if file not in keep_files:
-                keep_files.append(file)
-        return keep_files
 
     @cached_property
     def backend_class(self):
@@ -163,7 +147,24 @@ class BaseConfig(BaseModel):
         # pass context to backend if get_context method is defined
         if hasattr(self, 'get_context'):
             kwargs['context'] = self.get_context()
-        return backend(**kwargs)
+        backend_instance = backend(**kwargs)
+        # remove accidentally duplicated files when combining config and templates
+        # this may happen if a device uses multiple VPN client templates
+        # which share the same Certification Authority, hence the CA
+        # is defined twice, which would raise ValidationError
+        if template_instances:
+            self._remove_duplicated_files(backend_instance)
+        return backend_instance
+
+    @classmethod
+    def _remove_duplicated_files(cls, backend_instance):
+        if 'files' not in backend_instance.config:
+            return
+        unique_files = []
+        for file in backend_instance.config['files']:
+            if file not in unique_files:
+                unique_files.append(file)
+        backend_instance.config['files'] = unique_files
 
     def generate(self):
         """

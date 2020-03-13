@@ -423,29 +423,52 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         self.assertIs(Config().get_template_model(), Template)
 
     def test_remove_duplicate_files(self):
-        template1 = self._create_template(name='test-vpn-1',
-                                          config={'files': [
-                                              {
-                                                  'path': '/etc/vpnserver1',
-                                                  'mode': '0644',
-                                                  'contents': '{{ name }}\n{{ vpnserver1 }}\n'
-                                              }
-                                          ]})
-        template2 = self._create_template(name='test-vpn-2',
-                                          config={'files': [
-                                              {
-                                                  'path': '/etc/vpnserver1',
-                                                  'mode': '0644',
-                                                  'contents': '{{ name }}\n{{ vpnserver1 }}\n'
-                                              }
-                                          ]})
+        template1 = self._create_template(
+            name='test-vpn-1',
+            config={'files': [
+                {
+                    'path': '/etc/vpnserver1',
+                    'mode': '0644',
+                    'contents': '{{ name }}\n{{ vpnserver1 }}\n'
+                }
+            ]}
+        )
+        template2 = self._create_template(
+            name='test-vpn-2',
+            config={'files': [
+                {
+                    'path': '/etc/vpnserver1',
+                    'mode': '0644',
+                    'contents': '{{ name }}\n{{ vpnserver1 }}\n'
+                }
+            ]}
+        )
         config = self._create_config()
         config.templates.add(template1)
         config.templates.add(template2)
-        # clear cache
-        del config.backend_instance
-        config.clean_netjsonconfig_backend(config.backend_instance)
+        config.refresh_from_db()
         try:
-            config.backend_instance.render()
+            result = config.get_backend_instance(template_instances=[template1, template2]).render()
         except ValidationError:
-            self.fail("ValidationError raised!")
+            self.fail('ValidationError raised!')
+        else:
+            self.assertIn('# path: /etc/vpnserver1', result)
+
+    def test_duplicated_files_in_config(self):
+        try:
+            self._create_config(config={'files': [
+                {
+                    'path': '/etc/vpnserver1',
+                    'mode': '0644',
+                    'contents': '{{ name }}\n{{ vpnserver1 }}\n'
+                },
+                {
+                    'path': '/etc/vpnserver1',
+                    'mode': '0644',
+                    'contents': '{{ name }}\n{{ vpnserver1 }}\n'
+                }
+            ]})
+        except ValidationError as e:
+            self.assertIn('Invalid configuration triggered by "#/files"', str(e))
+        else:
+            self.fail('ValidationError not raised!')
