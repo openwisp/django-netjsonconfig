@@ -62,7 +62,7 @@ class BaseConfigAdmin(BaseAdmin):
         }
         if pk:
             ctx['download_url'] = reverse('{0}_download'.format(prefix), args=[pk])
-            if self.model.__name__ == 'Device' and not self.model.objects.get(pk=pk)._has_config():
+            if self.model.__name__ == 'Device' and not get_object_or_404(self.model, pk=pk)._has_config():
                 ctx['download_url'] = None
         return ctx
 
