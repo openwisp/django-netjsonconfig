@@ -2,7 +2,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 BACKENDS = getattr(settings, 'NETJSONCONFIG_BACKENDS', (
-    ('netjsonconfig.OpenWrt', 'OpenWRT/LEDE'),
+    ('netjsonconfig.OpenWrt', 'OpenWRT'),
     ('netjsonconfig.OpenWisp', 'OpenWISP Firmware 1.x'),
 ))
 VPN_BACKENDS = getattr(settings, 'NETJSONCONFIG_VPN_BACKENDS', (
