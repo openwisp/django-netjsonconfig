@@ -255,13 +255,18 @@ class AbstractConfigForm(BaseForm):
 class AbstractConfigInline(TimeReadonlyAdminMixin, admin.StackedInline):
     verbose_name_plural = _('Device configuration details')
     readonly_fields = ['status']
-    fields = ['backend',
-              'status',
-              'templates',
-              'context',
-              'config',
-              'created',
-              'modified']
+    fieldsets = (
+        (None, {
+            'fields': ('backend', 'status', 'templates', 'config')
+        }),
+        (_('Advanced options'), {
+            'classes': ('collapse',),
+            'fields': ('context',),
+        }),
+        (None, {
+            'fields': ('created', 'modified')
+        }),
+    )
     change_select_related = ('device',)
 
     def get_queryset(self, request):
