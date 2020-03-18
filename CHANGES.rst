@@ -1,6 +1,18 @@
 Changelog
 =========
 
+Version 0.10.3 [2020-03-17]
+---------------------------
+
+- [controller] Added ``NETJSONCONFIG_REGISTRATION_SELF_CREATION``
+- [models] Handled accidental duplication of files across templates
+- [controller] Update hardware device info during registration
+  (if the device already exists, the registration will update its info)
+- [admin] Moved ``hardware_id`` field in device list admin
+- [bugfix] Fixed broken preview when using ``hardware_id`` context var
+- [admin] Hidden device configuration context field into advanced options
+- [models] Removed LEDE from the OpenWRT backend label
+
 Version 0.10.2 [2020-02-28]
 ---------------------------
 
