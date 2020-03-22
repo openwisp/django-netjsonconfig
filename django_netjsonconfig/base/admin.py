@@ -5,7 +5,7 @@ from django import forms
 from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin, messages
-from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
@@ -62,8 +62,14 @@ class BaseConfigAdmin(BaseAdmin):
         }
         if pk:
             ctx['download_url'] = reverse('{0}_download'.format(prefix), args=[pk])
-            if self.model.__name__ == 'Device' and not get_object_or_404(self.model, pk=pk)._has_config():
-                ctx['download_url'] = None
+            try:
+                has_config = (self.model.__name__ == 'Device' and
+                              self.model.objects.get(pk=pk)._has_config())
+            except (ObjectDoesNotExist, ValidationError):
+                raise Http404()
+            else:
+                if not has_config:
+                    ctx['download_url'] = None
         return ctx
 
     def add_view(self, request, form_url='', extra_context=None):
