@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 0.10.4 [2020-03-21]
+---------------------------
+
+- [admin] Fixed 500 internal server error in change device (now returns 404 correctly)
+
 Version 0.10.3 [2020-03-17]
 ---------------------------
 
