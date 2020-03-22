@@ -260,6 +260,15 @@ class TestAdmin(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCa
         self.assertNotContains(response, 'system')
         self.assertNotContains(response, 'hostname')
 
+    def test_wrong_uuid_field_in_change_404(self):
+        """
+            Device not saved in the databse
+        """
+        d = Device(name='test')
+        path = reverse('admin:django_netjsonconfig_device_change', args=[d.pk])
+        response = self.client.get(path)
+        self.assertEqual(response.status_code, 404)
+
     def test_uuid_field_in_change(self):
         t = Template.objects.first()
         c = self._create_config(device=self._create_device(),
