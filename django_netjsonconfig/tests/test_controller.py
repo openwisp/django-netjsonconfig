@@ -473,6 +473,72 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
                                    {'key': d.key, 'status': 'running'})
         self.assertEqual(response.status_code, 405)
 
+    def test_device_update_info(self):
+        d = self._create_device_config()
+        params = {
+            'key': d.key,
+            'model': 'TP-Link TL-WDR4300 v2',
+            'os': 'OpenWrt 18.06-SNAPSHOT r7312-e60be11330',
+            'system': 'Atheros AR9344 rev 3'
+        }
+        self.assertNotEqual(d.os, params['os'])
+        self.assertNotEqual(d.system, params['system'])
+        self.assertNotEqual(d.model, params['model'])
+        response = self.client.post(reverse('controller:device_update_info', args=[d.pk]), params)
+        self.assertEqual(response.status_code, 200)
+        self._check_header(response)
+        d.refresh_from_db()
+        self.assertEqual(d.os, params['os'])
+        self.assertEqual(d.system, params['system'])
+        self.assertEqual(d.model, params['model'])
+
+    def test_device_update_info_bad_uuid(self):
+        d = self._create_device_config()
+        pk = '{}-wrong'.format(d.pk)
+        params = {
+            'key': d.key,
+            'model': 'TP-Link TL-WDR4300 v2',
+            'os': 'OpenWrt 18.06-SNAPSHOT r7312-e60be11330',
+            'system': 'Atheros AR9344 rev 3'
+        }
+        response = self.client.post(reverse('controller:device_update_info', args=[pk]), params)
+        self.assertEqual(response.status_code, 404)
+
+    def test_device_update_info_400(self):
+        d = self._create_device_config()
+        params = {
+            'key': d.key,
+            'model': 'TP-Link TL-WDR4300 v2 this model name is longer than 64 characters',
+            'os': 'OpenWrt 18.06-SNAPSHOT r7312-e60be11330',
+            'system': 'Atheros AR9344 rev 3'
+        }
+        response = self.client.post(reverse('controller:device_update_info', args=[d.pk]), params)
+        self.assertEqual(response.status_code, 400)
+        self._check_header(response)
+
+    def test_device_update_info_403(self):
+        d = self._create_device_config()
+        params = {
+            'key': 'wrong',
+            'model': 'TP-Link TL-WDR4300 v2',
+            'os': 'OpenWrt 18.06-SNAPSHOT r7312-e60be11330',
+            'system': 'Atheros AR9344 rev 3'
+        }
+        response = self.client.post(reverse('controller:device_update_info', args=[d.pk]), params)
+        self.assertEqual(response.status_code, 403)
+        self._check_header(response)
+
+    def test_device_update_info_405(self):
+        d = self._create_device_config()
+        params = {
+            'key': d.key,
+            'model': 'TP-Link TL-WDR4300 v2',
+            'os': 'OpenWrt 18.06-SNAPSHOT r7312-e60be11330',
+            'system': 'Atheros AR9344 rev 3'
+        }
+        response = self.client.get(reverse('controller:device_update_info', args=[d.pk]), params)
+        self.assertEqual(response.status_code, 405)
+
     def test_device_checksum_no_config(self):
         d = self._create_device()
         response = self.client.get(reverse('controller:device_checksum', args=[d.pk]), {'key': d.key})

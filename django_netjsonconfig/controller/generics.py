@@ -81,6 +81,36 @@ class BaseVpnDownloadConfigView(BaseConfigView):
                 send_vpn_config(vpn, request))
 
 
+class BaseDeviceUpdateInfoView(CsrfExtemptMixin, BaseConfigView):
+    """
+    updates general information about the device
+    """
+    UPDATABLE_FIELDS = ['os', 'model', 'system']
+
+    def post(self, request, *args, **kwargs):
+        device = self.get_object(*args, **kwargs)
+        bad_request = forbid_unallowed(request, 'POST', 'key', device.key)
+        if bad_request:
+            return bad_request
+        # update device information
+        for attr in self.UPDATABLE_FIELDS:
+            if attr in request.POST:
+                setattr(device, attr, request.POST.get(attr))
+        # validate and save everything or fail otherwise
+        try:
+            with transaction.atomic():
+                device.full_clean()
+                device.save()
+        except ValidationError as e:
+            # dump message_dict as JSON,
+            # this should make it easy to debug
+            return ControllerResponse(json.dumps(e.message_dict, indent=4, sort_keys=True),
+                                      content_type='text/plain',
+                                      status=400)
+        return ControllerResponse('update-info: success',
+                                  content_type='text/plain')
+
+
 class BaseDeviceReportStatusView(CsrfExtemptMixin, BaseConfigView):
     """
     updates status of config objects
