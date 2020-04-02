@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 0.11.0 [2020-04-02]
+---------------------------
+
+- Added controller view that allows to update the device information (firmware version used)
+- Added ``NETJSONCONFIG_HARDWARE_ID_AS_NAME`` setting
+
 Version 0.10.4 [2020-03-21]
 ---------------------------
 
