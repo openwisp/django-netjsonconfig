@@ -30,7 +30,7 @@ else:  # pragma: nocover
 
 
 class BaseAdmin(TimeReadonlyAdminMixin, ModelAdmin):
-    pass
+    history_latest_first = True
 
 
 class BaseConfigAdmin(BaseAdmin):
