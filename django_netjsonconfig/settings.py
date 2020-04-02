@@ -32,3 +32,4 @@ HARDWARE_ID_OPTIONS = {
     'help_text': _('Serial number of this device')
 }
 HARDWARE_ID_OPTIONS.update(getattr(settings, 'NETJSONCONFIG_HARDWARE_ID_OPTIONS', {}))
+HARDWARE_ID_AS_NAME = getattr(settings, 'NETJSONCONFIG_HARDWARE_ID_AS_NAME', True)

@@ -17,9 +17,15 @@ class TestDevice(CreateConfigMixin, TestCase):
     config_model = Config
     device_model = Device
 
-    def test_str(self):
+    @mock.patch('django_netjsonconfig.settings.HARDWARE_ID_AS_NAME', False)
+    def test_str_name(self):
         d = Device(name='test')
         self.assertEqual(str(d), 'test')
+
+    @mock.patch('django_netjsonconfig.settings.HARDWARE_ID_AS_NAME', True)
+    def test_str_hardware_id(self):
+        d = Device(name='test', hardware_id='123')
+        self.assertEqual(str(d), '123')
 
     def test_mac_address_validator(self):
         d = Device(name='test',

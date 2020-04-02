@@ -56,6 +56,10 @@ class AbstractDevice(BaseModel):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        return self.hardware_id if (app_settings.HARDWARE_ID_ENABLED
+                                    and app_settings.HARDWARE_ID_AS_NAME) else self.name
+
     def clean(self):
         """
         modifies related config status if name

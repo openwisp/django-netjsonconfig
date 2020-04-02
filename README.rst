@@ -476,6 +476,20 @@ Options for the model field ``hardware_id``.
 * ``verbose_name``: text for the human readable label of the field
 * ``help_text``: help text to be displayed with the field
 
+``NETJSONCONFIG_HARDWARE_ID_AS_NAME``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++--------------+-------------+
+| **type**:    | ``bool``    |
++--------------+-------------+
+| **default**: | ``False``   |
++--------------+-------------+
+
+When the hardware ID feature is enabled, devices will be referenced with
+their hardware ID instead of their name.
+
+If you still want to reference devices by their name, set this to ``True``.
+
 Extending django-netjsonconfig
 ------------------------------
 
