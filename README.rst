@@ -482,13 +482,13 @@ Options for the model field ``hardware_id``.
 +--------------+-------------+
 | **type**:    | ``bool``    |
 +--------------+-------------+
-| **default**: | ``False``   |
+| **default**: | ``True``   |
 +--------------+-------------+
 
 When the hardware ID feature is enabled, devices will be referenced with
 their hardware ID instead of their name.
 
-If you still want to reference devices by their name, set this to ``True``.
+If you still want to reference devices by their name, set this to ``False``.
 
 Extending django-netjsonconfig
 ------------------------------
