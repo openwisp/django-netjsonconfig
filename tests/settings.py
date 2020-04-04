@@ -9,7 +9,7 @@ ALLOWED_HOSTS = []
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'netjsonconfig.db',
+        'NAME': os.path.join(BASE_DIR, 'netjsonconfig.db'),
     }
 }
 

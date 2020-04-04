@@ -26,22 +26,22 @@ limited_schema['definitions']['server']['properties']['dh']['default'] = 'dh.pem
 limited_schema['properties']['files']['default'] = [
     {
         "path": "ca.pem",
-        "mode": "0644",
+        "mode": "0600",
         "contents": "{{ ca }}"
     },
     {
         "path": "cert.pem",
-        "mode": "0644",
+        "mode": "0600",
         "contents": "{{ cert }}"
     },
     {
         "path": "key.pem",
-        "mode": "0644",
+        "mode": "0600",
         "contents": "{{ key }}"
     },
     {
         "path": "dh.pem",
-        "mode": "0644",
+        "mode": "0600",
         "contents": "{{ dh }}"
     }
 ]
