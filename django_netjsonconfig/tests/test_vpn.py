@@ -146,17 +146,17 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
         control['files'] = [
             {
                 'path': context_keys['ca_path'],
-                'mode': '0644',
+                'mode': '0600',
                 'contents': context_keys['ca_contents']
             },
             {
                 'path': context_keys['cert_path'],
-                'mode': '0644',
+                'mode': '0600',
                 'contents': context_keys['cert_contents']
             },
             {
                 'path': context_keys['key_path'],
-                'mode': '0644',
+                'mode': '0600',
                 'contents': context_keys['key_contents']
             }
         ]
@@ -176,7 +176,7 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
         control['files'] = [
             {
                 'path': context_keys['ca_path'],
-                'mode': '0644',
+                'mode': '0600',
                 'contents': context_keys['ca_contents']
             }
         ]
