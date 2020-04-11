@@ -10,7 +10,7 @@ from django_x509.models import Ca
 from openwisp_utils.tests import catch_signal
 
 from ..models import Config, Device, Template, Vpn
-from ..signals import checksum_requested, config_download_requested
+from ..signals import checksum_requested, config_download_requested, config_status_changed
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 
 TEST_MACADDR = '00:11:22:33:44:55'
@@ -474,18 +474,35 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
 
     def test_device_report_status_applied(self):
         d = self._create_device_config()
-        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
-                                    {'key': d.key, 'status': 'applied'})
+        with catch_signal(config_status_changed) as handler:
+            response = self.client.post(
+                reverse('controller:device_report_status', args=[d.pk]),
+                {'key': d.key, 'status': 'applied'}
+            )
+            d.config.refresh_from_db()
+            handler.assert_called_once_with(
+                sender=Config,
+                signal=config_status_changed,
+                instance=d.config,
+            )
         self._check_header(response)
         d.config.refresh_from_db()
         self.assertEqual(d.config.status, 'applied')
 
     def test_device_report_status_error(self):
         d = self._create_device_config()
-        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
-                                    {'key': d.key, 'status': 'error'})
+        with catch_signal(config_status_changed) as handler:
+            response = self.client.post(
+                reverse('controller:device_report_status', args=[d.pk]),
+                {'key': d.key, 'status': 'error'}
+            )
+            d.config.refresh_from_db()
+            handler.assert_called_once_with(
+                sender=Config,
+                signal=config_status_changed,
+                instance=d.config,
+            )
         self._check_header(response)
-        d.config.refresh_from_db()
         self.assertEqual(d.config.status, 'error')
 
     def test_device_report_status_bad_uuid(self):

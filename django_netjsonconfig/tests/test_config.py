@@ -7,9 +7,11 @@ from django.test import TestCase
 from django_x509.models import Ca
 
 from netjsonconfig import OpenWrt
+from openwisp_utils.tests import catch_signal
 
 from .. import settings as app_settings
 from ..models import Config, Device, Template, Vpn
+from ..signals import config_modified, config_status_changed
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 
 
@@ -472,3 +474,66 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
             self.assertIn('Invalid configuration triggered by "#/files"', str(e))
         else:
             self.fail('ValidationError not raised!')
+
+    def test_config_status_changed_not_sent_on_creation(self):
+        with catch_signal(config_status_changed) as handler:
+            self._create_config()
+            handler.assert_not_called()
+
+    def test_config_status_changed_modified(self):
+        with catch_signal(config_status_changed) as handler:
+            c = self._create_config(status='applied')
+            handler.assert_not_called()
+            self.assertEqual(c.status, 'applied')
+
+        with catch_signal(config_status_changed) as handler:
+            c.config = {'general': {'description': 'test'}}
+            c.full_clean()
+            self.assertEqual(c.status, 'modified')
+            handler.assert_not_called()
+
+        with catch_signal(config_status_changed) as handler:
+            c.save()
+            handler.assert_called_once_with(
+                sender=Config,
+                signal=config_status_changed,
+                instance=c,
+            )
+            self.assertEqual(c.status, 'modified')
+
+        with catch_signal(config_status_changed) as handler:
+            c.config = {'general': {'description': 'changed again'}}
+            c.full_clean()
+            c.save()
+            handler.assert_not_called()
+            self.assertEqual(c.status, 'modified')
+
+    def test_config_modified_sent(self):
+        with catch_signal(config_modified) as handler:
+            c = self._create_config(status='applied')
+            handler.assert_not_called()
+            self.assertEqual(c.status, 'applied')
+
+        with catch_signal(config_modified) as handler:
+            c.config = {'general': {'description': 'test'}}
+            c.full_clean()
+            handler.assert_not_called()
+            self.assertEqual(c.status, 'modified')
+
+        with catch_signal(config_modified) as handler:
+            c.save()
+            handler.assert_called_once_with(
+                sender=Config,
+                signal=config_modified,
+                instance=c,
+                device=c.device,
+                config=c
+            )
+            self.assertEqual(c.status, 'modified')
+
+        with catch_signal(config_modified) as handler:
+            c.config = {'general': {'description': 'changed again'}}
+            c.full_clean()
+            c.save()
+            handler.assert_called_once()
+            self.assertEqual(c.status, 'modified')

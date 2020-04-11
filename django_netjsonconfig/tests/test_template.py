@@ -5,8 +5,10 @@ from django.test import TestCase
 from django_x509.models import Ca
 
 from netjsonconfig import OpenWrt
+from openwisp_utils.tests import catch_signal
 
 from ..models import Config, Device, Template, Vpn
+from ..signals import config_modified, config_status_changed
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 
 
@@ -44,16 +46,91 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
     def test_config_status_modified_after_change(self):
         t = self._create_template()
         c = self._create_config(device=self._create_device(name='test-status'))
-        c.templates.add(t)
+        self.assertEqual(c.status, 'modified')
+
+        with catch_signal(config_status_changed) as handler:
+            c.templates.add(t)
+            handler.assert_not_called()
+
         c.status = 'applied'
         c.save()
         c.refresh_from_db()
         self.assertEqual(c.status, 'applied')
         t.config['interfaces'][0]['name'] = 'eth1'
         t.full_clean()
-        t.save()
+
+        with catch_signal(config_status_changed) as handler:
+            t.save()
+            c.refresh_from_db()
+            handler.assert_called_once_with(
+                sender=Config,
+                signal=config_status_changed,
+                instance=c,
+            )
+            self.assertEqual(c.status, 'modified')
+
+        # status has already changed to modified
+        # sgnal should not be triggered again
+        with catch_signal(config_status_changed) as handler:
+            t.config['interfaces'][0]['name'] = 'eth2'
+            t.full_clean()
+            t.save()
+            c.refresh_from_db()
+            handler.assert_not_called()
+            self.assertEqual(c.status, 'modified')
+
+    def test_config_status_modified_after_template_added(self):
+        t = self._create_template()
+        c = self._create_config(device=self._create_device(name='test-status'))
+        c.status = 'applied'
+        c.save()
         c.refresh_from_db()
+        with catch_signal(config_status_changed) as handler:
+            c.templates.add(t)
+            c.refresh_from_db()
+            handler.assert_called_once_with(
+                sender=Config,
+                signal=config_status_changed,
+                instance=c,
+            )
+
+    def test_config_modified_signal_always_sent(self):
+        t = self._create_template()
+        c = self._create_config(device=self._create_device(name='test-status'))
         self.assertEqual(c.status, 'modified')
+
+        with catch_signal(config_modified) as handler:
+            c.templates.add(t)
+            handler.assert_called_once_with(
+                sender=Config,
+                signal=config_modified,
+                instance=c,
+                device=c.device,
+                config=c
+            )
+
+        c.status = 'applied'
+        c.save()
+        c.refresh_from_db()
+        self.assertEqual(c.status, 'applied')
+        t.config['interfaces'][0]['name'] = 'eth1'
+        t.full_clean()
+
+        with catch_signal(config_modified) as handler:
+            t.save()
+            c.refresh_from_db()
+            handler.assert_called_once()
+            self.assertEqual(c.status, 'modified')
+
+        # status has already changed to modified
+        # sgnal should be triggered anyway
+        with catch_signal(config_modified) as handler:
+            t.config['interfaces'][0]['name'] = 'eth2'
+            t.full_clean()
+            t.save()
+            c.refresh_from_db()
+            handler.assert_called_once()
+            self.assertEqual(c.status, 'modified')
 
     def test_no_auto_hostname(self):
         t = self._create_template()
