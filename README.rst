@@ -191,6 +191,72 @@ Run tests with:
 
     ./runtests.py
 
+Signals
+-------
+
+``config_modified``
+~~~~~~~~~~~~~~~~~~~
+
+**Path**: ``django_netjsonconfig.signals.config_modified``
+
+**Arguments**:
+
+- ``instance``: instance of ``Config`` which got its ``config`` modified
+
+This signal is emitted every time the configuration of a device is modified.
+
+It does not matter if ``Config.status`` is already modified, this signal will
+be emitted anyway because it signals that the device configuration has changed.
+
+It is not triggered when the device is created for the first time.
+
+This signal is used to trigger the update of the configuration on devices,
+when the push feature is enabled (requires Device credentials).
+
+``config_status_changed``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Path**: ``django_netjsonconfig.signals.config_status_changed``
+
+**Arguments**:
+
+- ``instance``: instance of ``Config`` which got its ``status`` changed
+
+This signal is emitted only when the configuration status of a device has changed.
+
+``checksum_requested``
+~~~~~~~~~~~~~~~~~~~~~~
+
+**Path**: ``django_netjsonconfig.signals.checksum_requested``
+
+**Arguments**:
+
+- ``instance``: instance of ``Device`` for which its configuration
+  checksum has been requested
+- ``request``: the HTTP request object
+
+This signal is emitted when a device requests a checksum via the controller views.
+
+The signal is emitted just before a successful response is returned,
+it is not sent if the response was not successful.
+
+``config_download_requested``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Path**: ``django_netjsonconfig.signals.config_download_requested``
+
+**Arguments**:
+
+- ``instance``: instance of ``Device`` for which its configuration has been
+  requested for download
+- ``request``: the HTTP request object
+
+This signal is emitted when a device requests to download its configuration
+via the controller views.
+
+The signal is emitted just before a successful response is returned,
+it is not sent if the response was not successful.
+
 Settings
 --------
 

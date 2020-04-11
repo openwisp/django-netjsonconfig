@@ -4,7 +4,9 @@ Changelog
 Version 0.12.0 [unreleased]
 ---------------------------
 
-WIP
+- The ``config_modified`` signal is not emitted anymore when the device is
+  created (**backward incompatible change**)
+- Added ``config_status_changed``, ``checksum_requested``, ``config_download_requested``
 
 Version 0.11.0 [2020-04-02]
 ---------------------------
