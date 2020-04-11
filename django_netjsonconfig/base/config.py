@@ -69,6 +69,8 @@ class AbstractConfig(BaseConfig):
         sends signal ``config_modified``
         """
         config_modified.send(sender=self.__class__,
+                             instance=self,
+                             # kept for backward compatibility
                              config=self,
                              device=self.device)
 
