@@ -10,7 +10,7 @@ from django_x509.models import Ca
 from openwisp_utils.tests import catch_signal
 
 from ..models import Config, Device, Template, Vpn
-from ..signals import checksum_generated, config_downloaded
+from ..signals import checksum_requested, config_download_requested
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 
 TEST_MACADDR = '00:11:22:33:44:55'
@@ -48,15 +48,16 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
         self.assertIsNotNone(d.last_ip)
         self.assertIsNone(d.management_ip)
 
-    def test_device_checksum_generated_signal_is_emitted(self):
+    def test_device_checksum_requested_signal_is_emitted(self):
         d = self._create_device_config()
         url = reverse('controller:device_checksum', args=[d.pk])
-        with catch_signal(checksum_generated) as handler:
-            self.client.get(url, {'key': d.key, 'management_ip': '10.0.0.2'})
+        with catch_signal(checksum_requested) as handler:
+            response = self.client.get(url, {'key': d.key, 'management_ip': '10.0.0.2'})
             handler.assert_called_once_with(
                 sender=Device,
-                signal=checksum_generated,
-                device=d,
+                signal=checksum_requested,
+                instance=d,
+                request=response.wsgi_request
             )
 
     def test_device_checksum_bad_uuid(self):
@@ -97,15 +98,16 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
         self.assertIsNotNone(d.last_ip)
         self.assertIsNone(d.management_ip)
 
-    def test_device_config_downloaded_signal_is_emitted(self):
+    def test_device_config_download_requested_signal_is_emitted(self):
         d = self._create_device_config()
         url = reverse('controller:device_download_config', args=[d.pk])
-        with catch_signal(config_downloaded) as handler:
-            self.client.get(url, {'key': d.key, 'management_ip': '10.0.0.2'})
+        with catch_signal(config_download_requested) as handler:
+            response = self.client.get(url, {'key': d.key, 'management_ip': '10.0.0.2'})
             handler.assert_called_once_with(
                 sender=Device,
-                signal=config_downloaded,
-                device=d,
+                signal=config_download_requested,
+                instance=d,
+                request=response.wsgi_request
             )
 
     def test_device_download_config_bad_uuid(self):
@@ -139,15 +141,16 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
         self.assertEqual(response.content.decode(), v.checksum)
         self._check_header(response)
 
-    def test_vpn_checksum_generated_signal_is_emitted(self):
+    def test_vpn_checksum_requested_signal_is_emitted(self):
         v = self._create_vpn()
         url = reverse('controller:vpn_checksum', args=[v.pk])
-        with catch_signal(checksum_generated) as handler:
-            self.client.get(url, {'key': v.key})
+        with catch_signal(checksum_requested) as handler:
+            response = self.client.get(url, {'key': v.key})
             handler.assert_called_once_with(
                 sender=Vpn,
-                signal=checksum_generated,
-                vpn=v,
+                signal=checksum_requested,
+                instance=v,
+                request=response.wsgi_request
             )
 
     def test_vpn_checksum_bad_uuid(self):
@@ -180,15 +183,16 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=test.tar.gz')
         self._check_header(response)
 
-    def test_vpn_config_downloaded_signal_is_emitted(self):
+    def test_vpn_config_download_requested_signal_is_emitted(self):
         v = self._create_vpn()
         url = reverse('controller:vpn_download_config', args=[v.pk])
-        with catch_signal(config_downloaded) as handler:
-            self.client.get(url, {'key': v.key})
+        with catch_signal(config_download_requested) as handler:
+            response = self.client.get(url, {'key': v.key})
             handler.assert_called_once_with(
                 sender=Vpn,
-                signal=config_downloaded,
-                vpn=v,
+                signal=config_download_requested,
+                instance=v,
+                request=response.wsgi_request
             )
 
     def test_vpn_download_config_bad_uuid(self):

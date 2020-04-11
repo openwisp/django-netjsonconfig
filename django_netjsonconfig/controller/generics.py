@@ -8,7 +8,7 @@ from django.views.generic.base import View
 from django.views.generic.detail import SingleObjectMixin
 
 from .. import settings
-from ..signals import checksum_generated, config_downloaded
+from ..signals import checksum_requested, config_download_requested
 from ..utils import (ControllerResponse, forbid_unallowed, get_object_or_404, send_device_config,
                      send_vpn_config, update_last_ip)
 
@@ -47,7 +47,11 @@ class BaseDeviceChecksumView(UpdateLastIpMixin, BaseConfigView):
         if bad_request:
             return bad_request
         self.update_last_ip(device, request)
-        checksum_generated.send(sender=device.__class__, device=device)
+        checksum_requested.send(
+            sender=device.__class__,
+            instance=device,
+            request=request
+        )
         return ControllerResponse(device.config.checksum, content_type='text/plain')
 
 
@@ -60,7 +64,11 @@ class BaseVpnChecksumView(BaseConfigView):
         bad_request = forbid_unallowed(request, 'GET', 'key', vpn.key)
         if bad_request:
             return bad_request
-        checksum_generated.send(sender=vpn.__class__, vpn=vpn)
+        checksum_requested.send(
+            sender=vpn.__class__,
+            instance=vpn,
+            request=request
+        )
         return ControllerResponse(vpn.checksum, content_type='text/plain')
 
 
@@ -73,7 +81,11 @@ class BaseDeviceDownloadConfigView(BaseConfigView):
         bad_request = forbid_unallowed(request, 'GET', 'key', device.key)
         if bad_request:
             return bad_request
-        config_downloaded.send(sender=device.__class__, device=device)
+        config_download_requested.send(
+            sender=device.__class__,
+            instance=device,
+            request=request
+        )
         return send_device_config(device.config, request)
 
 
@@ -86,7 +98,11 @@ class BaseVpnDownloadConfigView(BaseConfigView):
         bad_request = forbid_unallowed(request, 'GET', 'key', vpn.key)
         if bad_request:
             return bad_request
-        config_downloaded.send(sender=vpn.__class__, vpn=vpn)
+        config_download_requested.send(
+            sender=vpn.__class__,
+            instance=vpn,
+            request=request
+        )
         return send_vpn_config(vpn, request)
 
 
