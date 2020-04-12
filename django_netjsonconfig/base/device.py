@@ -45,10 +45,12 @@ class AbstractDevice(BaseModel):
     # with data received from devices
     last_ip = models.GenericIPAddressField(blank=True,
                                            null=True,
+                                           db_index=True,
                                            help_text=_('indicates the IP address logged from '
                                                        'the last request coming from the device'))
     management_ip = models.GenericIPAddressField(blank=True,
                                                  null=True,
+                                                 db_index=True,
                                                  help_text=_('ip address of the management interface, '
                                                              'if available'))
     hardware_id = models.CharField(**(app_settings.HARDWARE_ID_OPTIONS))

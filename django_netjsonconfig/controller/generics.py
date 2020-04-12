@@ -34,7 +34,7 @@ class CsrfExtemptMixin(object):
 
 class UpdateLastIpMixin(object):
     def update_last_ip(self, device, request):
-        update_last_ip(device, request)
+        return update_last_ip(device, request)
 
 
 class BaseDeviceChecksumView(UpdateLastIpMixin, BaseConfigView):
