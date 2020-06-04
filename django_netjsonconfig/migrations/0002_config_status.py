@@ -15,6 +15,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='config',
             name='status',
-            field=model_utils.fields.StatusField(default='modified', help_text='modified means the configuration is not applied yet; running means applied and running; error means the configuration caused issues and it was rolledback', max_length=100, no_check_for_status=True),
+            field=model_utils.fields.StatusField(
+                default='modified',
+                help_text='modified means the configuration is not applied yet; running means applied and running; error means the configuration caused issues and it was rolledback',
+                max_length=100,
+                no_check_for_status=True,
+            ),
         ),
     ]

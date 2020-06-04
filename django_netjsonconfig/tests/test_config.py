@@ -15,11 +15,11 @@ from ..signals import config_modified, config_status_changed
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 
 
-class TestConfig(CreateConfigMixin, CreateTemplateMixin,
-                 TestVpnX509Mixin, TestCase):
+class TestConfig(CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin, TestCase):
     """
     tests for Config model
     """
+
     fixtures = ['test_templates']
     maxDiff = None
     ca_model = Ca
@@ -35,9 +35,9 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         self.assertEqual(str(c), 'test')
 
     def test_config_not_none(self):
-        c = Config(device=self._create_device(),
-                   backend='netjsonconfig.OpenWrt',
-                   config=None)
+        c = Config(
+            device=self._create_device(), backend='netjsonconfig.OpenWrt', config=None
+        )
         c.full_clean()
         self.assertEqual(c.config, {})
 
@@ -47,15 +47,14 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
 
     def test_backend_instance(self):
         config = {'general': {'hostname': 'config'}}
-        c = Config(backend='netjsonconfig.OpenWrt',
-                   config=config)
+        c = Config(backend='netjsonconfig.OpenWrt', config=config)
         self.assertIsInstance(c.backend_instance, OpenWrt)
 
     def test_netjson_validation(self):
         config = {'interfaces': {'invalid': True}}
-        c = Config(device=self._create_device(),
-                   backend='netjsonconfig.OpenWrt',
-                   config=config)
+        c = Config(
+            device=self._create_device(), backend='netjsonconfig.OpenWrt', config=config
+        )
         # ensure django ValidationError is raised
         try:
             c.full_clean()
@@ -71,19 +70,12 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         c.templates.add(dhcp)
         c.templates.add(radio)
         full_config = {
-            'general': {
-                'hostname': 'json-test'
-            },
+            'general': {'hostname': 'json-test'},
             "interfaces": [
                 {
                     "name": "eth0",
                     "type": "ethernet",
-                    "addresses": [
-                        {
-                            "proto": "dhcp",
-                            "family": "ipv4"
-                        }
-                    ]
+                    "addresses": [{"proto": "dhcp", "family": "ipv4"}],
                 }
             ],
             "radios": [
@@ -95,9 +87,9 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
                     "channel": 11,
                     "channel_width": 20,
                     "tx_power": 8,
-                    "country": "IT"
+                    "country": "IT",
                 }
-            ]
+            ],
         }
         del c.backend_instance
         self.assertDictEqual(c.json(dict=True), full_config)
@@ -110,19 +102,9 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         # if config and template have a conflicting non-unique item
         # that violates the schema, the system should not allow
         # the assignment and raise an exception
-        config = {
-            "files": [
-                {
-                    "path": "/test",
-                    "mode": "0644",
-                    "contents": "test"
-                }
-            ]
-        }
+        config = {"files": [{"path": "/test", "mode": "0644", "contents": "test"}]}
         config_copy = deepcopy(config)
-        t = Template(name='files',
-                     backend='netjsonconfig.OpenWrt',
-                     config=config)
+        t = Template(name='files', backend='netjsonconfig.OpenWrt', config=config)
         t.full_clean()
         t.save()
         c = self._create_config(config=config_copy)
@@ -202,12 +184,14 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
                 'id': '{{ id }}',
                 'key': '{{ key }}',
                 'name': '{{ name }}',
-                'mac_address': '{{ mac_address }}'
+                'mac_address': '{{ mac_address }}',
             }
         }
-        c = Config(device=self._create_device(name='context-test'),
-                   backend='netjsonconfig.OpenWrt',
-                   config=config)
+        c = Config(
+            device=self._create_device(name='context-test'),
+            backend='netjsonconfig.OpenWrt',
+            config=config,
+        )
         output = c.backend_instance.render()
         self.assertIn(str(c.device.id), output)
         self.assertIn(c.device.key, output)
@@ -215,14 +199,10 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         self.assertIn(c.device.mac_address, output)
 
     def test_context_setting(self):
-        config = {
-            'general': {
-                'vpnserver1': '{{ vpnserver1 }}'
-            }
-        }
-        c = Config(device=self._create_device(),
-                   backend='netjsonconfig.OpenWrt',
-                   config=config)
+        config = {'general': {'vpnserver1': '{{ vpnserver1 }}'}}
+        c = Config(
+            device=self._create_device(), backend='netjsonconfig.OpenWrt', config=config
+        )
         output = c.backend_instance.render()
         vpnserver1 = settings.NETJSONCONFIG_CONTEXT['vpnserver1']
         self.assertIn(vpnserver1, output)
@@ -233,9 +213,7 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
 
     def test_create_vpnclient(self):
         vpn = self._create_vpn()
-        t = self._create_template(name='test-network',
-                                  type='vpn',
-                                  vpn=vpn)
+        t = self._create_template(name='test-network', type='vpn', vpn=vpn)
         c = self._create_config(device=self._create_device(name='test-create-cert'))
         c.templates.add(t)
         c.save()
@@ -266,10 +244,9 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
 
     def test_create_cert(self):
         vpn = self._create_vpn()
-        t = self._create_template(name='test-create-cert',
-                                  type='vpn',
-                                  vpn=vpn,
-                                  auto_cert=True)
+        t = self._create_template(
+            name='test-create-cert', type='vpn', vpn=vpn, auto_cert=True
+        )
         c = self._create_config(device=self._create_device(name='test-create-cert'))
         c.templates.add(t)
         vpnclient = c.vpnclient_set.first()
@@ -427,30 +404,36 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
     def test_remove_duplicate_files(self):
         template1 = self._create_template(
             name='test-vpn-1',
-            config={'files': [
-                {
-                    'path': '/etc/vpnserver1',
-                    'mode': '0644',
-                    'contents': '{{ name }}\n{{ vpnserver1 }}\n'
-                }
-            ]}
+            config={
+                'files': [
+                    {
+                        'path': '/etc/vpnserver1',
+                        'mode': '0644',
+                        'contents': '{{ name }}\n{{ vpnserver1 }}\n',
+                    }
+                ]
+            },
         )
         template2 = self._create_template(
             name='test-vpn-2',
-            config={'files': [
-                {
-                    'path': '/etc/vpnserver1',
-                    'mode': '0644',
-                    'contents': '{{ name }}\n{{ vpnserver1 }}\n'
-                }
-            ]}
+            config={
+                'files': [
+                    {
+                        'path': '/etc/vpnserver1',
+                        'mode': '0644',
+                        'contents': '{{ name }}\n{{ vpnserver1 }}\n',
+                    }
+                ]
+            },
         )
         config = self._create_config()
         config.templates.add(template1)
         config.templates.add(template2)
         config.refresh_from_db()
         try:
-            result = config.get_backend_instance(template_instances=[template1, template2]).render()
+            result = config.get_backend_instance(
+                template_instances=[template1, template2]
+            ).render()
         except ValidationError:
             self.fail('ValidationError raised!')
         else:
@@ -458,18 +441,22 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
 
     def test_duplicated_files_in_config(self):
         try:
-            self._create_config(config={'files': [
-                {
-                    'path': '/etc/vpnserver1',
-                    'mode': '0644',
-                    'contents': '{{ name }}\n{{ vpnserver1 }}\n'
-                },
-                {
-                    'path': '/etc/vpnserver1',
-                    'mode': '0644',
-                    'contents': '{{ name }}\n{{ vpnserver1 }}\n'
+            self._create_config(
+                config={
+                    'files': [
+                        {
+                            'path': '/etc/vpnserver1',
+                            'mode': '0644',
+                            'contents': '{{ name }}\n{{ vpnserver1 }}\n',
+                        },
+                        {
+                            'path': '/etc/vpnserver1',
+                            'mode': '0644',
+                            'contents': '{{ name }}\n{{ vpnserver1 }}\n',
+                        },
+                    ]
                 }
-            ]})
+            )
         except ValidationError as e:
             self.assertIn('Invalid configuration triggered by "#/files"', str(e))
         else:
@@ -495,9 +482,7 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
         with catch_signal(config_status_changed) as handler:
             c.save()
             handler.assert_called_once_with(
-                sender=Config,
-                signal=config_status_changed,
-                instance=c,
+                sender=Config, signal=config_status_changed, instance=c,
             )
             self.assertEqual(c.status, 'modified')
 
@@ -527,7 +512,7 @@ class TestConfig(CreateConfigMixin, CreateTemplateMixin,
                 signal=config_modified,
                 instance=c,
                 device=c.device,
-                config=c
+                config=c,
             )
             self.assertEqual(c.status, 'modified')
 

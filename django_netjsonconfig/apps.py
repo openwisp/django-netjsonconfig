@@ -17,6 +17,7 @@ class DjangoNetjsonconfigApp(AppConfig):
         This method allows third party apps to set their own custom models
         """
         from .models import Config, VpnClient
+
         self.config_model = Config
         self.vpnclient_model = VpnClient
 
@@ -26,20 +27,31 @@ class DjangoNetjsonconfigApp(AppConfig):
         * automatic vpn client management on m2m_changed
         * automatic vpn client removal
         """
-        m2m_changed.connect(self.config_model.clean_templates,
-                            sender=self.config_model.templates.through)
-        m2m_changed.connect(self.config_model.templates_changed,
-                            sender=self.config_model.templates.through)
-        m2m_changed.connect(self.config_model.manage_vpn_clients,
-                            sender=self.config_model.templates.through)
-        post_delete.connect(self.vpnclient_model.post_delete,
-                            sender=self.vpnclient_model)
+        m2m_changed.connect(
+            self.config_model.clean_templates,
+            sender=self.config_model.templates.through,
+        )
+        m2m_changed.connect(
+            self.config_model.templates_changed,
+            sender=self.config_model.templates.through,
+        )
+        m2m_changed.connect(
+            self.config_model.manage_vpn_clients,
+            sender=self.config_model.templates.through,
+        )
+        post_delete.connect(
+            self.vpnclient_model.post_delete, sender=self.vpnclient_model
+        )
 
     def check_settings(self):
-        if settings.DEBUG is False and REGISTRATION_ENABLED and not SHARED_SECRET:  # pragma: nocover
-            raise ImproperlyConfigured('Security error: NETJSONCONFIG_SHARED_SECRET is not set. '
-                                       'Please set it or disable auto-registration by setting '
-                                       'NETJSONCONFIG_REGISTRATION_ENABLED to False')
+        if (
+            settings.DEBUG is False and REGISTRATION_ENABLED and not SHARED_SECRET
+        ):  # pragma: nocover
+            raise ImproperlyConfigured(
+                'Security error: NETJSONCONFIG_SHARED_SECRET is not set. '
+                'Please set it or disable auto-registration by setting '
+                'NETJSONCONFIG_REGISTRATION_ENABLED to False'
+            )
 
     def ready(self):
         self.__setmodels__()

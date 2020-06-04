@@ -18,11 +18,28 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='config',
             name='mac_address',
-            field=models.CharField(help_text='primary mac address', max_length=17, unique=True, validators=[django.core.validators.RegexValidator(re.compile('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})', 32), code='invalid', message='Must be a valid mac address.')]),
+            field=models.CharField(
+                help_text='primary mac address',
+                max_length=17,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        re.compile('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})', 32),
+                        code='invalid',
+                        message='Must be a valid mac address.',
+                    )
+                ],
+            ),
         ),
         migrations.AlterField(
             model_name='config',
             name='templates',
-            field=sortedm2m.fields.SortedManyToManyField(blank=True, help_text='configuration templates, applied from first to last', related_name='config_relations', to='django_netjsonconfig.Template', verbose_name='templates'),
+            field=sortedm2m.fields.SortedManyToManyField(
+                blank=True,
+                help_text='configuration templates, applied from first to last',
+                related_name='config_relations',
+                to='django_netjsonconfig.Template',
+                verbose_name='templates',
+            ),
         ),
     ]

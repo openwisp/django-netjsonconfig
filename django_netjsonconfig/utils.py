@@ -24,6 +24,7 @@ class ControllerResponse(HttpResponse):
     """
     extends ``django.http.HttpResponse`` by adding a custom HTTP header
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self['X-Openwisp-Controller'] = 'true'
@@ -44,8 +45,9 @@ def send_device_config(config, request):
     which includes the configuration tar.gz as attachment
     """
     update_last_ip(config.device, request)
-    return send_file(filename='{0}.tar.gz'.format(config.name),
-                     contents=config.generate().getvalue())
+    return send_file(
+        filename='{0}.tar.gz'.format(config.name), contents=config.generate().getvalue()
+    )
 
 
 def send_vpn_config(vpn, request):
@@ -53,8 +55,9 @@ def send_vpn_config(vpn, request):
     returns a ``ControllerResponse``which includes the configuration
     tar.gz as attachment
     """
-    return send_file(filename='{0}.tar.gz'.format(vpn.name),
-                     contents=vpn.generate().getvalue())
+    return send_file(
+        filename='{0}.tar.gz'.format(vpn.name), contents=vpn.generate().getvalue()
+    )
 
 
 def update_last_ip(device, request):
@@ -108,42 +111,66 @@ def get_controller_urls(views_module):
     used by third party apps to reduce boilerplate
     """
     urls = [
-        url(r'^controller/device/checksum/(?P<pk>[^/]+)/$',
+        url(
+            r'^controller/device/checksum/(?P<pk>[^/]+)/$',
             views_module.device_checksum,
-            name='device_checksum'),
-        url(r'^controller/device/download-config/(?P<pk>[^/]+)/$',
+            name='device_checksum',
+        ),
+        url(
+            r'^controller/device/download-config/(?P<pk>[^/]+)/$',
             views_module.device_download_config,
-            name='device_download_config'),
-        url(r'^controller/device/update-info/(?P<pk>[^/]+)/$',
+            name='device_download_config',
+        ),
+        url(
+            r'^controller/device/update-info/(?P<pk>[^/]+)/$',
             views_module.device_update_info,
-            name='device_update_info'),
-        url(r'^controller/device/report-status/(?P<pk>[^/]+)/$',
+            name='device_update_info',
+        ),
+        url(
+            r'^controller/device/report-status/(?P<pk>[^/]+)/$',
             views_module.device_report_status,
-            name='device_report_status'),
-        url(r'^controller/device/register/$',
+            name='device_report_status',
+        ),
+        url(
+            r'^controller/device/register/$',
             views_module.device_register,
-            name='device_register'),
-        url(r'^controller/vpn/checksum/(?P<pk>[^/]+)/$',
+            name='device_register',
+        ),
+        url(
+            r'^controller/vpn/checksum/(?P<pk>[^/]+)/$',
             views_module.vpn_checksum,
-            name='vpn_checksum'),
-        url(r'^controller/vpn/download-config/(?P<pk>[^/]+)/$',
+            name='vpn_checksum',
+        ),
+        url(
+            r'^controller/vpn/download-config/(?P<pk>[^/]+)/$',
             views_module.vpn_download_config,
-            name='vpn_download_config'),
+            name='vpn_download_config',
+        ),
         # legacy URLs
-        url(r'^controller/checksum/(?P<pk>[^/]+)/$',
+        url(
+            r'^controller/checksum/(?P<pk>[^/]+)/$',
             views_module.device_checksum,
-            name='checksum_legacy'),
-        url(r'^controller/download-config/(?P<pk>[^/]+)/$',
+            name='checksum_legacy',
+        ),
+        url(
+            r'^controller/download-config/(?P<pk>[^/]+)/$',
             views_module.device_download_config,
-            name='download_config_legacy'),
-        url(r'^controller/update-info/(?P<pk>[^/]+)/$',
+            name='download_config_legacy',
+        ),
+        url(
+            r'^controller/update-info/(?P<pk>[^/]+)/$',
             views_module.device_update_info,
-            name='update_info_legacy'),
-        url(r'^controller/report-status/(?P<pk>[^/]+)/$',
+            name='update_info_legacy',
+        ),
+        url(
+            r'^controller/report-status/(?P<pk>[^/]+)/$',
             views_module.device_report_status,
-            name='report_status_legacy'),
-        url(r'^controller/register/$',
+            name='report_status_legacy',
+        ),
+        url(
+            r'^controller/register/$',
             views_module.device_register,
-            name='register_legacy'),
+            name='register_legacy',
+        ),
     ]
     return urls

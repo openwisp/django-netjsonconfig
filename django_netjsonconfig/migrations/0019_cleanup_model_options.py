@@ -17,15 +17,26 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name='vpn',
-            options={'verbose_name': 'VPN server', 'verbose_name_plural': 'VPN servers'},
+            options={
+                'verbose_name': 'VPN server',
+                'verbose_name_plural': 'VPN servers',
+            },
         ),
         migrations.AlterModelOptions(
             name='vpnclient',
-            options={'verbose_name': 'VPN client', 'verbose_name_plural': 'VPN clients'},
+            options={
+                'verbose_name': 'VPN client',
+                'verbose_name_plural': 'VPN clients',
+            },
         ),
         migrations.AlterField(
             model_name='config',
             name='vpn',
-            field=models.ManyToManyField(blank=True, related_name='vpn_relations', through='django_netjsonconfig.VpnClient', to='django_netjsonconfig.Vpn'),
+            field=models.ManyToManyField(
+                blank=True,
+                related_name='vpn_relations',
+                through='django_netjsonconfig.VpnClient',
+                to='django_netjsonconfig.Vpn',
+            ),
         ),
     ]

@@ -11,9 +11,9 @@ class TestViews(TestCase):
     """
 
     def setUp(self):
-        User.objects.create_superuser(username='admin',
-                                      password='tester',
-                                      email='admin@admin.com')
+        User.objects.create_superuser(
+            username='admin', password='tester', email='admin@admin.com'
+        )
 
     def test_schema_403(self):
         response = self.client.get(reverse('admin:schema'))
@@ -28,6 +28,7 @@ class TestViews(TestCase):
 
     def test_schema_hostname_hidden(self):
         from ..views import available_schemas
+
         for key, schema in available_schemas.items():
             if 'general' not in schema['properties']:
                 continue

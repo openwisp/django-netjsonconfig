@@ -23,13 +23,71 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Config',
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, editable=False, verbose_name='created')),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, editable=False, verbose_name='modified')),
+                (
+                    'id',
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    'created',
+                    model_utils.fields.AutoCreatedField(
+                        default=django.utils.timezone.now,
+                        editable=False,
+                        verbose_name='created',
+                    ),
+                ),
+                (
+                    'modified',
+                    model_utils.fields.AutoLastModifiedField(
+                        default=django.utils.timezone.now,
+                        editable=False,
+                        verbose_name='modified',
+                    ),
+                ),
                 ('name', models.CharField(max_length=63)),
-                ('backend', models.CharField(choices=[('netjsonconfig.OpenWrt', 'OpenWRT'), ('netjsonconfig.OpenWisp', 'OpenWISP')], help_text='Select netjsonconfig backend', max_length=128, verbose_name='backend')),
-                ('config', jsonfield.fields.JSONField(default=dict, dump_kwargs={'indent': 4}, help_text='configuration in NetJSON DeviceConfiguration format', load_kwargs={'object_pairs_hook': collections.OrderedDict}, verbose_name='configuration')),
-                ('key', models.CharField(db_index=True, default=get_random_key, help_text='unique key that can be used to download the configuration', max_length=64, unique=True, validators=[django.core.validators.RegexValidator(re.compile('^[^\\s/\\.]+$', 32), code='invalid', message='Key must not contain spaces, dots or slashes.')])),
+                (
+                    'backend',
+                    models.CharField(
+                        choices=[
+                            ('netjsonconfig.OpenWrt', 'OpenWRT'),
+                            ('netjsonconfig.OpenWisp', 'OpenWISP'),
+                        ],
+                        help_text='Select netjsonconfig backend',
+                        max_length=128,
+                        verbose_name='backend',
+                    ),
+                ),
+                (
+                    'config',
+                    jsonfield.fields.JSONField(
+                        default=dict,
+                        dump_kwargs={'indent': 4},
+                        help_text='configuration in NetJSON DeviceConfiguration format',
+                        load_kwargs={'object_pairs_hook': collections.OrderedDict},
+                        verbose_name='configuration',
+                    ),
+                ),
+                (
+                    'key',
+                    models.CharField(
+                        db_index=True,
+                        default=get_random_key,
+                        help_text='unique key that can be used to download the configuration',
+                        max_length=64,
+                        unique=True,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                re.compile('^[^\\s/\\.]+$', 32),
+                                code='invalid',
+                                message='Key must not contain spaces, dots or slashes.',
+                            )
+                        ],
+                    ),
+                ),
             ],
             options={
                 'verbose_name_plural': 'configurations',
@@ -39,20 +97,66 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Template',
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, editable=False, verbose_name='created')),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, editable=False, verbose_name='modified')),
+                (
+                    'id',
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    'created',
+                    model_utils.fields.AutoCreatedField(
+                        default=django.utils.timezone.now,
+                        editable=False,
+                        verbose_name='created',
+                    ),
+                ),
+                (
+                    'modified',
+                    model_utils.fields.AutoLastModifiedField(
+                        default=django.utils.timezone.now,
+                        editable=False,
+                        verbose_name='modified',
+                    ),
+                ),
                 ('name', models.CharField(max_length=63)),
-                ('backend', models.CharField(choices=[('netjsonconfig.OpenWrt', 'OpenWRT'), ('netjsonconfig.OpenWisp', 'OpenWISP')], help_text='Select netjsonconfig backend', max_length=128, verbose_name='backend')),
-                ('config', jsonfield.fields.JSONField(default=dict, dump_kwargs={'indent': 4}, help_text='configuration in NetJSON DeviceConfiguration format', load_kwargs={'object_pairs_hook': collections.OrderedDict}, verbose_name='configuration')),
+                (
+                    'backend',
+                    models.CharField(
+                        choices=[
+                            ('netjsonconfig.OpenWrt', 'OpenWRT'),
+                            ('netjsonconfig.OpenWisp', 'OpenWISP'),
+                        ],
+                        help_text='Select netjsonconfig backend',
+                        max_length=128,
+                        verbose_name='backend',
+                    ),
+                ),
+                (
+                    'config',
+                    jsonfield.fields.JSONField(
+                        default=dict,
+                        dump_kwargs={'indent': 4},
+                        help_text='configuration in NetJSON DeviceConfiguration format',
+                        load_kwargs={'object_pairs_hook': collections.OrderedDict},
+                        verbose_name='configuration',
+                    ),
+                ),
             ],
-            options={
-                'abstract': False,
-            },
+            options={'abstract': False,},
         ),
         migrations.AddField(
             model_name='config',
             name='templates',
-            field=sortedm2m.fields.SortedManyToManyField(blank=True, help_text='configuration templates, applied fromfirst to last', related_name='config_relations', to='django_netjsonconfig.Template', verbose_name='templates'),
+            field=sortedm2m.fields.SortedManyToManyField(
+                blank=True,
+                help_text='configuration templates, applied fromfirst to last',
+                related_name='config_relations',
+                to='django_netjsonconfig.Template',
+                verbose_name='templates',
+            ),
         ),
     ]

@@ -1,7 +1,14 @@
 from django.contrib import admin
 
-from .base.admin import (AbstractConfigForm, AbstractConfigInline, AbstractDeviceAdmin, AbstractTemplateAdmin,
-                         AbstractVpnAdmin, AbstractVpnForm, BaseForm)
+from .base.admin import (
+    AbstractConfigForm,
+    AbstractConfigInline,
+    AbstractDeviceAdmin,
+    AbstractTemplateAdmin,
+    AbstractVpnAdmin,
+    AbstractVpnForm,
+    BaseForm,
+)
 from .models import Config, Device, Template, Vpn
 
 

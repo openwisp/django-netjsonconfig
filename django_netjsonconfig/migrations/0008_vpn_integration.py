@@ -23,16 +23,80 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Vpn',
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, editable=False, verbose_name='created')),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, editable=False, verbose_name='modified')),
+                (
+                    'id',
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    'created',
+                    model_utils.fields.AutoCreatedField(
+                        default=django.utils.timezone.now,
+                        editable=False,
+                        verbose_name='created',
+                    ),
+                ),
+                (
+                    'modified',
+                    model_utils.fields.AutoLastModifiedField(
+                        default=django.utils.timezone.now,
+                        editable=False,
+                        verbose_name='modified',
+                    ),
+                ),
                 ('name', models.CharField(max_length=64, unique=True)),
-                ('host', models.CharField(max_length=64, help_text='VPN server hostname or ip address')),
+                (
+                    'host',
+                    models.CharField(
+                        max_length=64, help_text='VPN server hostname or ip address'
+                    ),
+                ),
                 ('notes', models.TextField(blank=True)),
-                ('backend', models.CharField(choices=[('django_netjsonconfig.vpn_backends.OpenVpn', 'OpenVPN')], help_text='Select VPN configuration backend', max_length=128, verbose_name='VPN backend')),
-                ('config', jsonfield.fields.JSONField(blank=True, default=dict, dump_kwargs={'indent': 4}, help_text='configuration in NetJSON DeviceConfiguration format', load_kwargs={'object_pairs_hook': collections.OrderedDict}, verbose_name='server configuration')),
-                ('ca', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='django_x509.Ca', verbose_name='CA')),
-                ('cert', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_x509.Cert', verbose_name='x509 Certificate', help_text='leave blank to create automatically')),
+                (
+                    'backend',
+                    models.CharField(
+                        choices=[
+                            ('django_netjsonconfig.vpn_backends.OpenVpn', 'OpenVPN')
+                        ],
+                        help_text='Select VPN configuration backend',
+                        max_length=128,
+                        verbose_name='VPN backend',
+                    ),
+                ),
+                (
+                    'config',
+                    jsonfield.fields.JSONField(
+                        blank=True,
+                        default=dict,
+                        dump_kwargs={'indent': 4},
+                        help_text='configuration in NetJSON DeviceConfiguration format',
+                        load_kwargs={'object_pairs_hook': collections.OrderedDict},
+                        verbose_name='server configuration',
+                    ),
+                ),
+                (
+                    'ca',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='django_x509.Ca',
+                        verbose_name='CA',
+                    ),
+                ),
+                (
+                    'cert',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='django_x509.Cert',
+                        verbose_name='x509 Certificate',
+                        help_text='leave blank to create automatically',
+                    ),
+                ),
             ],
             options={
                 'verbose_name_plural': 'VPN Servers',
@@ -42,35 +106,87 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='VpnClient',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
                 ('auto_cert', models.BooleanField(default=False)),
-                ('cert', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_x509.Cert')),
-                ('config', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='django_netjsonconfig.Config')),
-                ('vpn', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='django_netjsonconfig.Vpn')),
+                (
+                    'cert',
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='django_x509.Cert',
+                    ),
+                ),
+                (
+                    'config',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='django_netjsonconfig.Config',
+                    ),
+                ),
+                (
+                    'vpn',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='django_netjsonconfig.Vpn',
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
             model_name='template',
             name='auto_cert',
-            field=models.BooleanField(db_index=True, default=django_netjsonconfig.base.template.default_auto_cert, help_text='whether x509 client certificates should be automatically managed behind the scenes for each configuration using this template, valid only for the VPN type', verbose_name='auto certificate'),
+            field=models.BooleanField(
+                db_index=True,
+                default=django_netjsonconfig.base.template.default_auto_cert,
+                help_text='whether x509 client certificates should be automatically managed behind the scenes for each configuration using this template, valid only for the VPN type',
+                verbose_name='auto certificate',
+            ),
         ),
         migrations.AddField(
             model_name='template',
             name='type',
-            field=models.CharField(choices=[('generic', 'Generic'), ('vpn', 'VPN-client')], db_index=True, default='generic', help_text='template type, determines which features are available', max_length=16, verbose_name='type'),
+            field=models.CharField(
+                choices=[('generic', 'Generic'), ('vpn', 'VPN-client')],
+                db_index=True,
+                default='generic',
+                help_text='template type, determines which features are available',
+                max_length=16,
+                verbose_name='type',
+            ),
         ),
         migrations.AddField(
             model_name='config',
             name='vpn',
-            field=models.ManyToManyField(blank=True, help_text='Automated VPN configurations', related_name='vpn_relations', through='django_netjsonconfig.VpnClient', to='django_netjsonconfig.Vpn', verbose_name='VPN'),
+            field=models.ManyToManyField(
+                blank=True,
+                help_text='Automated VPN configurations',
+                related_name='vpn_relations',
+                through='django_netjsonconfig.VpnClient',
+                to='django_netjsonconfig.Vpn',
+                verbose_name='VPN',
+            ),
         ),
         migrations.AddField(
             model_name='template',
             name='vpn',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_netjsonconfig.Vpn', verbose_name='VPN'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='django_netjsonconfig.Vpn',
+                verbose_name='VPN',
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='vpnclient',
-            unique_together=set([('config', 'vpn')]),
+            name='vpnclient', unique_together=set([('config', 'vpn')]),
         ),
     ]

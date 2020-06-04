@@ -14,6 +14,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='config',
             name='last_ip',
-            field=models.GenericIPAddressField(blank=True, help_text='indicates the last ip from which the configuration was downloaded from (except downloads from this page)', null=True),
+            field=models.GenericIPAddressField(
+                blank=True,
+                help_text='indicates the last ip from which the configuration was downloaded from (except downloads from this page)',
+                null=True,
+            ),
         ),
     ]

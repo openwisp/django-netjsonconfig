@@ -13,9 +13,11 @@ class AbstractTemplateTag(TagBase, UUIDModel):
 
 
 class AbstractTaggedTemplate(GenericUUIDTaggedItemBase, TaggedItemBase):
-    tag = models.ForeignKey('django_netjsonconfig.TemplateTag',
-                            related_name='%(app_label)s_%(class)s_items',
-                            on_delete=models.CASCADE)
+    tag = models.ForeignKey(
+        'django_netjsonconfig.TemplateTag',
+        related_name='%(app_label)s_%(class)s_items',
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         abstract = True

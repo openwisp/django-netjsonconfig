@@ -26,7 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'sortedm2m',
     'reversion',
-    'django_x509'
+    'django_x509',
 ]
 
 STATICFILES_FINDERS = [
@@ -72,9 +72,7 @@ TEMPLATES = [
 ]
 
 NETJSONCONFIG_SHARED_SECRET = 't3st1ng'
-NETJSONCONFIG_CONTEXT = {
-    'vpnserver1': 'vpn.testdomain.com'
-}
+NETJSONCONFIG_CONTEXT = {'vpnserver1': 'vpn.testdomain.com'}
 
 NETJSONCONFIG_HARDWARE_ID_ENABLED = True
 

@@ -12,11 +12,13 @@ class CreateDeviceMixin(object):
     TEST_MAC_ADDRESS = '00:11:22:33:44:55'
 
     def _create_device(self, **kwargs):
-        options = dict(name='test-device',
-                       mac_address=self.TEST_MAC_ADDRESS,
-                       hardware_id=str(uuid4().hex),
-                       model='TP-Link TL-WDR4300 v1',
-                       os='LEDE Reboot 17.01-SNAPSHOT r3313-c2999ef')
+        options = dict(
+            name='test-device',
+            mac_address=self.TEST_MAC_ADDRESS,
+            hardware_id=str(uuid4().hex),
+            model='TP-Link TL-WDR4300 v1',
+            os='LEDE Reboot 17.01-SNAPSHOT r3313-c2999ef',
+        )
         options.update(kwargs)
         d = self.device_model(**options)
         d.full_clean()
@@ -37,8 +39,7 @@ class CreateConfigMixin(CreateDeviceMixin):
     TEST_KEY = 'w1gwJxKaHcamUw62TQIPgYchwLKn3AA0'
 
     def _create_config(self, **kwargs):
-        options = dict(backend='netjsonconfig.OpenWrt',
-                       config={'general': {}})
+        options = dict(backend='netjsonconfig.OpenWrt', config={'general': {}})
         options.update(kwargs)
         if 'device' not in kwargs:
             options['device'] = self._create_device(name='test-device')
@@ -53,14 +54,7 @@ class CreateTemplateMixin(object):
         model_kwargs = {
             "name": "test-template",
             "backend": "netjsonconfig.OpenWrt",
-            "config": {
-                "interfaces": [
-                    {
-                        "name": "eth0",
-                        "type": "ethernet"
-                    }
-                ]
-            }
+            "config": {"interfaces": [{"name": "eth0", "type": "ethernet"}]},
         }
         model_kwargs.update(kwargs)
         t = self.template_model(**model_kwargs)
@@ -87,18 +81,20 @@ Qt01H2yL7CvdEUi/gCUJNS9Jm40248nwKgyrwyoS3SjY49CAcEYLAgEC
                 "mode": "server",
                 "name": "example-vpn",
                 "proto": "udp",
-                "tls_server": True
+                "tls_server": True,
             }
         ]
     }
 
     def _create_vpn(self, ca_options={}, **kwargs):
-        options = dict(name='test',
-                       host='vpn1.test.com',
-                       ca=None,
-                       backend='django_netjsonconfig.vpn_backends.OpenVpn',
-                       config=self._vpn_config,
-                       dh=self._dh)
+        options = dict(
+            name='test',
+            host='vpn1.test.com',
+            ca=None,
+            backend='django_netjsonconfig.vpn_backends.OpenVpn',
+            config=self._vpn_config,
+            dh=self._dh,
+        )
         options.update(**kwargs)
         if not options['ca']:
             options['ca'] = self._create_ca(**ca_options)

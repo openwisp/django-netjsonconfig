@@ -16,51 +16,70 @@ class AbstractDevice(BaseModel):
     Stores information related to the
     physical properties of a network device
     """
-    mac_address = models.CharField(max_length=17,
-                                   unique=True,
-                                   db_index=True,
-                                   validators=[mac_address_validator],
-                                   help_text=_('primary mac address'))
-    key = KeyField(unique=True,
-                   blank=True,
-                   default=None,
-                   db_index=True,
-                   help_text=_('unique device key'))
-    model = models.CharField(max_length=64,
-                             blank=True,
-                             db_index=True,
-                             help_text=_('device model and manufacturer'))
-    os = models.CharField(_('operating system'),
-                          blank=True,
-                          db_index=True,
-                          max_length=128,
-                          help_text=_('operating system identifier'))
-    system = models.CharField(_('SOC / CPU'),
-                              blank=True,
-                              db_index=True,
-                              max_length=128,
-                              help_text=_('system on chip or CPU info'))
+
+    mac_address = models.CharField(
+        max_length=17,
+        unique=True,
+        db_index=True,
+        validators=[mac_address_validator],
+        help_text=_('primary mac address'),
+    )
+    key = KeyField(
+        unique=True,
+        blank=True,
+        default=None,
+        db_index=True,
+        help_text=_('unique device key'),
+    )
+    model = models.CharField(
+        max_length=64,
+        blank=True,
+        db_index=True,
+        help_text=_('device model and manufacturer'),
+    )
+    os = models.CharField(
+        _('operating system'),
+        blank=True,
+        db_index=True,
+        max_length=128,
+        help_text=_('operating system identifier'),
+    )
+    system = models.CharField(
+        _('SOC / CPU'),
+        blank=True,
+        db_index=True,
+        max_length=128,
+        help_text=_('system on chip or CPU info'),
+    )
     notes = models.TextField(blank=True, help_text=_('internal notes'))
     # these fields are filled automatically
     # with data received from devices
-    last_ip = models.GenericIPAddressField(blank=True,
-                                           null=True,
-                                           db_index=True,
-                                           help_text=_('indicates the IP address logged from '
-                                                       'the last request coming from the device'))
-    management_ip = models.GenericIPAddressField(blank=True,
-                                                 null=True,
-                                                 db_index=True,
-                                                 help_text=_('ip address of the management interface, '
-                                                             'if available'))
+    last_ip = models.GenericIPAddressField(
+        blank=True,
+        null=True,
+        db_index=True,
+        help_text=_(
+            'indicates the IP address logged from '
+            'the last request coming from the device'
+        ),
+    )
+    management_ip = models.GenericIPAddressField(
+        blank=True,
+        null=True,
+        db_index=True,
+        help_text=_('ip address of the management interface, ' 'if available'),
+    )
     hardware_id = models.CharField(**(app_settings.HARDWARE_ID_OPTIONS))
 
     class Meta:
         abstract = True
 
     def __str__(self):
-        return self.hardware_id if (app_settings.HARDWARE_ID_ENABLED
-                                    and app_settings.HARDWARE_ID_AS_NAME) else self.name
+        return (
+            self.hardware_id
+            if (app_settings.HARDWARE_ID_ENABLED and app_settings.HARDWARE_ID_AS_NAME)
+            else self.name
+        )
 
     def clean(self):
         """
@@ -96,7 +115,11 @@ class AbstractDevice(BaseModel):
 
     def generate_key(self, shared_secret):
         if app_settings.CONSISTENT_REGISTRATION:
-            keybase = self.hardware_id if app_settings.HARDWARE_ID_ENABLED else self.mac_address
+            keybase = (
+                self.hardware_id
+                if app_settings.HARDWARE_ID_ENABLED
+                else self.mac_address
+            )
             hash = md5('{}+{}'.format(keybase, shared_secret).encode('utf-8'))
             return hash.hexdigest()
         else:
@@ -146,6 +169,4 @@ class AbstractDevice(BaseModel):
 # (to avoid modifying parent classes)
 # and add device_name_validator
 name_field = AbstractDevice._meta.get_field('name')
-name_field.validators = name_field.validators[:] + [
-    device_name_validator
-]
+name_field.validators = name_field.validators[:] + [device_name_validator]

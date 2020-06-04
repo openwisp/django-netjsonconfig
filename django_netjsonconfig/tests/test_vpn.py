@@ -8,11 +8,11 @@ from ..vpn_backends import OpenVpn
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 
 
-class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
-              CreateTemplateMixin, TestCase):
+class TestVpn(TestVpnX509Mixin, CreateConfigMixin, CreateTemplateMixin, TestCase):
     """
     tests for Vpn model
     """
+
     maxDiff = None
     ca_model = Ca
     config_model = Config
@@ -21,12 +21,14 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
     vpn_model = Vpn
 
     def test_config_not_none(self):
-        v = Vpn(name='test',
-                host='vpn1.test.com',
-                ca=self._create_ca(),
-                backend='django_netjsonconfig.vpn_backends.OpenVpn',
-                config=None,
-                dh=self._dh)
+        v = Vpn(
+            name='test',
+            host='vpn1.test.com',
+            ca=self._create_ca(),
+            backend='django_netjsonconfig.vpn_backends.OpenVpn',
+            config=None,
+            dh=self._dh,
+        )
         try:
             v.full_clean()
         except ValidationError:
@@ -34,27 +36,33 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
         self.assertEqual(v.config, {})
 
     def test_backend_class(self):
-        v = Vpn(name='test',
-                host='vpn1.test.com',
-                ca=self._create_ca(),
-                backend='django_netjsonconfig.vpn_backends.OpenVpn')
+        v = Vpn(
+            name='test',
+            host='vpn1.test.com',
+            ca=self._create_ca(),
+            backend='django_netjsonconfig.vpn_backends.OpenVpn',
+        )
         self.assertIs(v.backend_class, OpenVpn)
 
     def test_backend_instance(self):
-        v = Vpn(name='test',
-                host='vpn1.test.com',
-                ca=self._create_ca(),
-                backend='django_netjsonconfig.vpn_backends.OpenVpn',
-                config={})
+        v = Vpn(
+            name='test',
+            host='vpn1.test.com',
+            ca=self._create_ca(),
+            backend='django_netjsonconfig.vpn_backends.OpenVpn',
+            config={},
+        )
         self.assertIsInstance(v.backend_instance, OpenVpn)
 
     def test_validation(self):
         config = {'openvpn': {'invalid': True}}
-        v = Vpn(name='test',
-                host='vpn1.test.com',
-                ca=self._create_ca(),
-                backend='django_netjsonconfig.vpn_backends.OpenVpn',
-                config=config)
+        v = Vpn(
+            name='test',
+            host='vpn1.test.com',
+            ca=self._create_ca(),
+            backend='django_netjsonconfig.vpn_backends.OpenVpn',
+            config=config,
+        )
         # ensure django ValidationError is raised
         with self.assertRaises(ValidationError):
             v.full_clean()
@@ -67,11 +75,7 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
         vpn = self._create_vpn()
         self.assertIsNotNone(vpn.cert)
         server_extensions = [
-            {
-                "name": "nsCertType",
-                "value": "server",
-                "critical": False
-            }
+            {"name": "nsCertType", "value": "server", "critical": False}
         ]
         self.assertEqual(vpn.cert.extensions, server_extensions)
 
@@ -86,17 +90,15 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
         try:
             client.full_clean()
         except ValidationError as e:
-            self.assertIn('with this Config and Vpn already exists',
-                          e.message_dict['__all__'][0])
+            self.assertIn(
+                'with this Config and Vpn already exists', e.message_dict['__all__'][0]
+            )
         else:
             self.fail('unique_together clause not triggered')
 
     def test_vpn_client_auto_cert_deletes_cert(self):
         vpn = self._create_vpn()
-        t = self._create_template(name='vpn-test',
-                                  type='vpn',
-                                  vpn=vpn,
-                                  auto_cert=True)
+        t = self._create_template(name='vpn-test', type='vpn', vpn=vpn, auto_cert=True)
         c = self._create_config()
         c.templates.add(t)
         vpnclient = c.vpnclient_set.first()
@@ -109,30 +111,33 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
     def test_vpn_cert_and_ca_mismatch(self):
         ca = self._create_ca()
         different_ca = self._create_ca()
-        cert = Cert(name='test-cert-vpn',
-                    ca=ca,
-                    key_length='2048',
-                    digest='sha256',
-                    country_code='IT',
-                    state='RM',
-                    city='Rome',
-                    organization_name='OpenWISP',
-                    email='test@test.com',
-                    common_name='openwisp.org')
+        cert = Cert(
+            name='test-cert-vpn',
+            ca=ca,
+            key_length='2048',
+            digest='sha256',
+            country_code='IT',
+            state='RM',
+            city='Rome',
+            organization_name='OpenWISP',
+            email='test@test.com',
+            common_name='openwisp.org',
+        )
         cert.full_clean()
         cert.save()
-        vpn = Vpn(name='test',
-                  host='vpn1.test.com',
-                  ca=different_ca,
-                  cert=cert,
-                  backend='django_netjsonconfig.vpn_backends.OpenVpn')
+        vpn = Vpn(
+            name='test',
+            host='vpn1.test.com',
+            ca=different_ca,
+            cert=cert,
+            backend='django_netjsonconfig.vpn_backends.OpenVpn',
+        )
         try:
             vpn.full_clean()
         except ValidationError as e:
             self.assertIn('cert', e.message_dict)
         else:
-            self.fail('Mismatch between ca and cert but '
-                      'ValidationError not raised')
+            self.fail('Mismatch between ca and cert but ' 'ValidationError not raised')
 
     def test_auto_client(self):
         vpn = self._create_vpn()
@@ -140,25 +145,25 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
         context_keys = vpn._get_auto_context_keys()
         for key in context_keys.keys():
             context_keys[key] = '{{%s}}' % context_keys[key]
-        control = vpn.backend_class.auto_client(host=vpn.host,
-                                                server=self._vpn_config['openvpn'][0],
-                                                **context_keys)
+        control = vpn.backend_class.auto_client(
+            host=vpn.host, server=self._vpn_config['openvpn'][0], **context_keys
+        )
         control['files'] = [
             {
                 'path': context_keys['ca_path'],
                 'mode': '0600',
-                'contents': context_keys['ca_contents']
+                'contents': context_keys['ca_contents'],
             },
             {
                 'path': context_keys['cert_path'],
                 'mode': '0600',
-                'contents': context_keys['cert_contents']
+                'contents': context_keys['cert_contents'],
             },
             {
                 'path': context_keys['key_path'],
                 'mode': '0600',
-                'contents': context_keys['key_contents']
-            }
+                'contents': context_keys['key_contents'],
+            },
         ]
         self.assertDictEqual(auto, control)
 
@@ -170,14 +175,14 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
             context_keys[key] = '{{%s}}' % context_keys[key]
         for key in ['cert_path', 'cert_contents', 'key_path', 'key_contents']:
             del context_keys[key]
-        control = vpn.backend_class.auto_client(host=vpn.host,
-                                                server=self._vpn_config['openvpn'][0],
-                                                **context_keys)
+        control = vpn.backend_class.auto_client(
+            host=vpn.host, server=self._vpn_config['openvpn'][0], **context_keys
+        )
         control['files'] = [
             {
                 'path': context_keys['ca_path'],
                 'mode': '0600',
-                'contents': context_keys['ca_contents']
+                'contents': context_keys['ca_contents'],
             }
         ]
         self.assertDictEqual(auto, control)
@@ -187,7 +192,9 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
         d = self._create_device()
         c = self._create_config(device=d)
         client = VpnClient(vpn=vpn, config=c, auto_cert=True)
-        self.assertEqual(client._get_common_name(), '{mac_address}-{name}'.format(**d.__dict__))
+        self.assertEqual(
+            client._get_common_name(), '{mac_address}-{name}'.format(**d.__dict__)
+        )
         d.name = d.mac_address
         self.assertEqual(client._get_common_name(), d.mac_address)
 
@@ -211,7 +218,7 @@ class TestVpn(TestVpnX509Mixin, CreateConfigMixin,
             'ca': v.ca.certificate,
             'cert': v.cert.certificate,
             'key': v.cert.private_key,
-            'dh': v.dh
+            'dh': v.dh,
         }
         expected.update(settings.NETJSONCONFIG_CONTEXT)
         self.assertEqual(v.get_context(), expected)

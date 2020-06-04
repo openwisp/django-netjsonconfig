@@ -19,5 +19,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(randomize_mac_address, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            randomize_mac_address, reverse_code=migrations.RunPython.noop
+        ),
     ]

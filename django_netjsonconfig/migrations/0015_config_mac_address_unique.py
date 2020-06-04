@@ -17,6 +17,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='config',
             name='mac_address',
-            field=models.CharField(max_length=17, unique=True, validators=[django.core.validators.RegexValidator(re.compile('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})', 32), code='invalid', message='Must be a valid mac address.')]),
+            field=models.CharField(
+                max_length=17,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        re.compile('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})', 32),
+                        code='invalid',
+                        message='Must be a valid mac address.',
+                    )
+                ],
+            ),
         ),
     ]

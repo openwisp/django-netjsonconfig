@@ -16,4 +16,5 @@ urlpatterns += staticfiles_urlpatterns()
 
 if 'debug_toolbar' in settings.INSTALLED_APPS and settings.DEBUG:
     import debug_toolbar
+
     urlpatterns += [url(r'^__debug__/', include(debug_toolbar.urls))]

@@ -5,7 +5,11 @@ from django import forms
 from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin, messages
-from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
+from django.core.exceptions import (
+    FieldDoesNotExist,
+    ObjectDoesNotExist,
+    ValidationError,
+)
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
@@ -40,14 +44,15 @@ class BaseConfigAdmin(BaseAdmin):
 
     class Media:
         css = {'all': (static('{0}css/admin.css'.format(prefix)),)}
-        js = list(UUIDAdmin.Media.js) + \
-            [static('{0}js/{1}'.format(prefix, f))
-             for f in ('preview.js',
-                       'unsaved_changes.js',
-                       'switcher.js')]
+        js = list(UUIDAdmin.Media.js) + [
+            static('{0}js/{1}'.format(prefix, f))
+            for f in ('preview.js', 'unsaved_changes.js', 'switcher.js')
+        ]
 
     def get_extra_context(self, pk=None):
-        prefix = 'admin:{0}_{1}'.format(self.opts.app_label, self.model.__name__.lower())
+        prefix = 'admin:{0}_{1}'.format(
+            self.opts.app_label, self.model.__name__.lower()
+        )
         text = _('Preview configuration')
         ctx = {
             'additional_buttons': [
@@ -56,15 +61,17 @@ class BaseConfigAdmin(BaseAdmin):
                     'url': reverse('{0}_preview'.format(prefix)),
                     'class': 'previewlink',
                     'value': text,
-                    'title': '{0} (ALT+P)'.format(text)
+                    'title': '{0} (ALT+P)'.format(text),
                 }
             ]
         }
         if pk:
             ctx['download_url'] = reverse('{0}_download'.format(prefix), args=[pk])
             try:
-                has_config = (self.model.__name__ == 'Device' and
-                              self.model.objects.get(pk=pk)._has_config())
+                has_config = (
+                    self.model.__name__ == 'Device'
+                    and self.model.objects.get(pk=pk)._has_config()
+                )
             except (ObjectDoesNotExist, ValidationError):
                 raise Http404()
             else:
@@ -90,15 +97,21 @@ class BaseConfigAdmin(BaseAdmin):
         options = getattr(self.model, '_meta')
         url_prefix = '{0}_{1}'.format(options.app_label, options.model_name)
         return [
-            url(r'^download/(?P<pk>[^/]+)/$',
+            url(
+                r'^download/(?P<pk>[^/]+)/$',
                 self.admin_site.admin_view(self.download_view),
-                name='{0}_download'.format(url_prefix)),
-            url(r'^preview/$',
+                name='{0}_download'.format(url_prefix),
+            ),
+            url(
+                r'^preview/$',
                 self.admin_site.admin_view(self.preview_view),
-                name='{0}_preview'.format(url_prefix)),
-            url(r'^(?P<pk>[^/]+)/context\.json$',
+                name='{0}_preview'.format(url_prefix),
+            ),
+            url(
+                r'^(?P<pk>[^/]+)/context\.json$',
                 self.admin_site.admin_view(self.context_view),
-                name='{0}_context'.format(url_prefix)),
+                name='{0}_context'.format(url_prefix),
+            ),
             url(r'^netjsonconfig/schema\.json$', schema, name='schema'),
         ] + super().get_urls()
 
@@ -141,8 +154,7 @@ class BaseConfigAdmin(BaseAdmin):
         # this object is instanciated only to generate the preview
         # it won't be saved to the database
         instance = config_model(**kwargs)
-        instance.full_clean(exclude=['device'],
-                            validate_unique=False)
+        instance.full_clean(exclude=['device'], validate_unique=False)
         return instance
 
     preview_error_msg = _('Preview for {0} with name {1} failed')
@@ -156,7 +168,9 @@ class BaseConfigAdmin(BaseAdmin):
         error = None
         output = None
         # error message for eventual exceptions
-        error_msg = self.preview_error_msg.format(config_model.__name__, request.POST.get('name'))
+        error_msg = self.preview_error_msg.format(
+            config_model.__name__, request.POST.get('name')
+        )
         try:
             instance = self._get_preview_instance(request)
         except Exception as e:
@@ -168,7 +182,9 @@ class BaseConfigAdmin(BaseAdmin):
         if template_ids:
             template_model = config_model.get_template_model()
             try:
-                templates = template_model.objects.filter(pk__in=template_ids.split(','))
+                templates = template_model.objects.filter(
+                    pk__in=template_ids.split(',')
+                )
                 templates = list(templates)  # evaluating queryset performs query
             except ValidationError as e:
                 logger.exception(error_msg, extra={'request': request})
@@ -184,18 +200,25 @@ class BaseConfigAdmin(BaseAdmin):
                 error = str(e)
         context = self.admin_site.each_context(request)
         opts = self.model._meta
-        context.update({
-            'is_popup': True,
-            'opts': opts,
-            'change': False,
-            'output': output,
-            'media': self.media,
-            'error': error,
-        })
-        return TemplateResponse(request, self.preview_template or [
-            'admin/%s/%s/preview.html' % (opts.app_label, opts.model_name),
-            'admin/%s/preview.html' % opts.app_label
-        ], context)
+        context.update(
+            {
+                'is_popup': True,
+                'opts': opts,
+                'change': False,
+                'output': output,
+                'media': self.media,
+                'error': error,
+            }
+        )
+        return TemplateResponse(
+            request,
+            self.preview_template
+            or [
+                'admin/%s/%s/preview.html' % (opts.app_label, opts.model_name),
+                'admin/%s/preview.html' % opts.app_label,
+            ],
+            context,
+        )
 
     def download_view(self, request, pk):
         instance = get_object_or_404(self.model, pk=pk)
@@ -206,8 +229,10 @@ class BaseConfigAdmin(BaseAdmin):
         else:
             raise Http404()
         config_archive = config.generate()
-        return send_file(filename='{0}.tar.gz'.format(config.name),
-                         contents=config_archive.getvalue())
+        return send_file(
+            filename='{0}.tar.gz'.format(config.name),
+            contents=config_archive.getvalue(),
+        )
 
     def context_view(self, request, pk):
         instance = get_object_or_404(self.model, pk=pk)
@@ -219,7 +244,9 @@ class BaseForm(forms.ModelForm):
     """
     Adds support for ``NETJSONCONFIG_DEFAULT_BACKEND``
     """
+
     if app_settings.DEFAULT_BACKEND:
+
         def __init__(self, *args, **kwargs):
             # set initial backend value to use the default
             # backend but only for new instances
@@ -249,12 +276,14 @@ class AbstractConfigForm(BaseForm):
         else:
             config = self.instance
         if config.backend and templates:
-            config_model.clean_templates(action='pre_add',
-                                         instance=config,
-                                         sender=config.templates,
-                                         reverse=False,
-                                         model=config.templates.model,
-                                         pk_set=templates)
+            config_model.clean_templates(
+                action='pre_add',
+                instance=config,
+                sender=config.templates,
+                reverse=False,
+                model=config.templates.model,
+                pk_set=templates,
+            )
         return templates
 
 
@@ -262,16 +291,9 @@ class AbstractConfigInline(TimeReadonlyAdminMixin, admin.StackedInline):
     verbose_name_plural = _('Device configuration details')
     readonly_fields = ['status']
     fieldsets = (
-        (None, {
-            'fields': ('backend', 'status', 'templates', 'config')
-        }),
-        (_('Advanced options'), {
-            'classes': ('collapse',),
-            'fields': ('context',),
-        }),
-        (None, {
-            'fields': ('created', 'modified')
-        }),
+        (None, {'fields': ('backend', 'status', 'templates', 'config')}),
+        (_('Advanced options'), {'classes': ('collapse',), 'fields': ('context',)}),
+        (None, {'fields': ('created', 'modified')}),
     )
     change_select_related = ('device',)
 
@@ -281,27 +303,25 @@ class AbstractConfigInline(TimeReadonlyAdminMixin, admin.StackedInline):
 
 
 class AbstractDeviceAdmin(BaseConfigAdmin, UUIDAdmin):
-    list_display = ['name', 'backend', 'config_status',
-                    'ip', 'created', 'modified']
+    list_display = ['name', 'backend', 'config_status', 'ip', 'created', 'modified']
     search_fields = ['id', 'name', 'mac_address', 'key', 'model', 'os', 'system']
-    list_filter = ['config__backend',
-                   'config__templates',
-                   'config__status',
-                   'created']
+    list_filter = ['config__backend', 'config__templates', 'config__status', 'created']
     list_select_related = ('config',)
     readonly_fields = ['last_ip', 'management_ip', 'uuid']
-    fields = ['name',
-              'mac_address',
-              'uuid',
-              'key',
-              'last_ip',
-              'management_ip',
-              'model',
-              'os',
-              'system',
-              'notes',
-              'created',
-              'modified']
+    fields = [
+        'name',
+        'mac_address',
+        'uuid',
+        'key',
+        'last_ip',
+        'management_ip',
+        'model',
+        'os',
+        'system',
+        'notes',
+        'created',
+        'modified',
+    ]
     if app_settings.HARDWARE_ID_ENABLED:
         list_display.insert(1, 'hardware_id')
         search_fields.insert(1, 'hardware_id')
@@ -323,10 +343,12 @@ class AbstractDeviceAdmin(BaseConfigAdmin, UUIDAdmin):
 
     def _get_preview_instance(self, request):
         c = super()._get_preview_instance(request)
-        c.device = self.model(id=request.POST.get('id'),
-                              name=request.POST.get('name'),
-                              mac_address=request.POST.get('mac_address'),
-                              key=request.POST.get('key'))
+        c.device = self.model(
+            id=request.POST.get('id'),
+            name=request.POST.get('name'),
+            mac_address=request.POST.get('mac_address'),
+            key=request.POST.get('key'),
+        )
         if 'hardware_id' in request.POST:
             c.device.hardware_id = request.POST.get('hardware_id')
         return c
@@ -341,21 +363,25 @@ class AbstractTemplateAdmin(BaseConfigAdmin):
     list_display = ['name', 'type', 'backend', 'default', 'created', 'modified']
     list_filter = ['backend', 'type', 'default', 'created']
     search_fields = ['name']
-    fields = ['name',
-              'type',
-              'backend',
-              'vpn',
-              'auto_cert',
-              'tags',
-              'default',
-              'config',
-              'created',
-              'modified']
+    fields = [
+        'name',
+        'type',
+        'backend',
+        'vpn',
+        'auto_cert',
+        'tags',
+        'default',
+        'config',
+        'created',
+        'modified',
+    ]
 
     def clone_selected_templates(self, request, queryset):
         for templates in queryset:
             templates.clone(request.user)
-        self.message_user(request, _('Successfully cloned selected templates.'), messages.SUCCESS)
+        self.message_user(
+            request, _('Successfully cloned selected templates.'), messages.SUCCESS
+        )
 
     actions = ['clone_selected_templates']
 
@@ -364,17 +390,16 @@ class AbstractVpnForm(forms.ModelForm):
     """
     Adds support for ``NETJSONCONFIG_DEFAULT_BACKEND``
     """
+
     if app_settings.DEFAULT_VPN_BACKEND:
+
         def __init__(self, *args, **kwargs):
             if 'initial' in kwargs:
                 kwargs['initial'].update({'backend': app_settings.DEFAULT_VPN_BACKEND})
             super().__init__(*args, **kwargs)
 
     class Meta:
-        widgets = {
-            'config': JsonSchemaWidget,
-            'dh': forms.widgets.HiddenInput
-        }
+        widgets = {'config': JsonSchemaWidget, 'dh': forms.widgets.HiddenInput}
         exclude = []
 
 
@@ -383,15 +408,17 @@ class AbstractVpnAdmin(BaseConfigAdmin, UUIDAdmin):
     list_filter = ['backend', 'ca', 'created']
     search_fields = ['id', 'name', 'host', 'key']
     readonly_fields = ['id', 'uuid']
-    fields = ['name',
-              'host',
-              'uuid',
-              'key',
-              'ca',
-              'cert',
-              'backend',
-              'notes',
-              'dh',
-              'config',
-              'created',
-              'modified']
+    fields = [
+        'name',
+        'host',
+        'uuid',
+        'key',
+        'ca',
+        'cert',
+        'backend',
+        'notes',
+        'dh',
+        'config',
+        'created',
+        'modified',
+    ]

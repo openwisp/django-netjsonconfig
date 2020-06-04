@@ -29,34 +29,50 @@ class AbstractTemplate(BaseConfig):
     Abstract model implementing a
     netjsonconfig template
     """
-    tags = TaggableManager(through='django_netjsonconfig.TaggedTemplate', blank=True,
-                           help_text=_('A comma-separated list of template tags, may be used '
-                                       'to ease auto configuration with specific settings (eg: '
-                                       '4G, mesh, WDS, VPN, ecc.)'))
-    vpn = models.ForeignKey('django_netjsonconfig.Vpn',
-                            verbose_name=_('VPN'),
-                            blank=True,
-                            null=True,
-                            on_delete=models.CASCADE)
-    type = models.CharField(_('type'),
-                            max_length=16,
-                            choices=TYPE_CHOICES,
-                            default='generic',
-                            db_index=True,
-                            help_text=_('template type, determines which '
-                                        'features are available'))
-    default = models.BooleanField(_('enabled by default'),
-                                  default=False,
-                                  db_index=True,
-                                  help_text=_('whether new configurations will have '
-                                              'this template enabled by default'))
-    auto_cert = models.BooleanField(_('auto certificate'),
-                                    default=default_auto_cert,
-                                    db_index=True,
-                                    help_text=_('whether x509 client certificates should '
-                                                'be automatically managed behind the scenes '
-                                                'for each configuration using this template, '
-                                                'valid only for the VPN type'))
+
+    tags = TaggableManager(
+        through='django_netjsonconfig.TaggedTemplate',
+        blank=True,
+        help_text=_(
+            'A comma-separated list of template tags, may be used '
+            'to ease auto configuration with specific settings (eg: '
+            '4G, mesh, WDS, VPN, ecc.)'
+        ),
+    )
+    vpn = models.ForeignKey(
+        'django_netjsonconfig.Vpn',
+        verbose_name=_('VPN'),
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    type = models.CharField(
+        _('type'),
+        max_length=16,
+        choices=TYPE_CHOICES,
+        default='generic',
+        db_index=True,
+        help_text=_('template type, determines which ' 'features are available'),
+    )
+    default = models.BooleanField(
+        _('enabled by default'),
+        default=False,
+        db_index=True,
+        help_text=_(
+            'whether new configurations will have ' 'this template enabled by default'
+        ),
+    )
+    auto_cert = models.BooleanField(
+        _('auto certificate'),
+        default=default_auto_cert,
+        db_index=True,
+        help_text=_(
+            'whether x509 client certificates should '
+            'be automatically managed behind the scenes '
+            'for each configuration using this template, '
+            'valid only for the VPN type'
+        ),
+    )
     __template__ = True
 
     class Meta:
@@ -100,9 +116,9 @@ class AbstractTemplate(BaseConfig):
         """
         super().clean(*args, **kwargs)
         if self.type == 'vpn' and not self.vpn:
-            raise ValidationError({
-                'vpn': _('A VPN must be selected when template type is "VPN"')
-            })
+            raise ValidationError(
+                {'vpn': _('A VPN must be selected when template type is "VPN"')}
+            )
         elif self.type != 'vpn':
             self.vpn = None
             self.auto_cert = False
@@ -134,7 +150,7 @@ class AbstractTemplate(BaseConfig):
             content_type_id=ct.pk,
             object_id=clone.pk,
             object_repr=clone.name,
-            action_flag=ADDITION
+            action_flag=ADDITION,
         )
         return clone
 

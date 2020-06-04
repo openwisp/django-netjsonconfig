@@ -14,11 +14,22 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='device',
             name='model',
-            field=models.CharField(blank=True, db_index=True, help_text='device model and manufacturer', max_length=64),
+            field=models.CharField(
+                blank=True,
+                db_index=True,
+                help_text='device model and manufacturer',
+                max_length=64,
+            ),
         ),
         migrations.AlterField(
             model_name='device',
             name='os',
-            field=models.CharField(blank=True, db_index=True, help_text='operating system identifier', max_length=128, verbose_name='operating system'),
+            field=models.CharField(
+                blank=True,
+                db_index=True,
+                help_text='operating system identifier',
+                max_length=128,
+                verbose_name='operating system',
+            ),
         ),
     ]

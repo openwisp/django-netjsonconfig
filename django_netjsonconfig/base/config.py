@@ -18,21 +18,31 @@ class AbstractConfig(BaseConfig):
     Abstract model implementing the
     NetJSON DeviceConfiguration object
     """
-    device = models.OneToOneField('django_netjsonconfig.Device', on_delete=models.CASCADE)
+
+    device = models.OneToOneField(
+        'django_netjsonconfig.Device', on_delete=models.CASCADE
+    )
     STATUS = Choices('modified', 'applied', 'error')
-    status = StatusField(_('configuration status'), help_text=_(
-        '"modified" means the configuration is not applied yet; \n'
-        '"applied" means the configuration is applied successfully; \n'
-        '"error" means the configuration caused issues and it was rolled back;'
-    ))
-    context = JSONField(blank=True,
-                        default=dict,
-                        help_text=_('Additional '
-                                    '<a href="http://netjsonconfig.openwisp.org/'
-                                    'en/stable/general/basics.html#context" target="_blank">'
-                                    'context (configuration variables)</a> in JSON format'),
-                        load_kwargs={'object_pairs_hook': collections.OrderedDict},
-                        dump_kwargs={'indent': 4})
+    status = StatusField(
+        _('configuration status'),
+        help_text=_(
+            '"modified" means the configuration is not applied yet; \n'
+            '"applied" means the configuration is applied successfully; \n'
+            '"error" means the configuration caused issues and it was rolled back;'
+        ),
+    )
+    context = JSONField(
+        blank=True,
+        default=dict,
+        help_text=_(
+            'Additional '
+            '<a href="http://netjsonconfig.openwisp.org/'
+            'en/stable/general/basics.html#context" target="_blank">'
+            'context (configuration variables)</a> in JSON format'
+        ),
+        load_kwargs={'object_pairs_hook': collections.OrderedDict},
+        dump_kwargs={'indent': 4},
+    )
 
     class Meta:
         abstract = True
@@ -65,7 +75,9 @@ class AbstractConfig(BaseConfig):
 
     def save(self, *args, **kwargs):
         result = super().save(*args, **kwargs)
-        if not self._state.adding and getattr(self, '_send_config_modified_after_save', False):
+        if not self._state.adding and getattr(
+            self, '_send_config_modified_after_save', False
+        ):
             self._send_config_modified_signal()
             self._send_config_modified_after_save = None
         if getattr(self, '_send_config_status_changed', False):
@@ -78,19 +90,20 @@ class AbstractConfig(BaseConfig):
         Emits ``config_modified`` signal.
         Called also by Template when templates of a device are modified
         """
-        config_modified.send(sender=self.__class__,
-                             instance=self,
-                             # kept for backward compatibility
-                             config=self,
-                             device=self.device)
+        config_modified.send(
+            sender=self.__class__,
+            instance=self,
+            # kept for backward compatibility
+            config=self,
+            device=self.device,
+        )
 
     def _send_config_status_changed_signal(self):
         """
         Emits ``config_status_changed`` signal.
         Called also by Template when templates of a device are modified
         """
-        config_status_changed.send(sender=self.__class__,
-                                   instance=self)
+        config_status_changed.send(sender=self.__class__, instance=self)
 
     def _set_status(self, status, save=True):
         self.status = status
@@ -117,12 +130,14 @@ class AbstractConfig(BaseConfig):
         """
         c = {}
         if self._has_device():
-            c.update({
-                'id': str(self.device.id),
-                'key': self.key,
-                'name': self.name,
-                'mac_address': self.mac_address
-            })
+            c.update(
+                {
+                    'id': str(self.device.id),
+                    'key': self.key,
+                    'name': self.name,
+                    'mac_address': self.mac_address,
+                }
+            )
             if self.context:
                 c.update(self.context)
         c.update(super().get_context())
@@ -175,17 +190,21 @@ class TemplatesVpnMixin(models.Model):
         * Template
         * Vpn
     """
-    templates = SortedManyToManyField('django_netjsonconfig.Template',
-                                      related_name='config_relations',
-                                      verbose_name=_('templates'),
-                                      base_class=TemplatesThrough,
-                                      blank=True,
-                                      help_text=_('configuration templates, applied from '
-                                                  'first to last'))
-    vpn = models.ManyToManyField('django_netjsonconfig.Vpn',
-                                 through='django_netjsonconfig.VpnClient',
-                                 related_name='vpn_relations',
-                                 blank=True)
+
+    templates = SortedManyToManyField(
+        'django_netjsonconfig.Template',
+        related_name='config_relations',
+        verbose_name=_('templates'),
+        base_class=TemplatesThrough,
+        blank=True,
+        help_text=_('configuration templates, applied from ' 'first to last'),
+    )
+    vpn = models.ManyToManyField(
+        'django_netjsonconfig.Vpn',
+        through='django_netjsonconfig.VpnClient',
+        related_name='vpn_relations',
+        blank=True,
+    )
 
     def save(self, *args, **kwargs):
         created = self._state.adding
@@ -287,9 +306,9 @@ class TemplatesVpnMixin(models.Model):
         # when adding or removing specific templates
         for template in templates.filter(type='vpn'):
             if action == 'post_add':
-                client = vpn_client_model(config=instance,
-                                          vpn=template.vpn,
-                                          auto_cert=template.auto_cert)
+                client = vpn_client_model(
+                    config=instance, vpn=template.vpn, auto_cert=template.auto_cert
+                )
                 client.full_clean()
                 client.save()
             elif action == 'post_remove':
@@ -308,13 +327,17 @@ class TemplatesVpnMixin(models.Model):
             ca = vpn.ca
             cert = vpnclient.cert
             # CA
-            ca_filename = 'ca-{0}-{1}.pem'.format(ca.pk, ca.common_name.replace(' ', '_'))
+            ca_filename = 'ca-{0}-{1}.pem'.format(
+                ca.pk, ca.common_name.replace(' ', '_')
+            )
             ca_path = '{0}/{1}'.format(app_settings.CERT_PATH, ca_filename)
             # update context
-            c.update({
-                context_keys['ca_path']: ca_path,
-                context_keys['ca_contents']: ca.certificate
-            })
+            c.update(
+                {
+                    context_keys['ca_path']: ca_path,
+                    context_keys['ca_contents']: ca.certificate,
+                }
+            )
             # conditional needed for VPN without x509 authentication
             # eg: simple password authentication
             if cert:
@@ -325,12 +348,14 @@ class TemplatesVpnMixin(models.Model):
                 key_filename = 'key-{0}.pem'.format(vpn_id)
                 key_path = '{0}/{1}'.format(app_settings.CERT_PATH, key_filename)
                 # update context
-                c.update({
-                    context_keys['cert_path']: cert_path,
-                    context_keys['cert_contents']: cert.certificate,
-                    context_keys['key_path']: key_path,
-                    context_keys['key_contents']: cert.private_key,
-                })
+                c.update(
+                    {
+                        context_keys['cert_path']: cert_path,
+                        context_keys['cert_contents']: cert.certificate,
+                        context_keys['key_path']: key_path,
+                        context_keys['key_contents']: cert.private_key,
+                    }
+                )
         return c
 
     class Meta:

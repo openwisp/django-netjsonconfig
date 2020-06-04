@@ -12,11 +12,11 @@ from ..signals import config_modified, config_status_changed
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 
 
-class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
-                   TestVpnX509Mixin, TestCase):
+class TestTemplate(CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin, TestCase):
     """
     tests for Template model
     """
+
     ca_model = Ca
     config_model = Config
     device_model = Device
@@ -63,9 +63,7 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
             t.save()
             c.refresh_from_db()
             handler.assert_called_once_with(
-                sender=Config,
-                signal=config_status_changed,
-                instance=c,
+                sender=Config, signal=config_status_changed, instance=c,
             )
             self.assertEqual(c.status, 'modified')
 
@@ -89,9 +87,7 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
             c.templates.add(t)
             c.refresh_from_db()
             handler.assert_called_once_with(
-                sender=Config,
-                signal=config_status_changed,
-                instance=c,
+                sender=Config, signal=config_status_changed, instance=c,
             )
 
     def test_config_modified_signal_always_sent(self):
@@ -106,7 +102,7 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
                 signal=config_modified,
                 instance=c,
                 device=c.device,
-                config=c
+                config=c,
             )
 
         c.status = 'applied'
@@ -144,18 +140,20 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         self.assertEqual(c.templates.count(), 0)
         c.device.delete()
         # create default templates for different backends
-        t1 = self._create_template(name='default-openwrt',
-                                   backend='netjsonconfig.OpenWrt',
-                                   default=True)
-        t2 = self._create_template(name='default-openwisp',
-                                   backend='netjsonconfig.OpenWisp',
-                                   default=True)
-        c1 = self._create_config(device=self._create_device(name='test-openwrt'),
-                                 backend='netjsonconfig.OpenWrt')
-        d2 = self._create_device(name='test-openwisp',
-                                 mac_address=self.TEST_MAC_ADDRESS.replace('55', '56'))
-        c2 = self._create_config(device=d2,
-                                 backend='netjsonconfig.OpenWisp')
+        t1 = self._create_template(
+            name='default-openwrt', backend='netjsonconfig.OpenWrt', default=True
+        )
+        t2 = self._create_template(
+            name='default-openwisp', backend='netjsonconfig.OpenWisp', default=True
+        )
+        c1 = self._create_config(
+            device=self._create_device(name='test-openwrt'),
+            backend='netjsonconfig.OpenWrt',
+        )
+        d2 = self._create_device(
+            name='test-openwisp', mac_address=self.TEST_MAC_ADDRESS.replace('55', '56')
+        )
+        c2 = self._create_config(device=d2, backend='netjsonconfig.OpenWisp')
         # ensure OpenWRT device has only the default OpenWRT backend
         self.assertEqual(c1.templates.count(), 1)
         self.assertEqual(c1.templates.first().id, t1.id)
@@ -182,21 +180,17 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
 
     def test_auto_client_template(self):
         vpn = self._create_vpn()
-        t = self._create_template(name='autoclient',
-                                  type='vpn',
-                                  auto_cert=True,
-                                  vpn=vpn,
-                                  config={})
+        t = self._create_template(
+            name='autoclient', type='vpn', auto_cert=True, vpn=vpn, config={}
+        )
         control = t.vpn.auto_client()
         self.assertDictEqual(t.config, control)
 
     def test_auto_client_template_auto_cert_False(self):
         vpn = self._create_vpn()
-        t = self._create_template(name='autoclient',
-                                  type='vpn',
-                                  auto_cert=False,
-                                  vpn=vpn,
-                                  config={})
+        t = self._create_template(
+            name='autoclient', type='vpn', auto_cert=False, vpn=vpn, config={}
+        )
         vpn = t.config['openvpn'][0]
         self.assertEqual(vpn['cert'], 'cert.pem')
         self.assertEqual(vpn['key'], 'key.pem')
@@ -204,13 +198,17 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         self.assertIn('ca_path', t.config['files'][0]['path'])
 
     def test_template_context_var(self):
-        t = self._create_template(config={'files': [
-            {
-                'path': '/etc/vpnserver1',
-                'mode': '0644',
-                'contents': '{{ name }}\n{{ vpnserver1 }}\n'
+        t = self._create_template(
+            config={
+                'files': [
+                    {
+                        'path': '/etc/vpnserver1',
+                        'mode': '0644',
+                        'contents': '{{ name }}\n{{ vpnserver1 }}\n',
+                    }
+                ]
             }
-        ]})
+        )
         c = self._create_config()
         c.templates.add(t)
         # clear cache
@@ -231,9 +229,9 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
     def test_tamplates_clone(self):
         t = self._create_template(default=True)
         t.save()
-        user = User.objects.create_superuser(username='admin',
-                                             password='tester',
-                                             email='admin@admin.com')
+        user = User.objects.create_superuser(
+            username='admin', password='tester', email='admin@admin.com'
+        )
         c = t.clone(user)
         c.full_clean()
         c.save()
@@ -246,18 +244,20 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin,
         try:
             self._create_template(
                 name='test-vpn-1',
-                config={'files': [
-                    {
-                        'path': '/etc/vpnserver1',
-                        'mode': '0644',
-                        'contents': '{{ name }}\n{{ vpnserver1 }}\n'
-                    },
-                    {
-                        'path': '/etc/vpnserver1',
-                        'mode': '0644',
-                        'contents': '{{ name }}\n{{ vpnserver1 }}\n'
-                    }
-                ]}
+                config={
+                    'files': [
+                        {
+                            'path': '/etc/vpnserver1',
+                            'mode': '0644',
+                            'contents': '{{ name }}\n{{ vpnserver1 }}\n',
+                        },
+                        {
+                            'path': '/etc/vpnserver1',
+                            'mode': '0644',
+                            'contents': '{{ name }}\n{{ vpnserver1 }}\n',
+                        },
+                    ]
+                },
             )
         except ValidationError as e:
             self.assertIn('Invalid configuration triggered by "#/files"', str(e))

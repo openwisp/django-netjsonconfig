@@ -13,6 +13,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='device',
             name='management_ip',
-            field=models.GenericIPAddressField(blank=True, help_text='ip address of the management interface, if available', null=True),
+            field=models.GenericIPAddressField(
+                blank=True,
+                help_text='ip address of the management interface, if available',
+                null=True,
+            ),
         ),
     ]

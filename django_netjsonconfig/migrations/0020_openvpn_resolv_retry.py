@@ -17,8 +17,9 @@ def forward(apps, schema_editor):
     Vpn = apps.get_model('django_netjsonconfig', 'Vpn')
     for model in [Config, Template, Vpn]:
         # find objects which have OpenVPN configurations containing the "resolv_retry" attribute
-        queryset = model.objects.filter(config__contains='"openvpn"')\
-                                .filter(config__contains='"resolv_retry"')
+        queryset = model.objects.filter(config__contains='"openvpn"').filter(
+            config__contains='"resolv_retry"'
+        )
         for obj in queryset:
             for vpn in obj.config['openvpn']:
                 if 'resolv_retry' in vpn:

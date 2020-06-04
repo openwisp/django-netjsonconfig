@@ -19,17 +19,13 @@ before_install:
   - pip install -U pip wheel setuptools
   - pip install --no-cache-dir -U -r requirements-test.txt
   - npm install -g jslint
-  - jslint django_netjsonconfig/static/django-netjsonconfig/js/*.js
 
 install:
   - pip install $DJANGO
   - python setup.py -q develop
 
 script:
-  - |
-      openwisp-utils-qa-checks \
-        --migration-path ./django_netjsonconfig/migrations/ \
-        --migration-module django_netjsonconfig
+  - ./run-qa-checks
   - coverage run --source=django_netjsonconfig runtests.py
 
 after_success:

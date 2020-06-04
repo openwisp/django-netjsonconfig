@@ -14,12 +14,14 @@ def forward(apps, schema_editor):
     Config = apps.get_model('django_netjsonconfig', 'Config')
 
     for config in Config.objects.all():
-        device = Device(id=config.id,
-                        name=config.name,
-                        mac_address=config.mac_address,
-                        key=config.key,
-                        created=config.created,
-                        modified=config.modified)
+        device = Device(
+            id=config.id,
+            name=config.name,
+            mac_address=config.mac_address,
+            key=config.key,
+            created=config.created,
+            modified=config.modified,
+        )
         device.full_clean()
         device.save()
         config.device = device

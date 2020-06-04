@@ -20,6 +20,7 @@ class BaseModel(TimeStampedEditableModel):
     """
     Shared logic
     """
+
     name = models.CharField(max_length=64, unique=True, db_index=True)
 
     class Meta:
@@ -33,16 +34,23 @@ class BaseConfig(BaseModel):
     """
     Base configuration management model logic shared between models
     """
-    backend = models.CharField(_('backend'),
-                               choices=app_settings.BACKENDS,
-                               max_length=128,
-                               help_text=_('Select <a href="http://netjsonconfig.openwisp.org/en/'
-                                           'stable/" target="_blank">netjsonconfig</a> backend'))
-    config = JSONField(_('configuration'),
-                       default=dict,
-                       help_text=_('configuration in NetJSON DeviceConfiguration format'),
-                       load_kwargs={'object_pairs_hook': collections.OrderedDict},
-                       dump_kwargs={'indent': 4})
+
+    backend = models.CharField(
+        _('backend'),
+        choices=app_settings.BACKENDS,
+        max_length=128,
+        help_text=_(
+            'Select <a href="http://netjsonconfig.openwisp.org/en/'
+            'stable/" target="_blank">netjsonconfig</a> backend'
+        ),
+    )
+    config = JSONField(
+        _('configuration'),
+        default=dict,
+        help_text=_('configuration in NetJSON DeviceConfiguration format'),
+        load_kwargs={'object_pairs_hook': collections.OrderedDict},
+        dump_kwargs={'indent': 4},
+    )
 
     __template__ = False
     __vpn__ = False
@@ -113,8 +121,10 @@ class BaseConfig(BaseModel):
             path = [str(el) for el in e.details.path]
             trigger = '/'.join(path)
             error = e.details.message
-            message = 'Invalid configuration triggered by "#/{0}", '\
-                      'validator says:\n\n{1}'.format(trigger, error)
+            message = (
+                'Invalid configuration triggered by "#/{0}", '
+                'validator says:\n\n{1}'.format(trigger, error)
+            )
             raise ValidationError(message)
 
     @cached_property

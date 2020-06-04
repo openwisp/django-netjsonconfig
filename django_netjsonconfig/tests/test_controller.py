@@ -10,7 +10,11 @@ from django_x509.models import Ca
 from openwisp_utils.tests import catch_signal
 
 from ..models import Config, Device, Template, Vpn
-from ..signals import checksum_requested, config_download_requested, config_status_changed
+from ..signals import (
+    checksum_requested,
+    config_download_requested,
+    config_status_changed,
+)
 from . import CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin
 
 TEST_MACADDR = '00:11:22:33:44:55'
@@ -19,10 +23,13 @@ TEST_CONSISTENT_KEY = md5(mac_plus_secret.encode()).hexdigest()
 REGISTER_URL = reverse('controller:device_register')
 
 
-class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX509Mixin):
+class TestController(
+    CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX509Mixin
+):
     """
     tests for django_netjsonconfig.controller
     """
+
     config_model = Config
     device_model = Device
     template_model = Template
@@ -57,13 +64,15 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
                 sender=Device,
                 signal=checksum_requested,
                 instance=d,
-                request=response.wsgi_request
+                request=response.wsgi_request,
             )
 
     def test_device_checksum_bad_uuid(self):
         d = self._create_device_config()
         pk = '{}-wrong'.format(d.pk)
-        response = self.client.get(reverse('controller:device_checksum', args=[pk]), {'key': d.key})
+        response = self.client.get(
+            reverse('controller:device_checksum', args=[pk]), {'key': d.key}
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_device_checksum_400(self):
@@ -74,20 +83,26 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
 
     def test_device_checksum_403(self):
         d = self._create_device_config()
-        response = self.client.get(reverse('controller:device_checksum', args=[d.pk]), {'key': 'wrong'})
+        response = self.client.get(
+            reverse('controller:device_checksum', args=[d.pk]), {'key': 'wrong'}
+        )
         self.assertEqual(response.status_code, 403)
         self._check_header(response)
 
     def test_device_checksum_405(self):
         d = self._create_device_config()
-        response = self.client.post(reverse('controller:device_checksum', args=[d.pk]), {'key': d.key})
+        response = self.client.post(
+            reverse('controller:device_checksum', args=[d.pk]), {'key': d.key}
+        )
         self.assertEqual(response.status_code, 405)
 
     def test_device_download_config(self):
         d = self._create_device_config()
         url = reverse('controller:device_download_config', args=[d.pk])
         response = self.client.get(url, {'key': d.key, 'management_ip': '10.0.0.2'})
-        self.assertEqual(response['Content-Disposition'], 'attachment; filename=test.tar.gz')
+        self.assertEqual(
+            response['Content-Disposition'], 'attachment; filename=test.tar.gz'
+        )
         self._check_header(response)
         d.refresh_from_db()
         self.assertIsNotNone(d.last_ip)
@@ -107,18 +122,22 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
                 sender=Device,
                 signal=config_download_requested,
                 instance=d,
-                request=response.wsgi_request
+                request=response.wsgi_request,
             )
 
     def test_device_download_config_bad_uuid(self):
         d = self._create_device_config()
         pk = '{}-wrong'.format(d.pk)
-        response = self.client.get(reverse('controller:device_download_config', args=[pk]), {'key': d.key})
+        response = self.client.get(
+            reverse('controller:device_download_config', args=[pk]), {'key': d.key}
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_device_download_config_400(self):
         d = self._create_device_config()
-        response = self.client.get(reverse('controller:device_download_config', args=[d.pk]))
+        response = self.client.get(
+            reverse('controller:device_download_config', args=[d.pk])
+        )
         self.assertEqual(response.status_code, 400)
         self._check_header(response)
 
@@ -131,7 +150,9 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
 
     def test_device_download_config_405(self):
         d = self._create_device_config()
-        response = self.client.post(reverse('controller:device_download_config', args=[d.pk]), {'key': d.key})
+        response = self.client.post(
+            reverse('controller:device_download_config', args=[d.pk]), {'key': d.key}
+        )
         self.assertEqual(response.status_code, 405)
 
     def test_vpn_checksum(self):
@@ -150,13 +171,15 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
                 sender=Vpn,
                 signal=checksum_requested,
                 instance=v,
-                request=response.wsgi_request
+                request=response.wsgi_request,
             )
 
     def test_vpn_checksum_bad_uuid(self):
         v = self._create_vpn()
         pk = '{}-wrong'.format(v.pk)
-        response = self.client.get(reverse('controller:vpn_checksum', args=[pk]), {'key': v.key})
+        response = self.client.get(
+            reverse('controller:vpn_checksum', args=[pk]), {'key': v.key}
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_vpn_checksum_400(self):
@@ -167,20 +190,26 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
 
     def test_vpn_checksum_403(self):
         v = self._create_vpn()
-        response = self.client.get(reverse('controller:vpn_checksum', args=[v.pk]), {'key': 'wrong'})
+        response = self.client.get(
+            reverse('controller:vpn_checksum', args=[v.pk]), {'key': 'wrong'}
+        )
         self.assertEqual(response.status_code, 403)
         self._check_header(response)
 
     def test_vpn_checksum_405(self):
         v = self._create_vpn()
-        response = self.client.post(reverse('controller:vpn_checksum', args=[v.pk]), {'key': v.key})
+        response = self.client.post(
+            reverse('controller:vpn_checksum', args=[v.pk]), {'key': v.key}
+        )
         self.assertEqual(response.status_code, 405)
 
     def test_vpn_download_config(self):
         v = self._create_vpn()
         url = reverse('controller:vpn_download_config', args=[v.pk])
         response = self.client.get(url, {'key': v.key})
-        self.assertEqual(response['Content-Disposition'], 'attachment; filename=test.tar.gz')
+        self.assertEqual(
+            response['Content-Disposition'], 'attachment; filename=test.tar.gz'
+        )
         self._check_header(response)
 
     def test_vpn_config_download_requested_signal_is_emitted(self):
@@ -192,18 +221,22 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
                 sender=Vpn,
                 signal=config_download_requested,
                 instance=v,
-                request=response.wsgi_request
+                request=response.wsgi_request,
             )
 
     def test_vpn_download_config_bad_uuid(self):
         v = self._create_vpn()
         pk = '{}-wrong'.format(v.pk)
-        response = self.client.get(reverse('controller:vpn_download_config', args=[pk]), {'key': v.key})
+        response = self.client.get(
+            reverse('controller:vpn_download_config', args=[pk]), {'key': v.key}
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_vpn_download_config_400(self):
         v = self._create_vpn()
-        response = self.client.get(reverse('controller:vpn_download_config', args=[v.pk]))
+        response = self.client.get(
+            reverse('controller:vpn_download_config', args=[v.pk])
+        )
         self.assertEqual(response.status_code, 400)
         self._check_header(response)
 
@@ -216,7 +249,9 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
 
     def test_vpn_download_config_405(self):
         v = self._create_vpn()
-        response = self.client.post(reverse('controller:vpn_download_config', args=[v.pk]), {'key': v.key})
+        response = self.client.post(
+            reverse('controller:vpn_download_config', args=[v.pk]), {'key': v.key}
+        )
         self.assertEqual(response.status_code, 405)
 
     def test_register(self, **kwargs):
@@ -225,7 +260,7 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
             'name': TEST_MACADDR,
             'mac_address': TEST_MACADDR,
             'hardware_id': '1234',
-            'backend': 'netjsonconfig.OpenWrt'
+            'backend': 'netjsonconfig.OpenWrt',
         }
         options.update(kwargs)
         response = self.client.post(REGISTER_URL, options)
@@ -270,71 +305,95 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
 
     def test_register_400(self):
         # missing secret
-        response = self.client.post(REGISTER_URL, {
-            'name': TEST_MACADDR,
-            'mac_address': TEST_MACADDR,
-            'backend': 'netjsonconfig.OpenWrt'
-        })
+        response = self.client.post(
+            REGISTER_URL,
+            {
+                'name': TEST_MACADDR,
+                'mac_address': TEST_MACADDR,
+                'backend': 'netjsonconfig.OpenWrt',
+            },
+        )
         self.assertContains(response, 'secret', status_code=400)
         # missing name
-        response = self.client.post(REGISTER_URL, {
-            'mac_address': TEST_MACADDR,
-            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
-            'backend': 'netjsonconfig.OpenWrt'
-        })
+        response = self.client.post(
+            REGISTER_URL,
+            {
+                'mac_address': TEST_MACADDR,
+                'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+                'backend': 'netjsonconfig.OpenWrt',
+            },
+        )
         self.assertContains(response, 'name', status_code=400)
         # missing backend
-        response = self.client.post(REGISTER_URL, {
-            'mac_address': TEST_MACADDR,
-            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
-            'name': TEST_MACADDR,
-        })
+        response = self.client.post(
+            REGISTER_URL,
+            {
+                'mac_address': TEST_MACADDR,
+                'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+                'name': TEST_MACADDR,
+            },
+        )
         self.assertContains(response, 'backend', status_code=400)
         # missing mac_address
-        response = self.client.post(REGISTER_URL, {
-            'backend': 'netjsonconfig.OpenWrt',
-            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
-            'name': TEST_MACADDR,
-        })
+        response = self.client.post(
+            REGISTER_URL,
+            {
+                'backend': 'netjsonconfig.OpenWrt',
+                'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+                'name': TEST_MACADDR,
+            },
+        )
         self.assertContains(response, 'mac_address', status_code=400)
         self._check_header(response)
 
     def test_register_failed_creation(self):
         self.test_register()
-        response = self.client.post(REGISTER_URL, {
-            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
-            'name': TEST_MACADDR,
-            'mac_address': TEST_MACADDR,
-            'backend': 'netjsonconfig.OpenWrt'
-        })
+        response = self.client.post(
+            REGISTER_URL,
+            {
+                'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+                'name': TEST_MACADDR,
+                'mac_address': TEST_MACADDR,
+                'backend': 'netjsonconfig.OpenWrt',
+            },
+        )
         self.assertContains(response, 'already exists', status_code=400)
 
     def test_register_failed_creation_wrong_backend(self):
         self.test_register()
-        response = self.client.post(REGISTER_URL, {
-            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
-            'name': TEST_MACADDR,
-            'mac_address': TEST_MACADDR,
-            'backend': 'netjsonconfig.CLEARLYWRONG'
-        })
+        response = self.client.post(
+            REGISTER_URL,
+            {
+                'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+                'name': TEST_MACADDR,
+                'mac_address': TEST_MACADDR,
+                'backend': 'netjsonconfig.CLEARLYWRONG',
+            },
+        )
         self.assertContains(response, 'backend', status_code=403)
 
     def test_register_403(self):
         # wrong secret
-        response = self.client.post(REGISTER_URL, {
-            'secret': 'WRONG',
-            'name': TEST_MACADDR,
-            'mac_address': TEST_MACADDR,
-            'backend': 'netjsonconfig.OpenWrt'
-        })
+        response = self.client.post(
+            REGISTER_URL,
+            {
+                'secret': 'WRONG',
+                'name': TEST_MACADDR,
+                'mac_address': TEST_MACADDR,
+                'backend': 'netjsonconfig.OpenWrt',
+            },
+        )
         self.assertContains(response, 'wrong secret', status_code=403)
         # wrong backend
-        response = self.client.post(REGISTER_URL, {
-            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
-            'name': TEST_MACADDR,
-            'mac_address': TEST_MACADDR,
-            'backend': 'wrong'
-        })
+        response = self.client.post(
+            REGISTER_URL,
+            {
+                'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+                'name': TEST_MACADDR,
+                'mac_address': TEST_MACADDR,
+                'backend': 'wrong',
+            },
+        )
         self.assertContains(response, 'wrong backend', status_code=403)
         self._check_header(response)
 
@@ -343,14 +402,17 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
         self.assertEqual(response.status_code, 405)
 
     def test_consistent_registration_new(self):
-        response = self.client.post(REGISTER_URL, {
-            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
-            'name': TEST_MACADDR,
-            'key': TEST_CONSISTENT_KEY,
-            'mac_address': TEST_MACADDR,
-            'hardware_id': '1234',
-            'backend': 'netjsonconfig.OpenWrt'
-        })
+        response = self.client.post(
+            REGISTER_URL,
+            {
+                'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+                'name': TEST_MACADDR,
+                'key': TEST_CONSISTENT_KEY,
+                'mac_address': TEST_MACADDR,
+                'hardware_id': '1234',
+                'backend': 'netjsonconfig.OpenWrt',
+            },
+        )
         self.assertEqual(response.status_code, 201)
         lines = response.content.decode().split('\n')
         self.assertEqual(lines[0], 'registration-result: success')
@@ -368,13 +430,16 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
         d = self._create_device_config()
         d.key = TEST_CONSISTENT_KEY
         d.save()
-        response = self.client.post(REGISTER_URL, {
-            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
-            'name': TEST_MACADDR,
-            'mac_address': TEST_MACADDR,
-            'key': TEST_CONSISTENT_KEY,
-            'backend': 'netjsonconfig.OpenWrt'
-        })
+        response = self.client.post(
+            REGISTER_URL,
+            {
+                'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+                'name': TEST_MACADDR,
+                'mac_address': TEST_MACADDR,
+                'key': TEST_CONSISTENT_KEY,
+                'backend': 'netjsonconfig.OpenWrt',
+            },
+        )
         self.assertEqual(response.status_code, 201)
         lines = response.content.decode().split('\n')
         self.assertEqual(lines[0], 'registration-result: success')
@@ -391,13 +456,16 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
         d = self._create_device()
         d.key = TEST_CONSISTENT_KEY
         d.save()
-        response = self.client.post(REGISTER_URL, {
-            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
-            'name': TEST_MACADDR,
-            'mac_address': TEST_MACADDR,
-            'key': TEST_CONSISTENT_KEY,
-            'backend': 'netjsonconfig.OpenWrt'
-        })
+        response = self.client.post(
+            REGISTER_URL,
+            {
+                'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+                'name': TEST_MACADDR,
+                'mac_address': TEST_MACADDR,
+                'key': TEST_CONSISTENT_KEY,
+                'backend': 'netjsonconfig.OpenWrt',
+            },
+        )
         self.assertEqual(response.status_code, 201)
         lines = response.content.decode().split('\n')
         self.assertEqual(lines[0], 'registration-result: success')
@@ -424,7 +492,7 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
             'backend': 'netjsonconfig.OpenWrt',
             'model': 'TP-Link TL-WDR4300 v2',
             'os': 'OpenWrt 18.06-SNAPSHOT r7312-e60be11330',
-            'system': 'Atheros AR9344 rev 3'
+            'system': 'Atheros AR9344 rev 3',
         }
         self.assertNotEqual(d.os, params['os'])
         self.assertNotEqual(d.system, params['system'])
@@ -448,7 +516,7 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
             'backend': 'netjsonconfig.OpenWrt',
             'model': 'TP-Link TL-WDR4300 v2',
             'os': 'OpenWrt 18.06-SNAPSHOT r7312-e60be11330',
-            'system': 'Atheros AR9344 rev 3'
+            'system': 'Atheros AR9344 rev 3',
         }
         self.assertNotEqual(d.os, params['os'])
         self.assertNotEqual(d.system, params['system'])
@@ -466,8 +534,10 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
         # TODO: remove in stable version 1.0
         """
         d = self._create_device_config()
-        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
-                                    {'key': d.key, 'status': 'running'})
+        response = self.client.post(
+            reverse('controller:device_report_status', args=[d.pk]),
+            {'key': d.key, 'status': 'running'},
+        )
         self._check_header(response)
         d.config.refresh_from_db()
         self.assertEqual(d.config.status, 'applied')
@@ -477,13 +547,11 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
         with catch_signal(config_status_changed) as handler:
             response = self.client.post(
                 reverse('controller:device_report_status', args=[d.pk]),
-                {'key': d.key, 'status': 'applied'}
+                {'key': d.key, 'status': 'applied'},
             )
             d.config.refresh_from_db()
             handler.assert_called_once_with(
-                sender=Config,
-                signal=config_status_changed,
-                instance=d.config,
+                sender=Config, signal=config_status_changed, instance=d.config,
             )
         self._check_header(response)
         d.config.refresh_from_db()
@@ -494,13 +562,11 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
         with catch_signal(config_status_changed) as handler:
             response = self.client.post(
                 reverse('controller:device_report_status', args=[d.pk]),
-                {'key': d.key, 'status': 'error'}
+                {'key': d.key, 'status': 'error'},
             )
             d.config.refresh_from_db()
             handler.assert_called_once_with(
-                sender=Config,
-                signal=config_status_changed,
-                instance=d.config,
+                sender=Config, signal=config_status_changed, instance=d.config,
             )
         self._check_header(response)
         self.assertEqual(d.config.status, 'error')
@@ -508,37 +574,49 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
     def test_device_report_status_bad_uuid(self):
         d = self._create_device_config()
         pk = '{}-wrong'.format(d.pk)
-        response = self.client.post(reverse('controller:device_report_status', args=[pk]), {'key': d.key})
+        response = self.client.post(
+            reverse('controller:device_report_status', args=[pk]), {'key': d.key}
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_device_report_status_400(self):
         d = self._create_device_config()
-        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]))
+        response = self.client.post(
+            reverse('controller:device_report_status', args=[d.pk])
+        )
         self.assertEqual(response.status_code, 400)
         self._check_header(response)
-        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
-                                    {'key': d.key})
+        response = self.client.post(
+            reverse('controller:device_report_status', args=[d.pk]), {'key': d.key}
+        )
         self.assertEqual(response.status_code, 400)
         self._check_header(response)
-        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
-                                    {'key': d.key})
+        response = self.client.post(
+            reverse('controller:device_report_status', args=[d.pk]), {'key': d.key}
+        )
         self.assertEqual(response.status_code, 400)
         self._check_header(response)
 
     def test_device_report_status_403(self):
         d = self._create_device_config()
-        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]), {'key': 'wrong'})
+        response = self.client.post(
+            reverse('controller:device_report_status', args=[d.pk]), {'key': 'wrong'}
+        )
         self.assertEqual(response.status_code, 403)
         self._check_header(response)
-        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
-                                    {'key': d.key, 'status': 'madeup'})
+        response = self.client.post(
+            reverse('controller:device_report_status', args=[d.pk]),
+            {'key': d.key, 'status': 'madeup'},
+        )
         self.assertEqual(response.status_code, 403)
         self._check_header(response)
 
     def test_device_report_status_405(self):
         d = self._create_device_config()
-        response = self.client.get(reverse('controller:device_report_status', args=[d.pk]),
-                                   {'key': d.key, 'status': 'running'})
+        response = self.client.get(
+            reverse('controller:device_report_status', args=[d.pk]),
+            {'key': d.key, 'status': 'running'},
+        )
         self.assertEqual(response.status_code, 405)
 
     def test_device_update_info(self):
@@ -547,12 +625,14 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
             'key': d.key,
             'model': 'TP-Link TL-WDR4300 v2',
             'os': 'OpenWrt 18.06-SNAPSHOT r7312-e60be11330',
-            'system': 'Atheros AR9344 rev 3'
+            'system': 'Atheros AR9344 rev 3',
         }
         self.assertNotEqual(d.os, params['os'])
         self.assertNotEqual(d.system, params['system'])
         self.assertNotEqual(d.model, params['model'])
-        response = self.client.post(reverse('controller:device_update_info', args=[d.pk]), params)
+        response = self.client.post(
+            reverse('controller:device_update_info', args=[d.pk]), params
+        )
         self.assertEqual(response.status_code, 200)
         self._check_header(response)
         d.refresh_from_db()
@@ -567,9 +647,11 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
             'key': d.key,
             'model': 'TP-Link TL-WDR4300 v2',
             'os': 'OpenWrt 18.06-SNAPSHOT r7312-e60be11330',
-            'system': 'Atheros AR9344 rev 3'
+            'system': 'Atheros AR9344 rev 3',
         }
-        response = self.client.post(reverse('controller:device_update_info', args=[pk]), params)
+        response = self.client.post(
+            reverse('controller:device_update_info', args=[pk]), params
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_device_update_info_400(self):
@@ -578,9 +660,11 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
             'key': d.key,
             'model': 'TP-Link TL-WDR4300 v2 this model name is longer than 64 characters',
             'os': 'OpenWrt 18.06-SNAPSHOT r7312-e60be11330',
-            'system': 'Atheros AR9344 rev 3'
+            'system': 'Atheros AR9344 rev 3',
         }
-        response = self.client.post(reverse('controller:device_update_info', args=[d.pk]), params)
+        response = self.client.post(
+            reverse('controller:device_update_info', args=[d.pk]), params
+        )
         self.assertEqual(response.status_code, 400)
         self._check_header(response)
 
@@ -590,9 +674,11 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
             'key': 'wrong',
             'model': 'TP-Link TL-WDR4300 v2',
             'os': 'OpenWrt 18.06-SNAPSHOT r7312-e60be11330',
-            'system': 'Atheros AR9344 rev 3'
+            'system': 'Atheros AR9344 rev 3',
         }
-        response = self.client.post(reverse('controller:device_update_info', args=[d.pk]), params)
+        response = self.client.post(
+            reverse('controller:device_update_info', args=[d.pk]), params
+        )
         self.assertEqual(response.status_code, 403)
         self._check_header(response)
 
@@ -602,25 +688,33 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
             'key': d.key,
             'model': 'TP-Link TL-WDR4300 v2',
             'os': 'OpenWrt 18.06-SNAPSHOT r7312-e60be11330',
-            'system': 'Atheros AR9344 rev 3'
+            'system': 'Atheros AR9344 rev 3',
         }
-        response = self.client.get(reverse('controller:device_update_info', args=[d.pk]), params)
+        response = self.client.get(
+            reverse('controller:device_update_info', args=[d.pk]), params
+        )
         self.assertEqual(response.status_code, 405)
 
     def test_device_checksum_no_config(self):
         d = self._create_device()
-        response = self.client.get(reverse('controller:device_checksum', args=[d.pk]), {'key': d.key})
+        response = self.client.get(
+            reverse('controller:device_checksum', args=[d.pk]), {'key': d.key}
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_device_download_no_config(self):
         d = self._create_device()
-        response = self.client.get(reverse('controller:device_download_config', args=[d.pk]), {'key': d.key})
+        response = self.client.get(
+            reverse('controller:device_download_config', args=[d.pk]), {'key': d.key}
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_device_report_status_no_config(self):
         d = self._create_device()
-        response = self.client.post(reverse('controller:device_report_status', args=[d.pk]),
-                                    {'key': d.key, 'status': 'running'})
+        response = self.client.post(
+            reverse('controller:device_report_status', args=[d.pk]),
+            {'key': d.key, 'status': 'running'},
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_register_failed_rollback(self):
@@ -631,7 +725,7 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
                 'name': TEST_MACADDR,
                 'mac_address': TEST_MACADDR,
                 'hardware_id': '1234',
-                'backend': 'netjsonconfig.OpenWrt'
+                'backend': 'netjsonconfig.OpenWrt',
             }
             response = self.client.post(REGISTER_URL, options)
             self.assertEqual(response.status_code, 400)
@@ -639,14 +733,17 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
 
     @patch('django_netjsonconfig.settings.CONSISTENT_REGISTRATION', False)
     def test_consistent_registration_disabled(self):
-        response = self.client.post(REGISTER_URL, {
-            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
-            'name': TEST_MACADDR,
-            'key': TEST_CONSISTENT_KEY,
-            'mac_address': TEST_MACADDR,
-            'hardware_id': '1234',
-            'backend': 'netjsonconfig.OpenWrt'
-        })
+        response = self.client.post(
+            REGISTER_URL,
+            {
+                'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+                'name': TEST_MACADDR,
+                'key': TEST_CONSISTENT_KEY,
+                'mac_address': TEST_MACADDR,
+                'hardware_id': '1234',
+                'backend': 'netjsonconfig.OpenWrt',
+            },
+        )
         self.assertEqual(response.status_code, 201)
         lines = response.content.decode().split('\n')
         self.assertEqual(lines[0], 'registration-result: success')
@@ -659,12 +756,15 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
 
     @patch('django_netjsonconfig.settings.REGISTRATION_ENABLED', False)
     def test_registration_disabled(self):
-        response = self.client.post(REGISTER_URL, {
-            'secret': settings.NETJSONCONFIG_SHARED_SECRET,
-            'name': TEST_MACADDR,
-            'mac_address': TEST_MACADDR,
-            'backend': 'netjsonconfig.OpenWrt'
-        })
+        response = self.client.post(
+            REGISTER_URL,
+            {
+                'secret': settings.NETJSONCONFIG_SHARED_SECRET,
+                'name': TEST_MACADDR,
+                'mac_address': TEST_MACADDR,
+                'backend': 'netjsonconfig.OpenWrt',
+            },
+        )
         self.assertEqual(response.status_code, 403)
 
     @patch('django_netjsonconfig.settings.REGISTRATION_SELF_CREATION', False)
@@ -675,15 +775,17 @@ class TestController(CreateConfigMixin, CreateTemplateMixin, TestCase, TestVpnX5
             'mac_address': TEST_MACADDR,
             'hardware_id': '1234',
             'backend': 'netjsonconfig.OpenWrt',
-            'key': 'c09164172a9d178735f21d2fd92001fa'
+            'key': 'c09164172a9d178735f21d2fd92001fa',
         }
         # first attempt fails because device is not present in DB
         response = self.client.post(REGISTER_URL, options)
         self.assertEqual(response.status_code, 404)
         # once the device is created, everything works normally
-        device = self._create_device(name=options['name'],
-                                     mac_address=options['mac_address'],
-                                     hardware_id=options['hardware_id'])
+        device = self._create_device(
+            name=options['name'],
+            mac_address=options['mac_address'],
+            hardware_id=options['hardware_id'],
+        )
         self.assertEqual(device.key, options['key'])
         response = self.client.post(REGISTER_URL, options)
         self.assertEqual(response.status_code, 201)

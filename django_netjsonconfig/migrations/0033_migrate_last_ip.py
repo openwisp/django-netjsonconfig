@@ -33,11 +33,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='device',
             name='last_ip',
-            field=models.GenericIPAddressField(blank=True, help_text='indicates the IP address logged from the last request coming from the device', null=True),
+            field=models.GenericIPAddressField(
+                blank=True,
+                help_text='indicates the IP address logged from the last request coming from the device',
+                null=True,
+            ),
         ),
         migrations.RunPython(forward, backward),
-        migrations.RemoveField(
-            model_name='config',
-            name='last_ip'
-        ),
+        migrations.RemoveField(model_name='config', name='last_ip'),
     ]

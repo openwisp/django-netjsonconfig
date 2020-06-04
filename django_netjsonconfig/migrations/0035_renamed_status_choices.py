@@ -32,6 +32,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='config',
             name='status',
-            field=model_utils.fields.StatusField(choices=[(0, 'dummy')], default='modified', help_text='"modified" means the configuration is not applied yet; \n"applied" means the configuration is applied successfully; \n"error" means the configuration caused issues and it was rolled back;', max_length=100, no_check_for_status=True, verbose_name='configuration status'),
+            field=model_utils.fields.StatusField(
+                choices=[(0, 'dummy')],
+                default='modified',
+                help_text='"modified" means the configuration is not applied yet; \n"applied" means the configuration is applied successfully; \n"error" means the configuration caused issues and it was rolled back;',
+                max_length=100,
+                no_check_for_status=True,
+                verbose_name='configuration status',
+            ),
         ),
     ]

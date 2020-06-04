@@ -9,17 +9,25 @@ class JsonSchemaWidget(AdminTextareaWidget):
     """
     JSON Schema Editor widget
     """
+
     @property
     def media(self):
         prefix = 'django-netjsonconfig'
-        js = [static('{0}/js/{1}'.format(prefix, f))
-              for f in ('lib/advanced-mode.js',
-                        'lib/tomorrow_night_bright.js',
-                        'lib/jsonschema-ui.js',
-                        'widget.js')]
-        css = {'all': [static('{0}/css/{1}'.format(prefix, f))
-                       for f in ('lib/jsonschema-ui.css',
-                                 'lib/advanced-mode.css')]}
+        js = [
+            static('{0}/js/{1}'.format(prefix, f))
+            for f in (
+                'lib/advanced-mode.js',
+                'lib/tomorrow_night_bright.js',
+                'lib/jsonschema-ui.js',
+                'widget.js',
+            )
+        ]
+        css = {
+            'all': [
+                static('{0}/css/{1}'.format(prefix, f))
+                for f in ('lib/jsonschema-ui.css', 'lib/advanced-mode.css')
+            ]
+        }
         return forms.Media(js=js, css=css)
 
     def render(self, name, value, attrs={}, renderer=None):
@@ -33,7 +41,6 @@ class JsonSchemaWidget(AdminTextareaWidget):
        target="_blank">netjsonconfig documentation</a>.
 </label>
 """
-        html = html.format(_('Advanced mode (raw JSON)'),
-                           reverse('admin:schema'))
+        html = html.format(_('Advanced mode (raw JSON)'), reverse('admin:schema'))
         html += super().render(name, value, attrs, renderer)
         return html

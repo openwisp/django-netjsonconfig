@@ -15,19 +15,28 @@ class AbstractVpn(BaseConfig):
     """
     Abstract VPN model
     """
-    host = models.CharField(max_length=64, help_text=_('VPN server hostname or ip address'))
-    ca = models.ForeignKey('django_x509.Ca', verbose_name=_('CA'), on_delete=models.CASCADE)
+
+    host = models.CharField(
+        max_length=64, help_text=_('VPN server hostname or ip address')
+    )
+    ca = models.ForeignKey(
+        'django_x509.Ca', verbose_name=_('CA'), on_delete=models.CASCADE
+    )
     key = KeyField(db_index=True)
-    cert = models.ForeignKey('django_x509.Cert',
-                             verbose_name=_('x509 Certificate'),
-                             help_text=_('leave blank to create automatically'),
-                             blank=True,
-                             null=True,
-                             on_delete=models.CASCADE)
-    backend = models.CharField(_('VPN backend'),
-                               choices=app_settings.VPN_BACKENDS,
-                               max_length=128,
-                               help_text=_('Select VPN configuration backend'))
+    cert = models.ForeignKey(
+        'django_x509.Cert',
+        verbose_name=_('x509 Certificate'),
+        help_text=_('leave blank to create automatically'),
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    backend = models.CharField(
+        _('VPN backend'),
+        choices=app_settings.VPN_BACKENDS,
+        max_length=128,
+        help_text=_('Select VPN configuration backend'),
+    )
     notes = models.TextField(blank=True)
     # diffie hellman parameters are required
     # in some VPN solutions (eg: OpenVPN)
@@ -65,8 +74,9 @@ class AbstractVpn(BaseConfig):
         """
         Returns an automatically generated set of DH parameters in PEM
         """
-        return subprocess.check_output('openssl dhparam {0} 2> /dev/null'.format(length),
-                                       shell=True).decode('utf-8')
+        return subprocess.check_output(
+            'openssl dhparam {0} 2> /dev/null'.format(length), shell=True
+        ).decode('utf-8')
 
     def _auto_create_cert(self):
         """
@@ -74,24 +84,22 @@ class AbstractVpn(BaseConfig):
         """
         common_name = slugify(self.name)
         server_extensions = [
-            {
-                "name": "nsCertType",
-                "value": "server",
-                "critical": False
-            }
+            {"name": "nsCertType", "value": "server", "critical": False}
         ]
         cert_model = self.__class__.cert.field.related_model
-        cert = cert_model(name=self.name,
-                          ca=self.ca,
-                          key_length=self.ca.key_length,
-                          digest=self.ca.digest,
-                          country_code=self.ca.country_code,
-                          state=self.ca.state,
-                          city=self.ca.city,
-                          organization_name=self.ca.organization_name,
-                          email=self.ca.email,
-                          common_name=common_name,
-                          extensions=server_extensions)
+        cert = cert_model(
+            name=self.name,
+            ca=self.ca,
+            key_length=self.ca.key_length,
+            digest=self.ca.digest,
+            country_code=self.ca.country_code,
+            state=self.ca.state,
+            city=self.ca.city,
+            organization_name=self.ca.organization_name,
+            email=self.ca.email,
+            common_name=common_name,
+            extensions=server_extensions,
+        )
         cert = self._auto_create_cert_extra(cert)
         cert.save()
         return cert
@@ -113,10 +121,7 @@ class AbstractVpn(BaseConfig):
         except ObjectDoesNotExist:
             c = {}
         if self.cert:
-            c.update({
-                'cert': self.cert.certificate,
-                'key': self.cert.private_key
-            })
+            c.update({'cert': self.cert.certificate, 'key': self.cert.private_key})
         if self.dh:
             c.update({'dh': self.dh})
         c.update(super().get_context())
@@ -162,9 +167,9 @@ class AbstractVpn(BaseConfig):
                 for key in ['cert_path', 'cert_contents', 'key_path', 'key_contents']:
                     del context_keys[key]
             conifg_dict_key = self.backend_class.__name__.lower()
-            auto = backend.auto_client(host=self.host,
-                                       server=self.config[conifg_dict_key][0],
-                                       **context_keys)
+            auto = backend.auto_client(
+                host=self.host, server=self.config[conifg_dict_key][0], **context_keys
+            )
             config.update(auto)
         return config
 
@@ -173,14 +178,12 @@ class AbstractVpnClient(models.Model):
     """
     m2m through model
     """
-    config = models.ForeignKey('django_netjsonconfig.Config',
-                               on_delete=models.CASCADE)
-    vpn = models.ForeignKey('django_netjsonconfig.Vpn',
-                            on_delete=models.CASCADE)
-    cert = models.OneToOneField('django_x509.Cert',
-                                on_delete=models.CASCADE,
-                                blank=True,
-                                null=True)
+
+    config = models.ForeignKey('django_netjsonconfig.Config', on_delete=models.CASCADE)
+    vpn = models.ForeignKey('django_netjsonconfig.Vpn', on_delete=models.CASCADE)
+    cert = models.OneToOneField(
+        'django_x509.Cert', on_delete=models.CASCADE, blank=True, null=True
+    )
     # this flags indicates whether the certificate must be
     # automatically managed, which is going to be almost in all cases
     auto_cert = models.BooleanField(default=False)
@@ -197,8 +200,7 @@ class AbstractVpnClient(models.Model):
         """
         if self.auto_cert:
             cn = self._get_common_name()
-            self._auto_create_cert(name=self.config.device.name,
-                                   common_name=cn)
+            self._auto_create_cert(name=self.config.device.name, common_name=cn)
         super().save(*args, **kwargs)
 
     def _get_common_name(self):
@@ -226,25 +228,23 @@ class AbstractVpnClient(models.Model):
         Automatically creates and assigns a client x509 certificate
         """
         server_extensions = [
-            {
-                "name": "nsCertType",
-                "value": "client",
-                "critical": False
-            }
+            {"name": "nsCertType", "value": "client", "critical": False}
         ]
         ca = self.vpn.ca
         cert_model = self.__class__.cert.field.related_model
-        cert = cert_model(name=name,
-                          ca=ca,
-                          key_length=ca.key_length,
-                          digest=str(ca.digest),
-                          country_code=ca.country_code,
-                          state=ca.state,
-                          city=ca.city,
-                          organization_name=ca.organization_name,
-                          email=ca.email,
-                          common_name=common_name,
-                          extensions=server_extensions)
+        cert = cert_model(
+            name=name,
+            ca=ca,
+            key_length=ca.key_length,
+            digest=str(ca.digest),
+            country_code=ca.country_code,
+            state=ca.state,
+            city=ca.city,
+            organization_name=ca.organization_name,
+            email=ca.email,
+            common_name=common_name,
+            extensions=server_extensions,
+        )
         cert = self._auto_create_cert_extra(cert)
         cert.full_clean()
         cert.save()

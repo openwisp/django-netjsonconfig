@@ -15,6 +15,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='config',
             name='device',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='django_netjsonconfig.Device'),
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                to='django_netjsonconfig.Device',
+            ),
         ),
     ]

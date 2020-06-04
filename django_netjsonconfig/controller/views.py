@@ -1,7 +1,13 @@
 from ..models import Device, Vpn
-from .generics import (BaseDeviceChecksumView, BaseDeviceDownloadConfigView, BaseDeviceRegisterView,
-                       BaseDeviceReportStatusView, BaseDeviceUpdateInfoView, BaseVpnChecksumView,
-                       BaseVpnDownloadConfigView)
+from .generics import (
+    BaseDeviceChecksumView,
+    BaseDeviceDownloadConfigView,
+    BaseDeviceRegisterView,
+    BaseDeviceReportStatusView,
+    BaseDeviceUpdateInfoView,
+    BaseVpnChecksumView,
+    BaseVpnDownloadConfigView,
+)
 
 
 class DeviceChecksumView(BaseDeviceChecksumView):
