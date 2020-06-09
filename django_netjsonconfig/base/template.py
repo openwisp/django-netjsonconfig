@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from copy import copy
 
 from django.contrib.admin.models import ADDITION, LogEntry
@@ -5,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from jsonfield import JSONField
 from taggit.managers import TaggableManager
 
 from ..settings import DEFAULT_AUTO_CERT
@@ -73,6 +75,19 @@ class AbstractTemplate(BaseConfig):
             'valid only for the VPN type'
         ),
     )
+    default_values = JSONField(
+        _('Default Values'),
+        default=dict,
+        blank=True,
+        help_text=_(
+            'A dictionary containing the default '
+            'values for the variables used by this '
+            'template; these default variables will '
+            'be used during schema validation.'
+        ),
+        load_kwargs={'object_pairs_hook': OrderedDict},
+        dump_kwargs={'indent': 4},
+    )
     __template__ = True
 
     class Meta:
@@ -114,7 +129,6 @@ class AbstractTemplate(BaseConfig):
         * clears VPN specific fields if type is not VPN
         * automatically determines configuration if necessary
         """
-        super().clean(*args, **kwargs)
         if self.type == 'vpn' and not self.vpn:
             raise ValidationError(
                 {'vpn': _('A VPN must be selected when template type is "VPN"')}
@@ -124,14 +138,14 @@ class AbstractTemplate(BaseConfig):
             self.auto_cert = False
         if self.type == 'vpn' and not self.config:
             self.config = self.vpn.auto_client(auto_cert=self.auto_cert)
+        super().clean(*args, **kwargs)
 
     def get_context(self):
-        c = {
-            'id': str(self.id),
-            'name': self.name,
-        }
-        c.update(super().get_context())
-        return c
+        context = {}
+        if self.default_values:
+            context = copy(self.default_values)
+        context.update(super().get_context())
+        return context
 
     def clone(self, user):
         clone = copy(self)

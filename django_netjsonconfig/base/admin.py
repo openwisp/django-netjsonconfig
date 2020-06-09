@@ -370,6 +370,7 @@ class AbstractTemplateAdmin(BaseConfigAdmin):
         'vpn',
         'auto_cert',
         'tags',
+        'default_values',
         'default',
         'config',
         'created',

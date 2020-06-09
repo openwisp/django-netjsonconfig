@@ -50,6 +50,40 @@ Current features
 * **template tags**: tag templates to automate different types of auto-configurations (eg: mesh, WDS, 4G)
 * **simple HTTP resources**: allow devices to automatically download configuration updates
 * **VPN management**: easily create VPN servers and clients
+* **Template variables**: makes it possible to declare context (configuration variables) in template configuration while setting the default values for these declared context in the default values field to bypass validation.
+
+we can create a configuration in advanced mode with the following:
+
+.. code-block:: python
+
+        {
+            "interfaces": [
+                {
+                    "type": "ethernet",
+                    "name": "eth1",
+                    "mtu": 1500,
+                    "mac": "{{mac}}",
+                    "autostart": true,
+                    "disabled": false,
+                    "addresses": [],
+                    "network": ""
+                }
+            ]
+        }
+
+with the configuration above, we will need to set our default values field with the following
+json value specifying a default value for the `{{mac}}` variable.
+
+.. code-block:: python
+
+    {
+        "mac": "00:0a:95:9d:68:17"
+    }
+
+**note**: the following condition must be met for us to pass the validation:
+    - default_values must be a valid json
+    - values in default_values must be correctly set in JSON format
+    - default values must be set for all declared variables.
 
 Project goals
 -------------

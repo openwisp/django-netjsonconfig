@@ -219,10 +219,7 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin, Tes
 
     def test_get_context(self):
         t = self._create_template()
-        expected = {
-            'id': str(t.id),
-            'name': t.name,
-        }
+        expected = {}
         expected.update(settings.NETJSONCONFIG_CONTEXT)
         self.assertEqual(t.get_context(), expected)
 
@@ -263,3 +260,18 @@ class TestTemplate(CreateConfigMixin, CreateTemplateMixin, TestVpnX509Mixin, Tes
             self.assertIn('Invalid configuration triggered by "#/files"', str(e))
         else:
             self.fail('ValidationError not raised!')
+
+    def test_variable_substition(self):
+        config = {"dns_servers": ["{{dns}}"]}
+        default_values = {"dns": "4.4.4.4"}
+        options = {
+            "name": "test1",
+            "backend": "netjsonconfig.OpenWrt",
+            "config": config,
+            "default_values": default_values,
+        }
+        temp = self.template_model(**options)
+        temp.full_clean()
+        temp.save()
+        obj = self.template_model.objects.get(name='test1')
+        self.assertEqual(obj.name, 'test1')
