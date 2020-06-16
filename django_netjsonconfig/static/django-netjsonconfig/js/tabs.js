@@ -65,5 +65,15 @@ django.jQuery(function ($) {
     $('ul.tabs li:first-child a').addClass('current');
     overview.addClass('current');
   }
+
+  // if there's any validation error, show the first one
+  var errors = $('.errorlist');
+  if (errors.length) {
+      var erroredTab = errors.eq(0).parents('.tab-content');
+      if (erroredTab.length) {
+          window.location.hash = '#' + erroredTab.attr('id');
+      }
+  }
+
   $('#loading-overlay').fadeOut(400);
 });
