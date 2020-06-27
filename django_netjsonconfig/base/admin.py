@@ -363,19 +363,27 @@ class AbstractTemplateAdmin(BaseConfigAdmin):
     list_display = ['name', 'type', 'backend', 'default', 'created', 'modified']
     list_filter = ['backend', 'type', 'default', 'created']
     search_fields = ['name']
-    fields = [
-        'name',
-        'type',
-        'backend',
-        'vpn',
-        'auto_cert',
-        'tags',
-        'default_values',
-        'default',
-        'config',
-        'created',
-        'modified',
-    ]
+    fieldsets = (
+        (
+            None,
+            {
+                'fields': [
+                    'name',
+                    'type',
+                    'backend',
+                    'vpn',
+                    'auto_cert',
+                    'tags',
+                    'default',
+                ]
+            },
+        ),
+        (
+            _('Advanced options'),
+            {'classes': ('collapse',), 'fields': ('default_values',)},
+        ),
+        (None, {'fields': ('config', 'created', 'modified')}),
+    )
 
     def clone_selected_templates(self, request, queryset):
         for templates in queryset:
