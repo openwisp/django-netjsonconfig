@@ -664,7 +664,7 @@ Options for the model field ``hardware_id``.
 +--------------+-------------+
 | **type**:    | ``bool``    |
 +--------------+-------------+
-| **default**: | ``True``   |
+| **default**: | ``True``    |
 +--------------+-------------+
 
 When the hardware ID feature is enabled, devices will be referenced with
