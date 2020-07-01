@@ -1,12 +1,17 @@
 Changelog
 =========
 
-Version 0.12.0 [unreleased]
+Version 0.12.0 [2020-07-01]
 ---------------------------
 
-- The ``config_modified`` signal is not emitted anymore when the device is
-  created (**backward incompatible change**)
-- Added ``config_status_changed``, ``checksum_requested``, ``config_download_requested``
+- [feature] Added signals: ``config_status_changed``, ``checksum_requested``, ``config_download_requested``
+- [feature] Added the possibility of specifying default values for variables used in templates
+- [change] **Backward incompatible change**: the ``config_modified`` signal is not emitted anymore when the device is
+  created
+- [change] VPN files now have 0600 permissions by default
+- [change] Increased minimum `netjsonconfig <https://github.com/openwisp/netjsonconfig>`_ version to 0.8.0
+- [fix] Avoid errors being hidden by tabs
+- [fix] Fixed clashes between javascript schema validation and variables
 
 Version 0.11.0 [2020-04-02]
 ---------------------------
